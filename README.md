@@ -1,10 +1,10 @@
 # S-SMP
 
-A model of the Sony S-SMP, the audio unit a Super Nintendo talks to rather than into.
+A model of the Sony S-SMP, the audio unit a Super Nintendo talks to rather than into: sixty four kilobytes shared between a processor and a sound generator, three timers, and sixty four bytes of boot program this repository does not carry.
 
 [![CI](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml)
 
-**4** bytes are the entire console interface, **64** kilobytes shared between a processor and a sound generator, **3** timers, **64** bytes of boot program that this repository does not carry, the upload protocol read off that program rather than copied, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** more from a whole cartridge of them, the boot program and the register file among those that agree, **586** tests, **100%** statement and branch coverage, no dependencies
+**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** more verdicts from a cartridge of them agree, **586** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from ssmp import Chip
@@ -196,8 +196,8 @@ python3 -m conformance.speed
 
 ## Is it right
 
-This member has no manufacturer document. Two things stand in for one, and both
-are better than the usual substitute.
+This member has no manufacturer document. Three things stand in for one, and all
+three are better than the usual substitute.
 
 **The part's own code.** It carries sixty four bytes Sony wrote, so the console
 interface can be read off them rather than guessed at or copied from an
@@ -219,10 +219,18 @@ down, so they run here directly with no console anywhere in the chain:
 
 All three agree. One did not, at first, and what it caught is below.
 
-Both are the second rung of [the family's authority ladder](FAMILY.md), the
+**A cartridge of checks, driven in by a cut-down console.** Shay Green's `spc_smp`
+cartridge reaches 18 verdicts and 14 of them agree, recorded one by one in
+[`conformance/cartridge.json`](conformance/cartridge.json). Among the agreeing ones
+are the boot program and the sound generator's whole register file. Three of the four
+disagreements are timer pacing, which is the figure
+[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) already turns on; the fourth is recorded
+against the processor rather than against this unit.
+
+All three are the second rung of [the family's authority ladder](FAMILY.md), the
 artifact and a measurement of one, rather than the fourth.
 
-The files are Shay Green's and are not carried here.
+The `.spc` files are Shay Green's and are not carried here.
 [`conformance/spc.manifest.json`](conformance/spc.manifest.json) identifies them
 and carries no bytes. Put copies you own in `spc/` or name a directory in
 `SSMP_SPC_DIR`.

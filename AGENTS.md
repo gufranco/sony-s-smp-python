@@ -1,8 +1,9 @@
 # Working in this repository
 
-Read [FAMILY.md](FAMILY.md) first. It is the standard every member of this family
-carries, byte for byte, and it decides most questions before they are asked. What
-follows is only what is true of this member.
+Read [FAMILY.md](FAMILY.md) first. It is the standard every member of this
+family carries, byte for byte, and it decides most questions before they are
+asked. What follows is only what is true of this member. [README.md](README.md)
+is the document written for a person.
 
 ## What this project is, in one paragraph
 
