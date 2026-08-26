@@ -29,27 +29,27 @@ right and be wrong everywhere.
 
 from typing import Any
 
+from . import models
 from .board import Chip as _Chip
 from .board import available, why_not
 from .errors import Corrupt, NoBootRom, UnknownModelError, Unrecognised, WrongShape
-from .models import DEFAULT_MODEL, MODELS, Model, describe
+from .models import MODELS, Model
 from .version import VERSION
 
 __version__ = VERSION
 
 
-def Chip(model: str = DEFAULT_MODEL, **options: Any) -> Any:  # noqa: N802
+def Chip(model: str | None = None, **options: Any) -> Any:  # noqa: N802
     """A unit of the named model, sharing one interface across the family.
 
     The model comes first because it is the thing a caller always knows, and it
     is taken even though there is one of them, so that this reads the way every
     other member of the family reads.
     """
-    return _Chip(describe(model).name, **options)
+    return _Chip(models.lookup(model).name, **options)
 
 
 __all__ = [
-    "DEFAULT_MODEL",
     "MODELS",
     "VERSION",
     "Chip",
@@ -61,6 +61,5 @@ __all__ = [
     "WrongShape",
     "__version__",
     "available",
-    "describe",
     "why_not",
 ]

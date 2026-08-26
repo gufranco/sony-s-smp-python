@@ -4,7 +4,7 @@ A model of the Sony S-SMP, the audio unit a Super Nintendo talks to rather than 
 
 [![CI](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml)
 
-**4** bytes are the entire console interface, **64** kilobytes shared between a processor and a sound generator, **3** timers, **64** bytes of boot program that this repository does not carry, the upload protocol read off that program rather than copied, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** more from a whole cartridge of them, the boot program and the register file among those that agree, **582** tests, **100%** statement and branch coverage, no dependencies
+**4** bytes are the entire console interface, **64** kilobytes shared between a processor and a sound generator, **3** timers, **64** bytes of boot program that this repository does not carry, the upload protocol read off that program rather than copied, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** more from a whole cartridge of them, the boot program and the register file among those that agree, **586** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from ssmp import Chip
@@ -151,7 +151,7 @@ name any directory in `SSMP_BOOT_DIR`.
 ## Models
 
 ```python
-from ssmp import MODELS, describe
+from ssmp import MODELS
 
 print(sorted(MODELS))
 
@@ -160,7 +160,11 @@ print(sorted(MODELS))
 
 One unit, because Sony shipped one. The catalogue exists so that a hardware
 difference discovered later means adding an entry rather than restructuring the
-package.
+package, and the model is named at construction even so. One part is the
+tempting place to allow a default and the worst one: a caller who learns to
+leave the model out here writes the same call against a member covering sixteen
+and gets a part nobody picked. Naming none raises and lists every model there
+is.
 
 ## Tests
 

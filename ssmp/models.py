@@ -67,8 +67,22 @@ def _plain(name: str) -> str:
     return found
 
 
-def describe(name: str) -> Model:
-    """The unit that goes by that name, however it was written."""
+def lookup(name: str | None) -> Model:
+    """The unit that goes by that name, however it was written.
+
+    Naming nothing is refused rather than filled in. A default would be the one
+    implicit thing in the call that builds a part, and it is worst where it looks
+    most harmless: a caller who learns to leave the model out against a member
+    covering one unit writes the same call against a member covering sixteen.
+
+    Not exported from the package. What a caller wants is the unit, and the unit
+    carries its own model.
+    """
+    if name is None:
+        raise UnknownModelError(
+            "no model was named, and this package will not choose one for you."
+            f" Name one of: {', '.join(sorted(MODELS))}"
+        )
     wanted = _plain(name)
     for known, model in MODELS.items():
         if _plain(known) == wanted:

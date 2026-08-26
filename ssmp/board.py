@@ -36,6 +36,17 @@ PROCESSOR = ROOT / "sony-spc700-python"
 
 GENERATOR = ROOT / "sony-s-dsp-python"
 
+PROCESSOR_MODEL = "spc700"
+"""Which part the processor member is asked for.
+
+Named here rather than left to a default, because neither half has one. A unit
+that let its halves choose for themselves would be a unit whose composition
+nobody wrote down.
+"""
+
+GENERATOR_MODEL = "s-dsp"
+"""Which part the sound generator member is asked for."""
+
 WHY_NOT_PROCESSOR = (
     "the processor is not here: this unit runs the SPC700, which is a member of"
     " this family consumed as a submodule, and the submodule is not checked out."
@@ -176,9 +187,9 @@ class Chip:
         console does and would eat the program a caller just uploaded.
         """
         store = self._processor.Memory(fill=self._fill)
-        self.dsp = self._generator.Chip(memory=store).reset()
+        self.dsp = self._generator.Chip(GENERATOR_MODEL, memory=store).reset()
         self.space = Space(boot=self._boot, memory=store, dsp=self.dsp)
-        self.processor = self._processor.Cpu(memory=self.space)
+        self.processor = self._processor.Cpu(PROCESSOR_MODEL, memory=self.space)
         self.processor.on_cycle = self._spent
         self.processor.reset()
 
