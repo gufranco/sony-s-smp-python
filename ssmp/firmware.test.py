@@ -227,6 +227,14 @@ class DirectoryTest(unittest.TestCase):
 
         self.assertEqual(len([one for one in found if one == Path("/one")]), 1)
 
+    def test_the_only_variable_this_member_reads_is_its_own(self) -> None:
+        self.assertEqual(firmware.DIRECTORY_VARIABLES, (firmware.DIRECTORY_VARIABLE,))
+
+    def test_a_variable_this_member_does_not_read_names_nothing(self) -> None:
+        found = firmware.directories({"UPD7725_FIRMWARE_DIR": "/x"})
+
+        self.assertNotIn(Path("/x"), found)
+
 
 class FoundTest(unittest.TestCase):
     def test_a_directory_that_is_not_one_yields_nothing(self) -> None:
