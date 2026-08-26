@@ -1,29 +1,10 @@
-<div align="center">
+# S-SMP
 
-<h1>S-SMP</h1>
-
-<strong>A model of the Sony S-SMP, the audio unit a Super Nintendo talks to rather than into.</strong>
-
-<br>
-<br>
+A model of the Sony S-SMP, the audio unit a Super Nintendo talks to rather than into.
 
 [![CI](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-100%25%20statement%20%2B%20branch-brightgreen)](#tests)
-[![Python](https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue)](pyproject.toml)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-</div>
-
-<p align="center">
-  <a href="#install">Install</a> &nbsp;|&nbsp;
-  <a href="#the-interface">The interface</a> &nbsp;|&nbsp;
-  <a href="#is-it-right">Is it right</a> &nbsp;|&nbsp;
-  <a href="#what-composing-the-halves-found">What composing found</a> &nbsp;|&nbsp;
-  <a href="#what-a-check-taken-on-hardware-found">What hardware found</a> &nbsp;|&nbsp;
-  <a href="https://github.com/gufranco/sony-s-smp-python/issues">Issues</a>
-</p>
-
-**4** bytes are the entire console interface · **64** kilobytes shared between a processor and a sound generator · **3** timers · **64** bytes of boot program that this repository does not carry · the upload protocol read off that program rather than copied · **3** checks carrying values taken on a console, **0** disagreements · **582** tests · **100%** statement and branch coverage · no dependencies
+**4** bytes are the entire console interface, **64** kilobytes shared between a processor and a sound generator, **3** timers, **64** bytes of boot program that this repository does not carry, the upload protocol read off that program rather than copied, **3** checks carrying values taken on a console, **0** disagreements, **582** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from ssmp import Chip
@@ -39,7 +20,6 @@ unit.read(0), unit.read(1)
 Those two numbers are `0xaa` and `0xbb`, and they are what every Super Nintendo
 waits for before it says anything to its audio hardware.
 
----
 
 ## Install
 
