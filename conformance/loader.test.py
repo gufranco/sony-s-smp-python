@@ -9,7 +9,7 @@ when the files are not here rather than reporting a pass nobody earned.
 import sys
 import unittest
 from pathlib import Path
-from typing import override
+from typing import Any, override
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -40,7 +40,7 @@ real thing in `boot.test.py` where they belong.
 """
 
 
-def _a_unit() -> object:
+def _a_unit() -> Any:
     return Chip("ssmp", boot=STANDING_IN)
 
 

@@ -23,7 +23,7 @@
   <a href="https://github.com/gufranco/sony-s-smp-python/issues">Issues</a>
 </p>
 
-**4** bytes are the entire console interface · **64** kilobytes shared between a processor and a sound generator · **3** timers · **64** bytes of boot program that this repository does not carry · the upload protocol read off that program rather than copied · **3** checks carrying values taken on a console, **0** disagreements · **564** tests · **100%** statement and branch coverage · no dependencies
+**4** bytes are the entire console interface · **64** kilobytes shared between a processor and a sound generator · **3** timers · **64** bytes of boot program that this repository does not carry · the upload protocol read off that program rather than copied · **3** checks carrying values taken on a console, **0** disagreements · **582** tests · **100%** statement and branch coverage · no dependencies
 
 ```python
 from ssmp import Chip
@@ -126,12 +126,32 @@ The old behaviour was put back afterwards to watch the check fail. It disagreed 
 sub-check 3 and reported `d57e2579` against the `9d4d2100` it wanted, and the other
 two checks still agreed, because neither of them reads those registers.
 
+## One unit, not two halves in a box
+
+The processor and the sound generator read the same sixty four kilobytes,
+because on the part they do. Voices fetch their compressed blocks out of it and
+the echo unit writes back into it, so handing each half a store of its own would
+be two memories where the part has one and every sample a program uploaded would
+go missing.
+
+The generator takes one clock for every processor cycle. That is derived rather
+than looked up, and the derivation is in [`ssmp/rates.py`](ssmp/rates.py) beside
+the timer ratios: one crystal reaches the processor through a divisor of 24 and
+reaches the generator through 768 for a sample with 32 clocks inside it, and 24
+times 32 is 768. Both come out at 1,024,000 a second.
+
+It also comes up reset rather than scrambled, unlike everything else here. The
+console's reset line reaches it too, and what a reset leaves is a part that
+writes no echo. Without that the unit would come up scribbling wherever its
+scrambled echo registers happened to point.
+
 ## What is not modelled
 
 - **Any ratio between this unit's clock and the console's.** They run from
   separate crystals and neither divides the other, so a ratio is a property of
   one board rather than of the part. No figure is published and no elapsed time
-  in console cycles is offered.
+  in console cycles is offered. The ratio above is a different thing: both
+  halves of this unit hang off one crystal, so there is a whole number there.
 - **The processor and the sound generator.** Both are separate members.
 - **The console.** [`conformance/console.py`](conformance/console.py) plays a
   console's part in a check and is not a model of one.

@@ -118,5 +118,14 @@
     "verified": true,
     "evidence": "The checksums are the author's, taken on hardware, and are not this project's.",
     "howToSettleIt": "Settled for what these three cover."
+  },
+  "generator": {
+    "sharesMemoryWithTheProcessor": true,
+    "clocksPerProcessorCycle": 1,
+    "resetAtConstruction": true,
+    "why": "Voices read their compressed blocks out of the same sixty four kilobytes the processor runs on and the echo unit writes back into it, so the two halves share one store. The clock is one for one: the crystal reaches the processor through a divisor of 24 and the generator through 768 for a sample with 32 clocks inside it, and 24 times 32 is 768. The generator is reset rather than left scrambled because the console's reset line reaches it and a scrambled echo register points somewhere the generator would then write to.",
+    "verified": false,
+    "evidence": "Arithmetic on one crystal, and blargg's three checks still agreeing with the generator running and sharing memory, including the one that reads every byte of memory and the echo buffer. That rules out the generator scribbling; it does not confirm what it produces.",
+    "howToSettleIt": "blargg's spc_dsp6.sfc, which carries 111 checks taken on a console. It runs against this unit and reaches the envelope group before reporting a disagreement. Which check and whose fault is not isolated."
   }
 }

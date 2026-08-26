@@ -44,7 +44,7 @@ sixty four bytes never touch.
 
 ## What is settled and what is not
 
-**Not settled: 3 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
+**Not settled: 5 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
 the measurement that would close it. The sharpest is that nothing here is a
 timing claim against a console, because the two crystals are independent.
 
@@ -145,10 +145,10 @@ the case it exists for.
 
 ```
 ssmp/board.py       the unit: processor, space, generator, and the cycles between
+ssmp/rates.py       one crystal, five divisions, and the ratios that fall out
 ssmp/space.py       the sixty four kilobytes, registers included
 ssmp/ports.py       four bytes each way, which is the whole console interface
 ssmp/timers.py      three timers, a divider written and a counter read
-ssmp/rates.py       one crystal, four divisions, and the two ratios that matter
 ssmp/firmware.py    recognising a boot program and saying why one is not
 ssmp/models.py      which units this package covers
 ssmp/doctor.py      what is here, what is not, what to do about it
@@ -176,6 +176,13 @@ conformance/against_checks.py  Shay Green's checks, run against the model
 - Restoring a written-down unit puts the control register back before the ports,
   never after. Writing control clears whichever pairs of ports its bits ask for,
   so the other order silently loses two of them.
+- The generator shares the processor's memory rather than holding one of its
+  own, and it is clocked once per processor cycle. Both are easy to leave out
+  and nothing fails loudly when you do: the unit runs, the handshake works, and
+  no sound is ever produced.
+- The generator is reset at construction. That is the one exception to power on
+  scrambles, reset defines, and it is there because a scrambled echo register
+  points somewhere and the generator writes there.
 
 ## Before calling anything finished
 

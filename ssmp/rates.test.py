@@ -47,5 +47,25 @@ class CostTest(unittest.TestCase):
         self.assertEqual(rates.cycles_per_tick(16_000, 2_048_000), rates.SLOW_TIMER_CYCLES)
 
 
+class GeneratorTest(unittest.TestCase):
+    def test_the_sample_rate_is_the_one_the_neighbouring_member_records(self) -> None:
+        self.assertEqual(rates.SAMPLE_HZ, 32_000)
+
+    def test_the_generator_runs_at_the_same_rate_as_the_processor(self) -> None:
+        self.assertEqual(rates.GENERATOR_HZ, rates.PROCESSOR_HZ)
+
+    def test_so_one_processor_cycle_costs_one_of_its_clocks(self) -> None:
+        self.assertEqual(rates.GENERATOR_CLOCKS, 1)
+
+    def test_and_that_is_derived_rather_than_written_down(self) -> None:
+        self.assertEqual(
+            rates.clocks_per_cycle(64_000 * rates.CLOCKS_PER_SAMPLE, 1_024_000),
+            2,
+        )
+
+    def test_the_two_divisors_multiply_out_to_the_sample_divisor(self) -> None:
+        self.assertEqual(rates.PROCESSOR_DIVISOR * rates.CLOCKS_PER_SAMPLE, rates.SAMPLE_DIVISOR)
+
+
 if __name__ == "__main__":
     unittest.main()

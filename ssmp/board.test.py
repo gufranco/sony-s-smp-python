@@ -206,5 +206,70 @@ class PortTest(unittest.TestCase):
         self.assertEqual(unit.read(3), 0x99)
 
 
+class OneUnitTest(unittest.TestCase):
+    """That the two halves are one part rather than two sitting side by side."""
+
+    def test_the_generator_reads_the_same_memory_the_processor_runs_on(self) -> None:
+        unit = _a_unit()
+
+        unit.space.write8(0x2000, 0x5A)
+
+        self.assertEqual(unit.dsp.memory.read8(0x2000), 0x5A)
+
+    def test_which_is_the_same_object_rather_than_a_copy_of_it(self) -> None:
+        unit = _a_unit()
+
+        self.assertIs(unit.dsp.memory, unit.space.memory)
+
+    def test_the_generator_takes_a_clock_for_every_processor_cycle(self) -> None:
+        unit = _a_unit()
+        before = unit.dsp.phase
+
+        spent = unit.run_for(64)
+
+        self.assertEqual(unit.dsp.phase, (before + spent) & 31)
+
+    def test_a_freshly_built_unit_has_already_clocked_it_in_step(self) -> None:
+        """Building one is not free: coming up reads a vector and that costs cycles.
+
+        Those cycles reach the generator like any others, so a unit nobody has
+        run yet is already two clocks in rather than at rest, and the two agree
+        from the first instruction rather than from the second.
+        """
+        unit = _a_unit()
+
+        self.assertEqual(unit.dsp.phase, unit.cycles & 31)
+
+    def test_the_generator_comes_up_reset_rather_than_scrambled(self) -> None:
+        """A scrambled echo register would have it writing over the program.
+
+        Nothing else in this family is cleared at construction, and this is not
+        an exception to that: the console's reset line reaches the generator too,
+        so what it comes up holding is what a reset leaves.
+        """
+        generator = board._members()
+        assert generator is not None
+        core = generator[1].core
+
+        unit = _a_unit()
+
+        self.assertEqual(unit.dsp.registers[core.REG_FLG], core.RESET_FLAGS)
+
+    def test_so_running_it_leaves_memory_where_a_caller_put_it(self) -> None:
+        unit = _a_unit()
+        unit.space.write8(0xF000, 0x3C)
+
+        unit.run_for(20_000)
+
+        self.assertEqual(unit.space.read8(0xF000), 0x3C)
+
+    def test_and_a_reset_gives_it_the_same_memory_again(self) -> None:
+        unit = _a_unit()
+
+        unit.reset()
+
+        self.assertIs(unit.dsp.memory, unit.space.memory)
+
+
 if __name__ == "__main__":
     unittest.main()

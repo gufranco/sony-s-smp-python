@@ -84,6 +84,39 @@ class ShapeTest(unittest.TestCase):
             self.assertTrue(self.held[name]["evidence"], name)
 
 
+class GeneratorTest(unittest.TestCase):
+    @override
+    def setUp(self) -> None:
+        self.held = declared()["generator"]
+
+    def test_the_clock_the_record_gives_is_the_one_derived(self) -> None:
+        self.assertEqual(self.held["clocksPerProcessorCycle"], rates.GENERATOR_CLOCKS)
+
+    def test_the_record_says_the_two_halves_share_one_memory(self) -> None:
+        self.assertTrue(self.held["sharesMemoryWithTheProcessor"])
+
+    def test_and_that_the_generator_is_reset_rather_than_left_scrambled(self) -> None:
+        self.assertTrue(self.held["resetAtConstruction"])
+
+    def test_it_does_not_claim_what_the_generator_produces_is_checked(self) -> None:
+        self.assertFalse(self.held["verified"])
+
+    def test_and_names_the_thing_that_would_settle_that(self) -> None:
+        self.assertIn("spc_dsp6", self.held["howToSettleIt"])
+
+    def test_a_unit_here_shares_its_memory_the_way_the_record_says(self) -> None:
+        """Built on sixty four zeroes rather than Sony's sixty four bytes.
+
+        Nothing here runs what is in the boot window, so a stand-in of the right
+        length lets this run on a machine holding no copy of the real one.
+        """
+        from ssmp import Chip
+
+        unit = Chip("ssmp", boot=bytes(space.BOOT_BYTES))
+
+        self.assertIs(unit.dsp.memory, unit.space.memory)
+
+
 class FromHardwareTest(unittest.TestCase):
     @override
     def setUp(self) -> None:

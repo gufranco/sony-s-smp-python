@@ -22,7 +22,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, override
 
-from ssmp import firmware
+from ssmp import firmware, rates
 from ssmp.errors import NoBootRom
 from ssmp.ports import COUNT as PORT_COUNT
 from ssmp.space import BOOT_BYTES, Space
@@ -163,14 +163,20 @@ class Chip:
     def _start(self) -> None:
         """Build the unit and put it where the rail coming up leaves it.
 
-        The order matters. The sound generator is built first because the address
-        space holds a window onto it, the space is built next because the
-        processor runs on it, and the processor is built last and then reset,
-        because a reset is what makes it read its first address out of the boot
-        program rather than out of whatever it powered on holding.
+        The order matters. Memory is built first because both halves reach it:
+        the processor runs on it, and the sound generator reads its compressed
+        blocks and writes its echo into the same sixty four kilobytes. Handing
+        each of them a store of its own would be two memories where the part has
+        one, and every sample a program uploaded would go missing.
+
+        The sound generator is reset rather than left as it powered on, because
+        the console's reset line reaches it too, and what a reset leaves is a
+        part that writes no echo. Without that a unit would come up scribbling
+        wherever its scrambled echo registers pointed, which is not what a
+        console does and would eat the program a caller just uploaded.
         """
-        self.dsp = self._generator.Chip()
         store = self._processor.Memory(fill=self._fill)
+        self.dsp = self._generator.Chip(memory=store).reset()
         self.space = Space(boot=self._boot, memory=store, dsp=self.dsp)
         self.processor = self._processor.Cpu(memory=self.space)
         self.processor.on_cycle = self._spent
@@ -180,12 +186,20 @@ class Chip:
         """One cycle, charged to the unit as well as to the processor.
 
         Every cycle the processor spends passes through here, which is what lets
-        the timers run at their own rate rather than being stepped once per
-        instruction. An instruction that takes eight cycles advances them by
-        eight.
+        the timers and the sound generator run at their own rate rather than
+        being stepped once per instruction. An instruction that takes eight
+        cycles advances them by eight.
+
+        The sound generator takes one clock per processor cycle, and that is a
+        derivation rather than a figure anybody printed. It is in
+        `ssmp/rates.py` beside the timer ratios: the same crystal reaches the
+        processor at 1,024,000 Hz and the generator at 32,000 samples of thirty
+        two clocks each, and those two are the same number.
         """
         self.cycles += 1
         self.space.spend(1)
+        for _ in range(rates.GENERATOR_CLOCKS):
+            self.dsp.clock()
 
     def reset(self) -> Chip:
         """Take the unit back to where the console's reset line leaves it.

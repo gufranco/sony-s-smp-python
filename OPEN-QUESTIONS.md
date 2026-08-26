@@ -91,6 +91,44 @@ thing in words, which is a second source and not an implementation.
 The old behaviour was put back on purpose afterwards to watch the check fail:
 sub-check 3 disagreed and reported `d57e2579` against the `9d4d2100` it wanted.
 
+## Where a wire is derived rather than measured
+
+### How fast the sound generator runs beside the processor.
+
+**The document says.** Nothing. No Sony document for this unit is known.
+
+**What this project follows.** One of the generator's clocks per processor
+cycle, derived in [`ssmp/rates.py`](ssmp/rates.py) rather than written down. One
+crystal reaches the processor through a divisor of 24 and reaches the generator
+through 768 for a sample with 32 clocks inside it. Twenty four times thirty two
+is seven hundred and sixty eight, so both land on 1,024,000 a second.
+
+**Why.** It is the same shape as the timer ratios beside it: a unit built around
+a different crystal with the same divisors behaves identically here, so the
+ratio is the claim and the crystal is the reasoning behind it.
+
+**What would settle or reopen it.** A Sony document, or a measurement of the
+sample rate against the processor on real hardware.
+
+### What the sound generator actually produces once it is running.
+
+**The document says.** Nothing here. The generator is its own member and carries
+its own record.
+
+**What this project does.** Wires it to the shared memory and clocks it, and
+checks that doing so does not disturb anything: blargg's three checks still
+agree, including the one that reads every byte of memory and the echo buffer.
+
+**Why.** That rules out the generator writing where it should not. It says
+nothing about whether what comes out is right, and this member does not claim it
+does.
+
+**What would settle or reopen it.** blargg's `spc_dsp6.sfc`, which carries 111
+checks taken on a console. It runs against this unit now that the generator is
+wired, reaches the envelope group, and reports a disagreement. Which of the 111
+disagrees, and whether the fault is in the generator, in this wiring, or in the
+harness that drove it, is not isolated.
+
 ## What is not in question
 
 So the boundary is visible rather than implied:
