@@ -71,7 +71,19 @@ making. Every one of the four divisions is a whole number, which is the only
 evidence offered that the division is the right one.
 
 **What would settle or reopen it.** A Sony document, or a measurement of a timer
-against the processor on real hardware.
+against the processor on real hardware. There is now a third way, and it needs
+neither. Shay Green's `spc_mem_access_times.sfc` uses the timers as its phase
+reference while it walks the instruction set, and checks the result against a
+value he took on a console, `8f 77 58 15`. The answer moves with this ratio: at
+128 and 16 processor cycles per tick the check produces `08 42 1c 30`, and at 256
+and 32 it produces `92 33 b8 c9`. So the rate is measurable by finding the one
+that reproduces his value.
+
+None of the ratios tried so far does, and the ratio derived here is not among the
+ones that can be dismissed: the check also depends on the processor's cycle
+shape, so a search over the rate alone assumes the processor is right. What this
+buys is a constraint rather than an answer, and it is recorded because a
+constraint that nobody wrote down is a measurement nobody can repeat.
 
 ## What was open and is now closed
 
