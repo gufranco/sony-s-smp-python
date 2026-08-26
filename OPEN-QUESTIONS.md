@@ -79,8 +79,15 @@ value he took on a console, `8f 77 58 15`. The answer moves with this ratio: at
 and 32 it produces `92 33 b8 c9`. So the rate is measurable by finding the one
 that reproduces his value.
 
-None of the ratios tried so far does, and there is now a reason to expect none
-will. The same check was run on the author's own implementation, `snes_spc
+Three of his timer checks now say the same thing from the other side.
+`Timers/random timer0`, `random timer0 enable` and `random timer2` all disagree,
+while `timer read vs write` and `timer0 vs other timers` agree, so the register
+interface is right and the pacing is what is in question. That is a much sharper
+handle than the one below, because those three drive the timers directly rather
+than leaning on them to measure something else.
+
+None of the ratios tried so far reproduces his value, and there is a reason to be
+careful about reading that as an answer. The same check was run on the author's own implementation, `snes_spc
 0.9.0`, and on this family's parts composed, both with no console attached and
 both handed the identical program: they agree byte for byte at `5e 71 f3 c3`,
 while a console gives `8f 77 58 15`. Two implementations agreeing with each other
@@ -147,6 +154,41 @@ checks taken on a console. It runs against this unit now that the generator is
 wired, reaches the envelope group, and reports a disagreement. Which of the 111
 disagrees, and whether the fault is in the generator, in this wiring, or in the
 harness that drove it, is not isolated.
+
+## What a whole cartridge of his checks said
+
+`spc_smp.sfc` carries nineteen checks with values taken on a console. Eighteen
+reached a verdict here and fourteen agree, including the two that bear directly
+on what this member models:
+
+| Check | |
+| --- | --- |
+| `CPU/verify IPL ROM` | agrees |
+| `CPU/smp reg read-write behavior` | agrees |
+| `CPU/addw and subw`, `psw is 8 independent bits`, `tset tclr` | agree |
+| `CPU/wrap-around mem`, `wrap-around pc`, `wrap-around sp` | agree |
+| `CPU Instructions/Edge arith`, `Full BRK`, `Full CMP`, `Full DAA DAS` | agree |
+| `Timers/timer read vs write`, `timer0 vs other timers` | agree |
+| `Timers/random timer0`, `random timer0 enable`, `random timer2` | **disagree** |
+| `CPU Timing/mem access times` | **disagrees** |
+
+The first of those is the boot program held to somebody else's checksum rather
+than to its own digest, and the second is the register file this session's fix
+changed, confirmed by a check that is not the one that found it.
+
+Every verdict is in [`conformance/cartridge.json`](conformance/cartridge.json)
+with both values beside it.
+
+**Three timer checks disagree and two agree.** The two that agree are the
+register interface, `timer read vs write` and `timer0 vs other timers`. The three
+that disagree all drive the timers at rates chosen at random. So what is in
+question is the pacing rather than the interface, and pacing is exactly the
+figure this member derives rather than reads off a page. That is the sharpest
+lead the timer rate question has.
+
+The fourth disagreement, `CPU Timing/mem access times`, is recorded against
+[sony-spc700-python](https://github.com/gufranco/sony-spc700-python), where the
+author's own implementation was shown to agree with this family's.
 
 ## What is not in question
 

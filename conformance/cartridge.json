@@ -1,0 +1,94 @@
+{
+  "what": "Every check in Shay Green's spc_smp cartridge that reached a verdict, and what each one said. The values a console produced are read out of his own uploaded programs; the values here are read out of this unit's memory.",
+  "why": "His harness reports only the first failure and then restarts, so one disagreement hides every check after it. The run records the verdict and then turns that check's four conditional branches into no-ops so it carries on. Nothing rewrites what a check expects: a verdict is ignored, never changed.",
+  "carried": false,
+  "producedBy": "A cut-down console driving the cartridge into this unit. It is not carried here, for the reason given under what is deliberately not modelled: a console processor is not part of what this member models. What is carried is this record, so the verdicts can be disputed without rebuilding the harness.",
+  "verdicts": 18,
+  "agreed": 14,
+  "disagreed": 4,
+  "checks": [
+    {
+      "check": "CPU Instructions/Edge arith",
+      "agreed": true
+    },
+    {
+      "check": "CPU Instructions/Full BRK",
+      "agreed": true
+    },
+    {
+      "check": "CPU Instructions/Full CMP",
+      "agreed": true
+    },
+    {
+      "check": "CPU Instructions/Full DAA DAS",
+      "agreed": true
+    },
+    {
+      "check": "CPU Timing/mem access times",
+      "agreed": false,
+      "console": "8f 77 58 15",
+      "thisModel": "08 42 1c 30"
+    },
+    {
+      "check": "CPU/addw and subw",
+      "agreed": true
+    },
+    {
+      "check": "CPU/psw is 8 independent bits",
+      "agreed": true
+    },
+    {
+      "check": "CPU/smp reg read-write behavior",
+      "agreed": true
+    },
+    {
+      "check": "CPU/tset tclr",
+      "agreed": true
+    },
+    {
+      "check": "CPU/verify IPL ROM",
+      "agreed": true
+    },
+    {
+      "check": "CPU/wrap-around mem",
+      "agreed": true
+    },
+    {
+      "check": "CPU/wrap-around pc",
+      "agreed": true
+    },
+    {
+      "check": "CPU/wrap-around sp",
+      "agreed": true
+    },
+    {
+      "check": "Timers/random timer0",
+      "agreed": false,
+      "console": "31 0f 17 fd",
+      "thisModel": "51 c2 c3 b1"
+    },
+    {
+      "check": "Timers/random timer0 enable",
+      "agreed": false,
+      "console": "86 f2 47 9f",
+      "thisModel": "65 3c f1 97"
+    },
+    {
+      "check": "Timers/random timer2",
+      "agreed": false,
+      "console": "3e d6 7e c1",
+      "thisModel": "fc ce 47 3f"
+    },
+    {
+      "check": "Timers/timer read vs write",
+      "agreed": true
+    },
+    {
+      "check": "Timers/timer0 vs other timers",
+      "agreed": true
+    }
+  ],
+  "verified": true,
+  "evidence": "The boot program and the register file are both settled by a check written by somebody else and taken on a console: CPU/verify IPL ROM and CPU/smp reg read-write behavior both agree. So do the eight instruction and wrap-around checks beside them.",
+  "howToSettleIt": "Three of the four disagreements are timers: Timers/random timer0, random timer0 enable and random timer2. Timers/timer read vs write and Timers/timer0 vs other timers agree, so the register interface is right and the pacing is what is in question, which is the same figure the timer rate question here turns on. The fourth, CPU Timing/mem access times, is recorded against the processor and is not a verdict on this unit alone."
+}

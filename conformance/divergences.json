@@ -46,6 +46,17 @@
       "packageFollows": "neither",
       "reasoning": "What the processor holds coming out of reset is that member's question and its record answers it, including the one flag the boot program settles. What the sound generator holds is the other member's. This one adds memory, and memory holds whatever it held: nothing here is cleared at construction unless a caller asks for a fill.",
       "wouldSettleIt": "A capture of a real unit at power on. The two halves record it separately."
+    },
+    {
+      "id": "the-timers-disagree-with-a-console-when-driven-at-random-rates",
+      "parts": ["ssmp"],
+      "severity": "medium",
+      "status": "open",
+      "documentSays": "Nothing. No Sony document for this unit is known.",
+      "referenceDoes": "Not applicable: this is a check taken on a console rather than an implementation.",
+      "packageFollows": "arithmetic on one crystal",
+      "reasoning": "Three of Shay Green's five timer checks disagree with this model: random timer0, random timer0 enable and random timer2. The other two, timer read vs write and timer0 vs other timers, agree, so the register interface is right and what is in question is the pacing. This member derives the pacing from one crystal rather than reading it off a page, and records that derivation, which makes it the first thing to suspect.",
+      "wouldSettleIt": "Reading what those three checks measure, which is bounded: the programs are captured and this family has a disassembler for them."
     }
   ]
 }
