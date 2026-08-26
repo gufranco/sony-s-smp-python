@@ -56,6 +56,27 @@ class DescribeTest(unittest.TestCase):
         self.assertIn("ssmp", str(caught.exception))
 
 
+class ChipTest(unittest.TestCase):
+    """The wrapper every member of the family carries, checked without a program."""
+
+    def test_a_unit_is_built_through_the_name_the_caller_gave(self) -> None:
+        import ssmp
+        from ssmp import firmware
+
+        made_up = bytes(range(0x40))
+        identity = firmware.Identity("ssmp", "spc700", "made up", 0x40)
+
+        unit = ssmp.Chip("s-smp", boot=made_up, identity=identity)
+
+        self.assertEqual(unit.part, "ssmp")
+
+    def test_a_name_nothing_goes_by_is_refused_before_anything_is_built(self) -> None:
+        import ssmp
+
+        with self.assertRaises(UnknownModelError):
+            ssmp.Chip("s-cpu")
+
+
 class PrintingTest(unittest.TestCase):
     def test_a_model_prints_as_the_unit_it_is(self) -> None:
         self.assertIn("ssmp", repr(models.describe("ssmp")))

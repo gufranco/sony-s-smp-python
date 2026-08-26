@@ -154,5 +154,20 @@ class MemoryTest(unittest.TestCase):
         self.assertEqual(unit.processor.sp, 0xEF)
 
 
+@unittest.skipUnless(PRESENT, ssmp.why_not() or "")
+class FoundOnThisMachineTest(unittest.TestCase):
+    """That the unit finds its own program when nobody hands it one."""
+
+    def test_a_unit_built_with_no_program_named_finds_one(self) -> None:
+        unit = ssmp.Chip()
+
+        self.assertEqual(unit.identity.part, "ssmp")
+
+    def test_it_starts_at_the_address_the_program_names(self) -> None:
+        unit = ssmp.Chip()
+
+        self.assertEqual(unit.processor.pc, 0xFFC0)
+
+
 if __name__ == "__main__":
     unittest.main()

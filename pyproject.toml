@@ -101,6 +101,12 @@ files = ["ssmp", "conformance"]
 
 [tool.coverage.run]
 source = ["ssmp", "conformance"]
+# The checks that need the real boot program are measured out of the gate on
+# purpose. They depend on sixty four bytes nobody may distribute, so a machine
+# that has them runs a set of paths a machine without them cannot. No single
+# build can exercise both, and a gate that demands the impossible gets switched
+# off rather than met. What they do instead is report as skipped, out loud.
+omit = ["conformance/boot.test.py"]
 branch = true
 
 [tool.coverage.report]

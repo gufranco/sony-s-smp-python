@@ -28,7 +28,7 @@ import sys
 import sys as _sys
 import time
 from pathlib import Path as _Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent))
 
@@ -83,7 +83,14 @@ class Timed:
         return self.rate() >= floor
 
 
-def measure(calls: int = CALLS, repeats: int = REPEATS) -> Timed:
+def _a_unit(name: str) -> Any:  # pragma: no cover
+    """How a unit is built when nobody says otherwise, which needs the program."""
+    return ssmp.Chip(name)
+
+
+def measure(
+    calls: int = CALLS, repeats: int = REPEATS, build: Callable[[str], Any] = _a_unit
+) -> Timed:
     """Run the unit for that many cycles, and time it.
 
     Cycles rather than instructions, because an instruction is between two and
@@ -92,7 +99,7 @@ def measure(calls: int = CALLS, repeats: int = REPEATS) -> Timed:
     """
     seconds = []
     for _ in range(repeats):
-        unit = ssmp.Chip(MODEL)
+        unit = build(MODEL)
         started = time.perf_counter()
         unit.run_for(calls)
         seconds.append(time.perf_counter() - started)
@@ -122,7 +129,15 @@ def main(
     repeats: int = REPEATS,
     floor: int = FLOOR,
     unavailable: Callable[[], str | None] = unavailable,
+    measure: Callable[[int, int], Timed] = measure,
 ) -> int:
+    """The tool, with both the availability answer and the measurement injectable.
+
+    Injectable because neither is a decision this file makes. A runner has no
+    boot program, so a check of what the tool does with a measurement would
+    otherwise pass on a machine that has one and fail on the runner, which is
+    exactly the failure this file exists to catch in the model.
+    """
     reason = unavailable()
     if reason:
         print(f"  nothing was measured: {reason}")

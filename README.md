@@ -22,7 +22,7 @@
   <a href="https://github.com/gufranco/sony-s-smp-python/issues">Issues</a>
 </p>
 
-**4** bytes are the entire console interface · **64** kilobytes shared between a processor and a sound generator · **3** timers · **64** bytes of boot program that this repository does not carry · the upload protocol read off that program rather than copied, with **0** disagreements against it · **487** tests · **100%** statement and branch coverage · no dependencies
+**4** bytes are the entire console interface · **64** kilobytes shared between a processor and a sound generator · **3** timers · **64** bytes of boot program that this repository does not carry · the upload protocol read off that program rather than copied, with **0** disagreements against it · **494** tests · **100%** statement and branch coverage · no dependencies
 
 ```python
 from ssmp import Chip

@@ -13,8 +13,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from ssmp import board, firmware, space
 from ssmp.errors import NoBootRom, WrongShape
 
-PRESENT = board.why_not() is None
-
 MADE_UP = bytes(range(space.BOOT_BYTES))
 
 
@@ -102,6 +100,32 @@ class WithoutTheHalvesTest(unittest.TestCase):
         self.assertIn("SPC700", str(caught.exception))
 
 
+class FromDiskTest(unittest.TestCase):
+    """Reading the program off disk, without needing the real one to do it."""
+
+    def test_a_unit_reads_the_program_from_where_the_catalogue_points(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as where:
+            path = Path(where) / "made-up.bin"
+            path.write_bytes(MADE_UP)
+
+            unit = board.Chip("ssmp", images={"ssmp": (_an_identity(), path)})
+
+            self.assertEqual(unit.processor.pc, MADE_UP[62] | MADE_UP[63] << 8)
+
+    def test_and_carries_the_identity_the_catalogue_gave_it(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as where:
+            path = Path(where) / "made-up.bin"
+            path.write_bytes(MADE_UP)
+
+            unit = board.Chip("ssmp", images={"ssmp": (_an_identity(), path)})
+
+            self.assertEqual(unit.identity.revision, "made up")
+
+
 class StartTest(unittest.TestCase):
     def test_the_processor_starts_where_the_program_says(self) -> None:
         unit = _a_unit()
@@ -180,21 +204,6 @@ class PortTest(unittest.TestCase):
         unit.space.ports.unit_writes(3, 0x99)
 
         self.assertEqual(unit.read(3), 0x99)
-
-
-@unittest.skipUnless(PRESENT, board.why_not() or "")
-class RealProgramTest(unittest.TestCase):
-    """What can only be checked with the program the unit actually starts from."""
-
-    def test_a_unit_built_with_no_program_named_finds_one(self) -> None:
-        unit = board.Chip("ssmp")
-
-        self.assertEqual(unit.identity.part, "ssmp")
-
-    def test_it_starts_at_the_address_the_program_names(self) -> None:
-        unit = board.Chip("ssmp")
-
-        self.assertEqual(unit.processor.pc, 0xFFC0)
 
 
 if __name__ == "__main__":

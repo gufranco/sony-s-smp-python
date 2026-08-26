@@ -63,28 +63,60 @@ class ReportTest(unittest.TestCase):
         self.assertTrue(any("below" in one for one in lines), lines)
 
 
+class AvailabilityTest(unittest.TestCase):
+    def test_it_asks_the_package_rather_than_deciding_for_itself(self) -> None:
+        import ssmp
+
+        self.assertEqual(speed.unavailable(), ssmp.why_not())
+
+
 class MainTest(unittest.TestCase):
     def run_main(self, **changes: object) -> tuple[int, str]:
+        """One run of the tool, with the unit always reported as available.
+
+        Every case below is about what the tool does once it has something to
+        measure, and a runner has no boot program, so leaving this to the machine
+        would make these cases pass here and fail there. The case that is about
+        having nothing to measure passes its own answer instead.
+        """
+        changes.setdefault("unavailable", lambda: None)
+        changes.setdefault("measure", lambda calls, repeats: speed.Timed("cycle", calls, [0.0001]))
         captured = io.StringIO()
         with contextlib.redirect_stdout(captured):
             code = speed.main(**changes)  # type: ignore[arg-type]
         return code, captured.getvalue()
 
     def test_a_machine_that_cannot_measure_says_so_rather_than_passing(self) -> None:
-        import io
-        from contextlib import redirect_stdout
+        code, output = self.run_main(unavailable=lambda: "no boot program is here")
 
-        held = io.StringIO()
-        with redirect_stdout(held):
-            code = speed.main(unavailable=lambda: "no boot program is here")
-
-        self.assertEqual((code, "nothing was measured" in held.getvalue()), (2, True))
+        self.assertEqual((code, "nothing was measured" in output), (2, True))
 
     def test_a_run_that_beats_the_floor_reports_success(self) -> None:
         code, output = self.run_main(repeats=1, calls=200, floor=1)
 
         self.assertEqual(code, 0)
         self.assertIn("cycle", output)
+
+    def test_a_measurement_runs_the_unit_for_the_cycles_it_was_given(self) -> None:
+        asked = []
+
+        class Counting:
+            def run_for(self, cycles: int) -> int:
+                asked.append(cycles)
+                return cycles
+
+        speed.measure(calls=200, repeats=2, build=lambda name: Counting())
+
+        self.assertEqual(asked, [200, 200])
+
+    def test_and_reports_one_reading_per_repeat(self) -> None:
+        class Counting:
+            def run_for(self, cycles: int) -> int:
+                return cycles
+
+        found = speed.measure(calls=200, repeats=3, build=lambda name: Counting())
+
+        self.assertEqual(len(found.seconds), 3)
 
     def test_a_floor_nothing_could_beat_fails_the_run(self) -> None:
         code, output = self.run_main(repeats=1, calls=200, floor=10**12)
