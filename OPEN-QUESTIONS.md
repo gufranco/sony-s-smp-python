@@ -79,11 +79,18 @@ value he took on a console, `8f 77 58 15`. The answer moves with this ratio: at
 and 32 it produces `92 33 b8 c9`. So the rate is measurable by finding the one
 that reproduces his value.
 
-None of the ratios tried so far does, and the ratio derived here is not among the
-ones that can be dismissed: the check also depends on the processor's cycle
-shape, so a search over the rate alone assumes the processor is right. What this
-buys is a constraint rather than an answer, and it is recorded because a
-constraint that nobody wrote down is a measurement nobody can repeat.
+None of the ratios tried so far does, and there is now a reason to expect none
+will. The same check was run on the author's own implementation, `snes_spc
+0.9.0`, and on this family's parts composed, both with no console attached and
+both handed the identical program: they agree byte for byte at `5e 71 f3 c3`,
+while a console gives `8f 77 58 15`. Two implementations agreeing with each other
+and neither agreeing with hardware points at the console the cartridge is driven
+from rather than at any ratio inside this unit.
+
+So the coupling is real and the route stays open, but it is not a way to measure
+the rate until the console around it is faithful enough to trust. What this buys
+is a constraint rather than an answer, and it is recorded because a constraint
+that nobody wrote down is a measurement nobody can repeat.
 
 ## What was open and is now closed
 
