@@ -17,6 +17,7 @@ docs/
 specs/
 
 boot/
+spc/
 *.rom
 *.bin
 *.sfc

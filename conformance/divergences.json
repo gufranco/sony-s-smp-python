@@ -1,6 +1,6 @@
 {
   "note": "Every place this member models something no document settles, or where its two halves and the part itself could be read differently. Each entry names what stands behind the choice and what would change it. The list is short because the part's own boot program settles most of what this member adds.",
-  "authority": "hardware.json holds the ladder. Rung one is empty, because Sony published nothing for this unit. Rung two is the part's own boot program, which is where the console interface comes from. Below that are the records of the two members this unit is assembled from.",
+  "authority": "hardware.json holds the ladder. Rung one is empty, because Sony published nothing for this unit. Rung two has two things in it: the part's own boot program, which is where the console interface comes from, and checksums Shay Green took on a console, which settle what the boot program never touches. Below that are the records of the two members this unit is assembled from.",
   "readOn": "2026-08-26",
   "divergences": [
     {
@@ -15,26 +15,26 @@
       "wouldSettleIt": "Nothing settles it, because there is nothing to settle: a measurement of both oscillators gives a ratio for that board. What would change this entry is a decision to model a whole console, which is not what this member is."
     },
     {
-      "id": "write-only-registers-answer-the-memory-underneath",
+      "id": "write-only-registers-answer-zero",
       "parts": ["ssmp"],
       "severity": "low",
-      "status": "open",
-      "documentSays": "Nothing.",
-      "referenceDoes": "Answers whatever its own storage holds, which varies between implementations.",
-      "packageFollows": "neither",
-      "reasoning": "The test register and the three timer dividers are written and never read back, and what the silicon puts on the bus for them is not known. Answering zero would turn a read of something nothing wrote into a passing test, and inventing a value would be publishing a claim nobody measured. This answers the memory underneath and says so where the decision is made.",
-      "wouldSettleIt": "A capture of a real unit, reading each of those addresses after writing it."
+      "status": "closed",
+      "documentSays": "Nothing from Sony. The SNESdev wiki states it outright: write-only registers read back as zero.",
+      "referenceDoes": "Answers zero, which is now known to be what the part does.",
+      "packageFollows": "the part",
+      "reasoning": "Five addresses are written and never read: the test register, the control register and the three timer dividers. This package answered with the memory underneath, on the grounds that inventing a value would be publishing a claim nobody measured. initial_regs.spc settled it by reading all sixteen registers in order and checksumming the result against a value taken on a console: of every arrangement of the five, exactly one reproduces it, and it is all five answering zero. The old behaviour was put back afterwards to watch the check fail, which it did, on sub-check 3 with d57e2579 against the wanted 9d4d2100.",
+      "wouldSettleIt": "Settled by a measurement and by a document that agree. A Sony document would add a rung and would not change the answer."
     },
     {
       "id": "the-register-file-beyond-what-the-boot-program-reaches",
       "parts": ["ssmp"],
       "severity": "medium",
-      "status": "open",
+      "status": "closed",
       "documentSays": "Nothing.",
       "referenceDoes": "Places the sixteen registers as this package does.",
       "packageFollows": "reference",
-      "reasoning": "The boot program reaches 0xF1 through 0xF5, which settles the control register, the boot window bit and the first two ports from the part's own code. The other eleven addresses are not touched by those sixty four bytes, so their placement rests on agreement with implementations rather than on the artifact.",
-      "wouldSettleIt": "A Sony document, a capture of a real unit, or a driver from a shipped game read the way snes-driver-python reads a cartridge's coprocessor routine."
+      "reasoning": "The boot program reaches 0xF1 through 0xF5, which settles the control register, the boot window bit and the first two ports from the part's own code. The other eleven addresses are not touched by those sixty four bytes, so their placement rests on agreement with implementations rather than on the artifact. This is now closed: the whole register file is checked at once rather than register by register, which is stronger than checking the ones the boot program happens to touch.",
+      "wouldSettleIt": "Settled. initial_regs.spc reads every one of the sixteen and checksums them together against a value taken on a console."
     },
     {
       "id": "power-on-state-belongs-to-the-two-halves",

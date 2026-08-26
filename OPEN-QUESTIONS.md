@@ -4,8 +4,8 @@ What this project does not know for certain, and what it would take to find out.
 
 This is a short list, and the reason is the subject. Almost everything this
 member models is settled by the part's own boot program, which is Sony's code
-rather than anybody's reading of it. What is left is what that program does not
-touch.
+rather than anybody's reading of it, or by checks Shay Green wrote that carry
+values he took on a console. What is left is what neither of those reaches.
 
 Every entry is also in
 [`conformance/divergences.json`](conformance/divergences.json) with its status
@@ -52,21 +52,6 @@ than a decision here.
 **What would settle or reopen it.** Nothing needs settling. It is written down so
 a reader does not mistake the absence of a check for an absence of thought.
 
-### What the three registers nothing reads back actually answer.
-
-**The document says.** Nothing.
-
-**What this project does.** Answers the memory underneath rather than inventing a
-value, and says so in `space.py` where the decision is made.
-
-**Why.** The test register and the three dividers are written and never read. A
-model that answered zero would turn a read of something nothing wrote into a
-passing test, and a model that invented a value would be publishing a claim
-nobody measured.
-
-**What would settle or reopen it.** A capture of a real unit, reading each of
-those addresses after writing it.
-
 ## Where a figure comes from a ratio rather than a printed row
 
 ### The rate the timers tick at.
@@ -88,10 +73,34 @@ evidence offered that the division is the right one.
 **What would settle or reopen it.** A Sony document, or a measurement of a timer
 against the processor on real hardware.
 
+## What was open and is now closed
+
+**What the five registers nothing reads back actually answer.** Zero. All five of
+them: the test register, the control register, and the three timer dividers.
+
+This project answered with the memory underneath, on the grounds that inventing a
+value would be publishing a claim nobody measured. That was the right instinct and
+the wrong answer, and the thing that caught it was
+`initial_regs.spc`, one of the checks
+[`conformance/spc.manifest.json`](conformance/spc.manifest.json) identifies. It
+reads all sixteen of these addresses in order and compares a checksum of the result against a value its
+author took on a console. Of every arrangement of the five, exactly one reproduces
+that checksum, and it is all five answering zero. The SNESdev wiki says the same
+thing in words, which is a second source and not an implementation.
+
+The old behaviour was put back on purpose afterwards to watch the check fail:
+sub-check 3 disagreed and reported `d57e2579` against the `9d4d2100` it wanted.
+
 ## What is not in question
 
 So the boundary is visible rather than implied:
 
+- **All sixteen addresses that are not memory.** Read in order and checksummed
+  against a value taken on a console, so the whole register file is settled at
+  once rather than register by register.
+- **That memory comes back whole.** `full_ram.spc` checks every byte, the stack
+  page, the echo buffer and the three bytes under the stack pointer, across
+  nineteen point eight million cycles.
 - **The handshake.** The unit answers `0xaa` and `0xbb`, and it is checked
   against the boot program rather than against an implementation.
 - **The transfer.** A block arrives one byte at a time, each acknowledged by the
@@ -119,3 +128,6 @@ Absent rather than unknown, and absent on purpose:
   of one.
 - **The boot program.** Sixty four bytes of Sony's, not carried here, not
   downloaded, and not reconstructible from anything in this repository.
+- **The checks taken on hardware.** Shay Green's, not carried here either.
+  [`conformance/spc.manifest.json`](conformance/spc.manifest.json) identifies
+  them and carries no bytes.

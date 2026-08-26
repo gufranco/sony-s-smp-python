@@ -1,0 +1,41 @@
+{
+  "what": "Checks written by Shay Green that hold an audio unit to what a console does.",
+  "why": "Each carries a checksum its author took on real hardware, so what it settles is settled by a measurement rather than by agreeing with another implementation. None of these files is carried here. A copy you already own goes in the spc directory of this project or in any directory named by SSMP_SPC_DIR.",
+  "author": "Shay Green",
+  "decides": "sha256",
+  "checks": [
+    {
+      "name": "initial_regs.spc",
+      "covers": "the six processor registers, all sixteen addresses that are not memory, and the sound generator's whole register file",
+      "bytes": 65920,
+      "digests": {
+        "crc32": "ef2b2f7f",
+        "md5": "a50ebe31ac696cfc8a10fa708741e2f0",
+        "sha1": "530caca0104e439e7acd06825e8ee0708b38a903",
+        "sha256": "0b90673004318892194ea7172996dbfbf3c7e3d44bb23067f7645d705e8d1762"
+      }
+    },
+    {
+      "name": "initial_in_ports.spc",
+      "covers": "the four ports, read as the very first thing the program does",
+      "bytes": 65920,
+      "digests": {
+        "crc32": "6f3904fe",
+        "md5": "963dc7142496cf30393d6dfdcb6efee7",
+        "sha1": "04a0818fa97d4351ccacf0f7a513172b773c9f97",
+        "sha256": "271c7b640c00818f6b156f2efc05a48cb3621bdff0f4d657733871b6f72f4be5"
+      }
+    },
+    {
+      "name": "full_ram.spc",
+      "covers": "every byte of memory, the stack page, the echo buffer, and the three bytes under the stack pointer",
+      "bytes": 65920,
+      "digests": {
+        "crc32": "7d0bf73d",
+        "md5": "27420bd177798f16c14a72413af4085f",
+        "sha1": "6e88dad3f4fc8193bc66edaac33421d6e8c7566a",
+        "sha256": "c961afce2ef88f6df73363e360fe0b963ce337c0570bafaead726e781e663630"
+      }
+    }
+  ]
+}

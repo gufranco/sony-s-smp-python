@@ -155,24 +155,27 @@ class Space:
             return self._read_dsp()
         if address == DSP_ADDRESS:
             return self.dsp_address
-        if address == CONTROL:
-            return self.control
         if address in (SPARE_0, SPARE_0 + 1):
             held: int = self.memory.read8(address)
             return held
         return self._read_write_only(address)
 
     def _read_write_only(self, address: int) -> int:
-        """What a register nothing can read answers.
+        """Zero, which is what every register that cannot be read answers.
 
-        The test register and the three dividers are written and never read
-        back, and what the silicon puts on the bus for them is not known. This
-        answers with the memory underneath rather than inventing a value, and the
-        record says outright that the answer is a decision rather than a
-        measurement.
+        Five addresses are written and never read back: the test register, the
+        control register and the three timer dividers. They do not answer with
+        the value last written and they do not answer with the memory underneath.
+        They answer with zero, and a model that returns either of the other two
+        is wrong in a way that only shows up when a program reads them.
+
+        Two sources say so and neither is an implementation. The SNESdev wiki
+        states it outright, and blargg's `initial_regs.spc` carries a checksum
+        taken on a console over all sixteen of these addresses at once: of every
+        arrangement of the five, exactly one reproduces it, and it is this one.
         """
-        held: int = self.memory.read8(address)
-        return held
+        del address
+        return 0x00
 
     def _read_dsp(self) -> int:
         if self.dsp is None:

@@ -3,14 +3,16 @@
   "authority": {
     "order": [
       "the boot program, which is the part's own code and settles the console interface",
+      "checksums Shay Green took on a console, carried by checks this model now runs",
+      "the SNESdev wiki, for what those checksums settle without naming it",
       "the two members this unit is assembled from, each with its own record",
       "the arithmetic in ssmp/rates.py, for the one figure neither of those gives"
     ],
-    "why": "Sony published no document for the S-SMP. What the unit does have is sixty four bytes of Sony's own code in its top page, and the console interface can be read off them rather than guessed at or copied. That is rung two of the family's ladder, the artifact, and it is where the interesting claims here sit.",
+    "why": "Sony published no document for the S-SMP. Two things stand in for one. The unit carries sixty four bytes of Sony's own code in its top page, so the console interface can be read off them rather than guessed at or copied. And Shay Green wrote checks that carry checksums he took on real hardware, which settle what the boot program never touches. Both are rung two, the artifact and a measurement of one, rather than agreement with another implementation.",
     "comparedAgainst": {
-      "what": "The part's own boot program, played the way a console plays it. Sixty four bytes of Sony's code that this repository does not carry and did not write, answering a sequence read off those same bytes rather than copied from an implementation of either half.",
-      "runner": "conformance/boot.test.py",
-      "why": "It is the only thing available that neither half of this unit owns. A check that drove the processor and the generator against each other would prove they agree, which they do just as perfectly when both are wrong."
+      "what": "Three of Shay Green's checks, run as they are, each carrying a checksum he took on a console. Beside them, and running separately in conformance/boot.test.py, the part's own boot program played the way a console plays it. Neither this repository nor either half of it wrote any of them.",
+      "runner": "conformance/against_checks.py",
+      "why": "Both are outside this unit. A check that drove the processor and the generator against each other would prove they agree, which they do just as perfectly when both are wrong."
     },
     "whatIsMissing": "Rung one. No Sony document for the S-SMP is known to exist, so nothing here is held to a printed page and the record says so rather than letting a reader infer it."
   },
@@ -32,8 +34,8 @@
     "at": "0x00F0",
     "count": 16,
     "map": {
-      "0xF0": "test, written and never read",
-      "0xF1": "control: three timer enables, two port clears, and the boot window",
+      "0xF0": "test, written and never read; a read answers zero",
+      "0xF1": "control: three timer enables, two port clears, and the boot window; a read answers zero",
       "0xF2": "the sound generator's address register",
       "0xF3": "the sound generator's data register",
       "0xF4": "port 0",
@@ -42,16 +44,16 @@
       "0xF7": "port 3",
       "0xF8": "ordinary memory",
       "0xF9": "ordinary memory",
-      "0xFA": "timer 0 divider, written and never read",
-      "0xFB": "timer 1 divider, written and never read",
-      "0xFC": "timer 2 divider, written and never read",
+      "0xFA": "timer 0 divider, written and never read; a read answers zero",
+      "0xFB": "timer 1 divider, written and never read; a read answers zero",
+      "0xFC": "timer 2 divider, written and never read; a read answers zero",
       "0xFD": "timer 0 counter, read and cleared by the read",
       "0xFE": "timer 1 counter, read and cleared by the read",
       "0xFF": "timer 2 counter, read and cleared by the read"
     },
-    "verified": false,
-    "evidence": "The boot program reaches 0xF1 through 0xF5, which confirms the control register, the boot window bit and the first two ports from the part's own code. The rest is not reached by those sixty four bytes.",
-    "howToSettleIt": "A Sony document, or a capture of a real unit."
+    "verified": true,
+    "evidence": "The boot program reaches 0xF1 through 0xF5, which confirms the control register, the boot window bit and the first two ports from the part's own code. All sixteen are settled at once by initial_regs.spc, which reads every one of them in order and compares a checksum of the result against a value taken on a console. Of every arrangement of the five that cannot be read, exactly one reproduces that checksum: all five answer zero. The SNESdev wiki says the same in words. The model answered with the memory underneath before this, and that check is what caught it.",
+    "howToSettleIt": "Settled. A Sony document would add a rung; nothing else would change the answer."
   },
   "control": {
     "timer0": "0x01",
@@ -83,8 +85,38 @@
   },
   "notStated": [
     "Any ratio between this unit's clock and the console's. They are separate crystals and neither divides the other, so no figure is published.",
-    "What the test register and the three dividers answer when read. The model answers the memory underneath rather than inventing a value.",
     "What the unit holds at power on, beyond what its two halves record for themselves."
   ],
-  "documentsNote": "Empty rather than absent. No Sony document for the S-SMP is known to exist, and saying so with a key a reader can find beats leaving them to infer it."
+  "documentsNote": "Empty rather than absent. No Sony document for the S-SMP is known to exist, and saying so with a key a reader can find beats leaving them to infer it.",
+  "checksFromHardware": {
+    "what": "Checks by Shay Green, each carrying a value he took on a console.",
+    "runner": "conformance/against_checks.py",
+    "manifest": "conformance/spc.manifest.json",
+    "carried": false,
+    "ran": [
+      {
+        "name": "initial_regs.spc",
+        "subChecks": 4,
+        "cycles": 744661,
+        "agreed": true
+      },
+      {
+        "name": "initial_in_ports.spc",
+        "subChecks": 1,
+        "cycles": 654978,
+        "agreed": true
+      },
+      {
+        "name": "full_ram.spc",
+        "subChecks": 6,
+        "cycles": 19793439,
+        "agreed": true
+      }
+    ],
+    "found": "One disagreement, since fixed: the five registers that cannot be read answered with the memory underneath rather than with zero.",
+    "shownToFail": "The disagreement was reproduced on purpose after the fix, by putting the old behaviour back. initial_regs.spc disagreed on sub-check 3 and reported d57e2579 against the 9d4d2100 it wanted. The other two still agreed, because neither reads those registers.",
+    "verified": true,
+    "evidence": "The checksums are the author's, taken on hardware, and are not this project's.",
+    "howToSettleIt": "Settled for what these three cover."
+  }
 }

@@ -147,12 +147,19 @@ class PortTest(unittest.TestCase):
 
 
 class ControlTest(unittest.TestCase):
-    def test_the_control_register_reads_back_what_was_written(self) -> None:
+    def test_the_control_register_cannot_be_read_and_answers_zero(self) -> None:
         held = _a_space()
 
         held.write8(space.CONTROL, 0x87)
 
-        self.assertEqual(held.read8(space.CONTROL), 0x87)
+        self.assertEqual(held.read8(space.CONTROL), 0x00)
+
+    def test_and_still_did_what_the_written_value_asked_for(self) -> None:
+        held = _a_space()
+
+        held.write8(space.CONTROL, space.CONTROL_BOOT_VISIBLE)
+
+        self.assertTrue(held.boot_visible)
 
     def test_each_timer_bit_turns_its_own_timer_on(self) -> None:
         held = _a_space()
@@ -293,21 +300,40 @@ class WriteOnlyTest(unittest.TestCase):
 
         self.assertEqual(held.test, 0x5A)
 
-    def test_reading_it_answers_the_memory_underneath_rather_than_inventing(self) -> None:
+    def test_reading_it_answers_zero_rather_than_what_was_written(self) -> None:
         held = _a_space()
         held.memory.write8(space.TEST, 0x3C)
 
         held.write8(space.TEST, 0x5A)
 
-        self.assertEqual(held.read8(space.TEST), 0x3C)
+        self.assertEqual(held.read8(space.TEST), 0x00)
 
-    def test_a_divider_reads_the_memory_underneath_too(self) -> None:
+    def test_a_divider_answers_zero_too(self) -> None:
         held = _a_space()
         held.memory.write8(space.TIMER_0_DIVIDER, 0x21)
 
         held.write8(space.TIMER_0_DIVIDER, 0x99)
 
-        self.assertEqual(held.read8(space.TIMER_0_DIVIDER), 0x21)
+        self.assertEqual(held.read8(space.TIMER_0_DIVIDER), 0x00)
+
+    def test_every_write_only_register_answers_zero(self) -> None:
+        held = _a_space()
+        for at in (space.TEST, space.CONTROL, *range(space.TIMER_0_DIVIDER, space.COUNTER_0)):
+            held.memory.write8(at, 0xA5)
+
+        held.write8(space.TEST, 0xA5)
+
+        self.assertEqual(
+            [
+                held.read8(at)
+                for at in (
+                    space.TEST,
+                    space.CONTROL,
+                    *range(space.TIMER_0_DIVIDER, space.COUNTER_0),
+                )
+            ],
+            [0x00] * 5,
+        )
 
     def test_the_two_spare_registers_are_ordinary_memory(self) -> None:
         held = _a_space()

@@ -35,20 +35,25 @@ a check that does it is checking the model rather than the part.
 
 ## The authority ladder
 
-Rung one is empty: Sony published no document for this unit. Rung two is not, and
-it is where almost everything here sits. The boot program is the part's own code,
-and the upload protocol is read off it rather than copied from an implementation
-of either half.
+Rung one is empty: Sony published no document for this unit. Rung two holds two
+things, and between them they carry almost everything here. The boot program is
+the part's own code, and the upload protocol is read off it rather than copied
+from an implementation of either half. Beside it are three checks Shay Green
+wrote, each carrying a checksum he took on a console, which settle what those
+sixty four bytes never touch.
 
 ## What is settled and what is not
 
-**Not settled: 4 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
+**Not settled: 3 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
 the measurement that would close it. The sharpest is that nothing here is a
 timing claim against a console, because the two crystals are independent.
 
-Settled, and settled by the part rather than by agreement with anybody: the
-handshake, the transfer, the acknowledgement, a second block after the first, and
-the jump.
+Settled by the part rather than by agreement with anybody: the handshake, the
+transfer, the acknowledgement, a second block after the first, and the jump.
+
+Settled by a measurement somebody took on a console: all sixteen addresses that
+are not memory, read in order and checksummed together, and that memory comes
+back whole across nineteen point eight million cycles.
 
 ## It needs a boot program and carries none
 
@@ -61,16 +66,29 @@ and says why, and every check that needs one skips out loud.
 decides; the other three are cross-checked so that publishing them means
 something.
 
-## The boot program is the evidence
+## The two things that are the evidence
 
 `conformance/boot.test.py` plays the console's own sequence at the unit. If a
 change makes the unit stop answering `0xaa 0xbb`, or stop taking a block, the
-part being modelled has been broken rather than the test. That file is the one to
-believe.
+part being modelled has been broken rather than the test.
 
-Composing the two halves has already found a defect in one of them: the processor
-scrambled the direct-page flag at reset, and the boot program proves it must be
-clear. The fix belongs in `sony-spc700-python`, not here.
+`conformance/against_checks.py` runs Shay Green's checks, which compare against
+values he took on hardware. A `.spc` file is a whole audio unit written down, so
+they run here with no console anywhere in the chain. Those two files are the ones
+to believe.
+
+Both have already found a defect. Composing the halves caught the processor
+scrambling the direct-page flag at reset, which the boot program proves must be
+clear; that fix belongs in `sony-spc700-python`. And `initial_regs.spc` caught
+this member answering the memory underneath at the five registers that cannot be
+read, where the part answers zero.
+
+## The checks are not here either
+
+They are Shay Green's. `conformance/spc.manifest.json` identifies three of them
+and carries no bytes. Copies you own go in `spc/`, or anywhere named by
+`SSMP_SPC_DIR`. Without them `conformance/against_checks.py` exits two and says
+nothing was checked, which is not the same as agreement.
 
 ## Every gate, in the order to run them
 
@@ -91,6 +109,13 @@ costs about ten times what the model does:
 
 ```bash
 python3 -m conformance.speed
+```
+
+And the checks taken on hardware, which run outside coverage because the longest
+of them is twenty seconds of the unit's own time:
+
+```bash
+python3 -m conformance.against_checks
 ```
 
 And the runs that report what they could not check rather than passing quietly:
@@ -129,6 +154,8 @@ ssmp/models.py      which units this package covers
 ssmp/doctor.py      what is here, what is not, what to do about it
 conformance/console.py    the console's half of the protocol
 conformance/boot.test.py  that half, played at the real unit
+conformance/loader.py     an audio unit written down, and the order to restore it in
+conformance/against_checks.py  Shay Green's checks, run against the model
 ```
 
 ## Things that will bite you
@@ -143,12 +170,19 @@ conformance/boot.test.py  that half, played at the real unit
 - A timer divider of zero means 256, not nothing.
 - The counter is four bits and clears on read, so two readers of one timer take
   each other's ticks.
+- Five registers cannot be read and answer zero: the test register, the control
+  register and the three dividers. Answering the value last written, or the
+  memory underneath, is wrong and looks right until a program reads one.
+- Restoring a written-down unit puts the control register back before the ports,
+  never after. Writing control clears whichever pairs of ports its bits ask for,
+  so the other order silently loses two of them.
 
 ## Before calling anything finished
 
 Every gate above, then `conformance/boot.test.py` with a real boot program
+present and `python3 -m conformance.against_checks` with Shay Green's files
 present. A change that keeps the unit tests green and stops the handshake
-appearing has broken the part.
+appearing, or makes one of those checks disagree, has broken the part.
 
 ## What a change is expected to leave behind
 

@@ -19,6 +19,11 @@ from ssmp import rates, space, timers
 
 RECORD = Path(__file__).resolve().parent / "hardware.json"
 
+MANIFEST_OF_CHECKS = Path(__file__).resolve().parent / "spc.manifest.json"
+
+_CANNOT_BE_READ = (space.TEST, space.CONTROL, *range(space.TIMER_0_DIVIDER, space.COUNTER_0))
+"""The five that are written and never read, which all answer zero."""
+
 
 def declared() -> dict[str, Any]:
     found: dict[str, Any] = json.loads(RECORD.read_text())
@@ -46,16 +51,120 @@ class ShapeTest(unittest.TestCase):
         self.assertGreater(len(self.held["notStated"]), 0)
 
     def test_every_claim_says_whether_it_is_verified(self) -> None:
-        for name in ("bootProgram", "registers", "control", "timers", "ports"):
+        for name in (
+            "bootProgram",
+            "registers",
+            "control",
+            "timers",
+            "ports",
+            "checksFromHardware",
+        ):
             self.assertIn("verified", self.held[name], name)
 
     def test_and_what_would_settle_it(self) -> None:
-        for name in ("bootProgram", "registers", "control", "timers", "ports"):
+        for name in (
+            "bootProgram",
+            "registers",
+            "control",
+            "timers",
+            "ports",
+            "checksFromHardware",
+        ):
             self.assertTrue(self.held[name]["howToSettleIt"], name)
 
     def test_and_what_stands_behind_it_today(self) -> None:
-        for name in ("bootProgram", "registers", "control", "timers", "ports"):
+        for name in (
+            "bootProgram",
+            "registers",
+            "control",
+            "timers",
+            "ports",
+            "checksFromHardware",
+        ):
             self.assertTrue(self.held[name]["evidence"], name)
+
+
+class FromHardwareTest(unittest.TestCase):
+    @override
+    def setUp(self) -> None:
+        self.held = declared()["checksFromHardware"]
+
+    def test_the_record_names_the_run_that_plays_these_checks(self) -> None:
+        self.assertTrue((Path(__file__).resolve().parent.parent / self.held["runner"]).is_file())
+
+    def test_and_the_manifest_that_identifies_them(self) -> None:
+        self.assertTrue((Path(__file__).resolve().parent.parent / self.held["manifest"]).is_file())
+
+    def test_it_says_outright_that_the_files_are_not_carried(self) -> None:
+        self.assertFalse(self.held["carried"])
+
+    def test_every_check_it_lists_is_one_the_manifest_identifies(self) -> None:
+        named = {one["name"] for one in json.loads(MANIFEST_OF_CHECKS.read_text())["checks"]}
+
+        self.assertEqual([one["name"] for one in self.held["ran"] if one["name"] not in named], [])
+
+    def test_and_every_one_of_them_agreed(self) -> None:
+        self.assertEqual([one["name"] for one in self.held["ran"] if not one["agreed"]], [])
+
+    def test_the_disagreement_it_found_was_also_reproduced_on_purpose(self) -> None:
+        self.assertTrue(self.held["shownToFail"])
+
+    def test_the_register_file_is_no_longer_an_open_question(self) -> None:
+        self.assertTrue(declared()["registers"]["verified"])
+
+    def test_and_what_a_write_only_register_answers_is_no_longer_unstated(self) -> None:
+        unstated = " ".join(declared()["notStated"])
+
+        self.assertNotIn("dividers answer when read", unstated)
+
+    def test_every_write_only_register_the_map_names_says_a_read_answers_zero(self) -> None:
+        held = declared()["registers"]["map"]
+        cannot = ("0xF0", "0xF1", "0xFA", "0xFB", "0xFC")
+
+        self.assertEqual([one for one in cannot if "answers zero" not in held[one]], [])
+
+    def test_and_the_model_answers_zero_at_every_one_of_them(self) -> None:
+        held = space.Space(memory=_AnyMemory())
+        for at in _CANNOT_BE_READ:
+            held.memory.write8(at, 0xA5)
+
+        self.assertEqual([held.read8(at) for at in _CANNOT_BE_READ], [0x00] * 5)
+
+    def test_without_looking_at_the_memory_underneath_to_get_there(self) -> None:
+        """Answering zero and answering a zero that happened to be there differ.
+
+        The model read memory at these addresses before the checksum caught it,
+        and a stub full of zeroes would let that behaviour pass this check. What
+        rules it out is that the read never reaches memory at all.
+
+        The spare register is read alongside them so the recorder is seen to
+        record. Without it this would pass just as well against a stub that had
+        stopped noticing reads, which is a check that cannot fail.
+        """
+        store = _AnyMemory()
+        held = space.Space(memory=store)
+        for at in _CANNOT_BE_READ:
+            held.memory.write8(at, 0xA5)
+
+        for at in (*_CANNOT_BE_READ, space.SPARE_0):
+            held.read8(at)
+
+        self.assertEqual(store.read_at, [space.SPARE_0])
+
+
+class _AnyMemory:
+    """Sixty four kilobytes that remembers being read, so a read can be ruled out."""
+
+    def __init__(self) -> None:
+        self.held = bytearray(space.SPACE)
+        self.read_at: list[int] = []
+
+    def read8(self, address: int) -> int:
+        self.read_at.append(address)
+        return self.held[address]
+
+    def write8(self, address: int, value: int) -> None:
+        self.held[address] = value & 0xFF
 
 
 class BootTest(unittest.TestCase):

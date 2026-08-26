@@ -19,10 +19,11 @@
   <a href="#the-interface">The interface</a> &nbsp;|&nbsp;
   <a href="#is-it-right">Is it right</a> &nbsp;|&nbsp;
   <a href="#what-composing-the-halves-found">What composing found</a> &nbsp;|&nbsp;
+  <a href="#what-a-check-taken-on-hardware-found">What hardware found</a> &nbsp;|&nbsp;
   <a href="https://github.com/gufranco/sony-s-smp-python/issues">Issues</a>
 </p>
 
-**4** bytes are the entire console interface · **64** kilobytes shared between a processor and a sound generator · **3** timers · **64** bytes of boot program that this repository does not carry · the upload protocol read off that program rather than copied, with **0** disagreements against it · **494** tests · **100%** statement and branch coverage · no dependencies
+**4** bytes are the entire console interface · **64** kilobytes shared between a processor and a sound generator · **3** timers · **64** bytes of boot program that this repository does not carry · the upload protocol read off that program rather than copied · **3** checks carrying values taken on a console, **0** disagreements · **564** tests · **100%** statement and branch coverage · no dependencies
 
 ```python
 from ssmp import Chip
@@ -109,6 +110,22 @@ gets its audio program uploaded.
 Every Super Nintendo that has ever made a sound is the measurement. The fix went
 into the processor, where it belongs.
 
+## What a check taken on hardware found
+
+The five registers that are written and never read back answered with the memory
+underneath. That was a deliberate choice, made because inventing a value would
+have been publishing a claim nobody measured, and it was wrong.
+
+`initial_regs.spc` reads all sixteen registers in order and compares a checksum of
+the result against a value its author took on a console. Of every arrangement of
+those five, exactly one reproduces the checksum: all five answer zero. The SNESdev
+wiki says the same thing in words, which is a second source rather than a second
+implementation.
+
+The old behaviour was put back afterwards to watch the check fail. It disagreed on
+sub-check 3 and reported `d57e2579` against the `9d4d2100` it wanted, and the other
+two checks still agreed, because neither of them reads those registers.
+
 ## What is not modelled
 
 - **Any ratio between this unit's clock and the console's.** They run from
@@ -156,8 +173,15 @@ python3 -m coverage report
 ```
 
 100% statement and branch coverage, `mypy` with every strictness flag, and
-`ruff` for format and lint. Every check that needs the boot program skips out
-loud rather than reporting a pass.
+`ruff` for format and lint. Every check that needs the boot program, or one of
+Shay Green's files, skips out loud rather than reporting a pass.
+
+The checks taken on hardware run outside the coverage step, because the longest
+of them is twenty seconds of the unit's own time:
+
+```bash
+python3 -m conformance.against_checks
+```
 
 The throughput floor runs outside the coverage step, because a tracer costs about
 ten times what the model does:
@@ -168,21 +192,36 @@ python3 -m conformance.speed
 
 ## Is it right
 
-This member has no manufacturer document. What it has instead is better than the
-usual substitute: the part carries sixty four bytes of Sony's own code, and the
-console interface can be read off them rather than guessed at or copied from an
-implementation.
+This member has no manufacturer document. Two things stand in for one, and both
+are better than the usual substitute.
 
-[`conformance/console.py`](conformance/console.py) writes that sequence down and
-[`conformance/boot.test.py`](conformance/boot.test.py) plays it at the unit:
+**The part's own code.** It carries sixty four bytes Sony wrote, so the console
+interface can be read off them rather than guessed at or copied from an
+implementation. [`conformance/console.py`](conformance/console.py) writes that
+sequence down and [`conformance/boot.test.py`](conformance/boot.test.py) plays it
+at the unit: the handshake `0xaa` and `0xbb`, the destination, the block with
+every byte acknowledged by its own count, a second block after the first, and the
+jump into what was uploaded.
 
-- the handshake, `0xaa` and `0xbb`
-- the destination, the block, and every byte acknowledged by its own count
-- a second block after the first
-- the jump, and the uploaded program running
+**Checks carrying values taken on a console.** Shay Green wrote three that hold an
+audio unit to what real hardware does, and a `.spc` file is a whole unit written
+down, so they run here directly with no console anywhere in the chain:
 
-That is the second rung of [the family's authority ladder](FAMILY.md), the
-artifact, rather than the fourth.
+| Check | What it settles | Sub-checks | Cycles |
+| --- | --- | ---: | ---: |
+| `initial_regs.spc` | the six processor registers, all sixteen addresses that are not memory, and the sound generator's whole register file | 4 | 744,661 |
+| `initial_in_ports.spc` | the four ports, read as the first thing the program does | 1 | 654,978 |
+| `full_ram.spc` | every byte of memory, the stack page, the echo buffer, and the three bytes under the stack pointer | 6 | 19,793,439 |
+
+All three agree. One did not, at first, and what it caught is below.
+
+Both are the second rung of [the family's authority ladder](FAMILY.md), the
+artifact and a measurement of one, rather than the fourth.
+
+The files are Shay Green's and are not carried here.
+[`conformance/spc.manifest.json`](conformance/spc.manifest.json) identifies them
+and carries no bytes. Put copies you own in `spc/` or name a directory in
+`SSMP_SPC_DIR`.
 
 ## Working on it
 
@@ -197,6 +236,11 @@ the measurement that would settle each one.
 No Sony document for the S-SMP is known to exist, so there is no page to cite
 for what this member adds. What stands in its place is the part's own boot
 program, which this repository does not carry and does not reproduce.
+
+What stands beside it is Shay Green's set of checks, whose expectations were
+taken on a console rather than derived from an implementation, and the
+[SNESdev wiki's S-SMP page](https://snes.nesdev.org/wiki/S-SMP), which is a
+later document rather than a Sony one and is cited where it is used.
 
 The two halves carry their own references:
 [sony-spc700-python](https://github.com/gufranco/sony-spc700-python) for the

@@ -189,3 +189,36 @@ jobs:
 
       - name: Play it
         run: python3 conformance/boot.test.py
+
+  checks:
+    name: Checks taken on real hardware
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      # These are Shay Green's files and are not here either, so this run checks
+      # nothing on a runner and says so. Exit two means nothing was checked,
+      # which is not the same as agreement, and the run page carries the
+      # difference rather than leaving a green tick to imply the stronger claim.
+      - name: Run every check that is on this machine
+        run: |
+          set +e
+          python3 -m conformance.against_checks > said.txt
+          status=$?
+          set -e
+          cat said.txt
+          if [ "${status}" -eq 2 ]; then
+            echo "::notice title=Nothing was checked::$(head -1 said.txt)"
+            exit 0
+          fi
+          if [ "${status}" -eq 0 ]; then
+            echo "::notice title=Agreed::$(tail -1 said.txt)"
+          fi
+          exit "${status}"
+        shell: bash
