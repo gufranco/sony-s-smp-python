@@ -164,6 +164,24 @@ Absent rather than unknown, and absent on purpose:
 - **The console.** Nothing here models the other side of the four ports.
   `conformance/console.py` plays a console's part in a check and is not a model
   of one.
+
+  A cut-down one was built outside this repository to see what it would buy: a
+  65816, memory, a cartridge decoded as LoROM, the four addresses that reach this
+  unit, and enough of the video registers to read a report back as text. It
+  works. Shay Green's cartridge checks upload through the real boot program and
+  run their audio programs on this unit, and what they report is the same at one,
+  two, three and five of this unit's cycles per console instruction, so their
+  verdicts do not depend on the rate that harness has to invent.
+
+  It is not carried here, and that is a boundary rather than an omission. This
+  member is what is left once you have a processor and a sound generator, and a
+  console processor is not part of that. Carrying one would hand anybody cloning
+  this repository a 65816 that has nothing to do with the part being modelled.
+  What those runs found is recorded where the parts they judge live:
+  [sony-spc700-python](https://github.com/gufranco/sony-spc700-python) for the
+  cycle shape and
+  [sony-s-dsp-python](https://github.com/gufranco/sony-s-dsp-python) for the
+  audio.
 - **The boot program.** Sixty four bytes of Sony's, not carried here, not
   downloaded, and not reconstructible from anything in this repository.
 - **The checks taken on hardware.** Shay Green's, not carried here either.
