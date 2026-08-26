@@ -1,0 +1,28 @@
+{
+  "comment": "The boot program this unit starts from. A name, a length and four digests are measurements of a file rather than any part of it, and a digest reconstructs nothing. The program itself is not carried here, is not downloaded, and is not reconstructible from anything in this repository.",
+  "artifacts": [
+    {
+      "part": "ssmp",
+      "name": "SPC700 boot program",
+      "why": "Sixty four bytes Sony put in the audio unit. It is what runs at power on: it answers the console's handshake, takes a block of code over the four ports, and jumps into it.",
+      "bytes": 64,
+      "canonical": "The sixty four bytes as the unit reads them at 0xFFC0 through 0xFFFF, with nothing stripped and nothing prepended.",
+      "accepted": [
+        {
+          "revision": "the only one known",
+          "crc32": "44bb3a40",
+          "md5": "ac35bfc854818e2f55c2a05917493db3",
+          "sha1": "97e352553e94242ae823547cd853eecda55c20f0",
+          "sha256": "c95f88b299030d5afa55b1031e2b5ef2dff650c4b4e6bb6f8b1359436521278f"
+        }
+      ],
+      "badDumps": [],
+      "provenance": {
+        "kind": "measuredLocally",
+        "from": "A copy already on this machine, measured on 2026-08-26. The same sixty four bytes are carried in the open source of more than one emulator, so a reader can confirm the digests without owning a console.",
+        "verifiedOn": "2026-08-26"
+      },
+      "processor": "spc700"
+    }
+  ]
+}

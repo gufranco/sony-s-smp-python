@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+title: sony-s-smp-python
+message: >-
+  If you use this work, or the states it was settled against, please cite it.
+type: software
+authors:
+  - given-names: Gustavo
+    family-names: Franco
+    alias: gufranco
+repository-code: https://github.com/gufranco/sony-s-smp-python
+url: https://github.com/gufranco/sony-s-smp-python
+abstract: >-
+  A model of the Sony S-SMP, the audio unit a Super Nintendo talks to rather than
+  into. The processor and the sound generator are separate members of the same
+  family, consumed here as submodules; what this adds is the memory they share,
+  the four ports the console reaches, three timers, and the boot program that
+  hands a console's upload into memory. The upload protocol is read off that boot
+  program rather than copied from an implementation.
+keywords:
+  - emulation
+  - super-nintendo
+  - s-smp
+  - spc700
+  - s-dsp
+  - audio
+  - hardware-model
+  - conformance
+license: MIT
+version: 0.1.0

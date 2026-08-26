@@ -1,0 +1,6 @@
+[submodule "sony-spc700-python"]
+	path = sony-spc700-python
+	url = https://github.com/gufranco/sony-spc700-python.git
+[submodule "sony-s-dsp-python"]
+	path = sony-s-dsp-python
+	url = https://github.com/gufranco/sony-s-dsp-python.git

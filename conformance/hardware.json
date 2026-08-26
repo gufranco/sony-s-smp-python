@@ -1,0 +1,90 @@
+{
+  "note": "What this member claims about the audio unit, and where each claim came from. The unit has no published document, so almost everything here is either read off the part's own boot program or deferred to one of the two members this one is assembled from.",
+  "authority": {
+    "order": [
+      "the boot program, which is the part's own code and settles the console interface",
+      "the two members this unit is assembled from, each with its own record",
+      "the arithmetic in ssmp/rates.py, for the one figure neither of those gives"
+    ],
+    "why": "Sony published no document for the S-SMP. What the unit does have is sixty four bytes of Sony's own code in its top page, and the console interface can be read off them rather than guessed at or copied. That is rung two of the family's ladder, the artifact, and it is where the interesting claims here sit.",
+    "comparedAgainst": {
+      "what": "The part's own boot program, played the way a console plays it. Sixty four bytes of Sony's code that this repository does not carry and did not write, answering a sequence read off those same bytes rather than copied from an implementation of either half.",
+      "runner": "conformance/boot.test.py",
+      "why": "It is the only thing available that neither half of this unit owns. A check that drove the processor and the generator against each other would prove they agree, which they do just as perfectly when both are wrong."
+    },
+    "whatIsMissing": "Rung one. No Sony document for the S-SMP is known to exist, so nothing here is held to a printed page and the record says so rather than letting a reader infer it."
+  },
+  "documents": {},
+  "bootProgram": {
+    "bytes": 64,
+    "at": "0xFFC0",
+    "readyLow": "0xAA",
+    "readyHigh": "0xBB",
+    "start": "0xCC",
+    "clears": ["0x0001", "0x00EF"],
+    "leavesAlone": "0x0000",
+    "stackPointer": "0xEF",
+    "verified": true,
+    "evidence": "Read off the program itself and driven at the unit in conformance/boot.test.py. The clear loop stops when its index reaches zero, which is why the first byte survives.",
+    "howToSettleIt": "Settled. The program is the part's own."
+  },
+  "registers": {
+    "at": "0x00F0",
+    "count": 16,
+    "map": {
+      "0xF0": "test, written and never read",
+      "0xF1": "control: three timer enables, two port clears, and the boot window",
+      "0xF2": "the sound generator's address register",
+      "0xF3": "the sound generator's data register",
+      "0xF4": "port 0",
+      "0xF5": "port 1",
+      "0xF6": "port 2",
+      "0xF7": "port 3",
+      "0xF8": "ordinary memory",
+      "0xF9": "ordinary memory",
+      "0xFA": "timer 0 divider, written and never read",
+      "0xFB": "timer 1 divider, written and never read",
+      "0xFC": "timer 2 divider, written and never read",
+      "0xFD": "timer 0 counter, read and cleared by the read",
+      "0xFE": "timer 1 counter, read and cleared by the read",
+      "0xFF": "timer 2 counter, read and cleared by the read"
+    },
+    "verified": false,
+    "evidence": "The boot program reaches 0xF1 through 0xF5, which confirms the control register, the boot window bit and the first two ports from the part's own code. The rest is not reached by those sixty four bytes.",
+    "howToSettleIt": "A Sony document, or a capture of a real unit."
+  },
+  "control": {
+    "timer0": "0x01",
+    "timer1": "0x02",
+    "timer2": "0x04",
+    "clearPorts01": "0x10",
+    "clearPorts23": "0x20",
+    "bootVisible": "0x80",
+    "verified": false,
+    "evidence": "The boot window bit is confirmed by the boot program, which runs out of the window and would not be reachable were the bit anywhere else. The other five are not exercised by it.",
+    "howToSettleIt": "A Sony document, or a capture of a real unit."
+  },
+  "timers": {
+    "count": 3,
+    "counterBits": 4,
+    "dividerWhenZero": 256,
+    "slowCyclesPerTick": 128,
+    "fastCyclesPerTick": 16,
+    "verified": false,
+    "evidence": "Derived in ssmp/rates.py from one crystal and four divisions, every one of which is a whole number. What the model depends on is the ratio rather than the crystal, and the derivation is published so a reader can disagree with it rather than with a constant.",
+    "howToSettleIt": "A measurement of a timer against the processor on real hardware."
+  },
+  "ports": {
+    "count": 4,
+    "bytesPerPort": 2,
+    "verified": true,
+    "evidence": "Two bytes rather than one, one per direction. The boot program proves it: it writes 0xAA to port 0 and then compares port 0 against 0xCC, which can only both be true if a write from the unit and a read by the unit reach different bytes.",
+    "howToSettleIt": "Settled by the program that depends on it."
+  },
+  "notStated": [
+    "Any ratio between this unit's clock and the console's. They are separate crystals and neither divides the other, so no figure is published.",
+    "What the test register and the three dividers answer when read. The model answers the memory underneath rather than inventing a value.",
+    "What the unit holds at power on, beyond what its two halves record for themselves."
+  ],
+  "documentsNote": "Empty rather than absent. No Sony document for the S-SMP is known to exist, and saying so with a key a reader can find beats leaving them to infer it."
+}

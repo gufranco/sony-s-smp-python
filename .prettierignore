@@ -1,0 +1,8 @@
+pnpm-lock.yaml
+package-lock.json
+node_modules/
+sony-spc700-python/
+sony-s-dsp-python/
+.coverage
+.mypy_cache/
+.ruff_cache/

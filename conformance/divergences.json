@@ -1,0 +1,51 @@
+{
+  "note": "Every place this member models something no document settles, or where its two halves and the part itself could be read differently. Each entry names what stands behind the choice and what would change it. The list is short because the part's own boot program settles most of what this member adds.",
+  "authority": "hardware.json holds the ladder. Rung one is empty, because Sony published nothing for this unit. Rung two is the part's own boot program, which is where the console interface comes from. Below that are the records of the two members this unit is assembled from.",
+  "readOn": "2026-08-26",
+  "divergences": [
+    {
+      "id": "no-ratio-between-the-two-clocks",
+      "parts": ["ssmp"],
+      "severity": "medium",
+      "status": "notModelled",
+      "documentSays": "Nothing. No Sony document for this unit is known.",
+      "referenceDoes": "Implementations pick a ratio and step the two together, because a console emulator has to put them on one timeline somehow.",
+      "packageFollows": "neither",
+      "reasoning": "The console and the audio unit run from separate crystals and neither divides the other, so any ratio is a property of one board rather than of the part. Publishing one would be publishing the single figure a caller most wants and having it be wrong everywhere, by an amount that drifts. This package publishes none and offers no elapsed time in console cycles.",
+      "wouldSettleIt": "Nothing settles it, because there is nothing to settle: a measurement of both oscillators gives a ratio for that board. What would change this entry is a decision to model a whole console, which is not what this member is."
+    },
+    {
+      "id": "write-only-registers-answer-the-memory-underneath",
+      "parts": ["ssmp"],
+      "severity": "low",
+      "status": "open",
+      "documentSays": "Nothing.",
+      "referenceDoes": "Answers whatever its own storage holds, which varies between implementations.",
+      "packageFollows": "neither",
+      "reasoning": "The test register and the three timer dividers are written and never read back, and what the silicon puts on the bus for them is not known. Answering zero would turn a read of something nothing wrote into a passing test, and inventing a value would be publishing a claim nobody measured. This answers the memory underneath and says so where the decision is made.",
+      "wouldSettleIt": "A capture of a real unit, reading each of those addresses after writing it."
+    },
+    {
+      "id": "the-register-file-beyond-what-the-boot-program-reaches",
+      "parts": ["ssmp"],
+      "severity": "medium",
+      "status": "open",
+      "documentSays": "Nothing.",
+      "referenceDoes": "Places the sixteen registers as this package does.",
+      "packageFollows": "reference",
+      "reasoning": "The boot program reaches 0xF1 through 0xF5, which settles the control register, the boot window bit and the first two ports from the part's own code. The other eleven addresses are not touched by those sixty four bytes, so their placement rests on agreement with implementations rather than on the artifact.",
+      "wouldSettleIt": "A Sony document, a capture of a real unit, or a driver from a shipped game read the way snes-driver-python reads a cartridge's coprocessor routine."
+    },
+    {
+      "id": "power-on-state-belongs-to-the-two-halves",
+      "parts": ["ssmp"],
+      "severity": "low",
+      "status": "notModelled",
+      "documentSays": "Nothing.",
+      "referenceDoes": "Clears everything, which is the one answer that is certainly wrong.",
+      "packageFollows": "neither",
+      "reasoning": "What the processor holds coming out of reset is that member's question and its record answers it, including the one flag the boot program settles. What the sound generator holds is the other member's. This one adds memory, and memory holds whatever it held: nothing here is cleared at construction unless a caller asks for a fill.",
+      "wouldSettleIt": "A capture of a real unit at power on. The two halves record it separately."
+    }
+  ]
+}

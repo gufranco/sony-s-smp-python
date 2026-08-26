@@ -1,0 +1,178 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  lint:
+    name: Format and lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install ruff
+        run: pipx install ruff==0.16.3
+
+      - name: Check formatting
+        run: ruff format --check .
+
+      - name: Lint
+        run: ruff check --output-format=github .
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install the formatter
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Check that every JSON file is formatted
+        run: pnpm run format:check
+
+      # The workflows are the one thing here nothing else checks, and a mistake
+      # in them is only visible once a run has already gone wrong. The archive
+      # is verified by digest before anything in it runs.
+      - name: Check the workflows themselves
+        run: |
+          curl -fsSL -o actionlint.tar.gz \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          echo "${ACTIONLINT_SHA256}  actionlint.tar.gz" | sha256sum -c -
+          tar -xzf actionlint.tar.gz actionlint
+          ./actionlint -color
+          rm -f actionlint actionlint.tar.gz
+        shell: bash
+        env:
+          ACTIONLINT_VERSION: "1.7.12"
+          ACTIONLINT_SHA256: "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
+
+  types:
+    name: Types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install mypy
+        run: pipx install mypy==1.14.1
+
+      # Strict, with every optional error class the checker offers. The
+      # configuration lives in pyproject.toml so this run and a local one are
+      # the same run.
+      - name: Check types
+        run: mypy
+
+  test:
+    name: Tests on Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install coverage
+        run: python -m pip install --disable-pip-version-check coverage==7.6.10
+
+      - name: Run every test file, under coverage
+        run: |
+          python -m coverage erase
+          status=0
+          while IFS= read -r file; do
+            echo "::group::${file}"
+            python -m coverage run -a "${file}" || status=1
+            echo "::endgroup::"
+          done < <(find ssmp conformance -name '*.test.py' | sort)
+          exit "${status}"
+        shell: bash
+
+      - name: Coverage must be total
+        run: python -m coverage report
+
+  speed:
+    name: Throughput
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: The part must still run faster than the floor
+        run: python -m conformance.speed
+
+  boot:
+    name: The console protocol, played at the unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      # The boot program is Sony's and is not here, so this checks nothing on a
+      # runner. It says so rather than reporting a pass: the value is that
+      # somebody running it with a copy on disk gets a real answer, and that a
+      # run without one cannot be mistaken for one.
+      - name: Say on the run page whether the unit was driven at all
+        run: |
+          set +e
+          python -c "
+          import sys
+          sys.path.insert(0, '.')
+          import ssmp
+          reason = ssmp.why_not()
+          print(reason if reason else '')
+          raise SystemExit(2 if reason else 0)
+          " > reason.txt
+          status=$?
+          set -e
+          if [ "${status}" -eq 2 ]; then
+            echo "::notice title=No boot program present::$(cat reason.txt)"
+            exit 0
+          fi
+          echo "::notice title=Boot program present::The console protocol was played at the unit end to end."
+          exit "${status}"
+        shell: bash
+
+      - name: Play it
+        run: python3 conformance/boot.test.py
