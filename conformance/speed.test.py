@@ -101,6 +101,9 @@ class MainTest(unittest.TestCase):
         asked = []
 
         class Counting:
+            def reset(self) -> "Counting":
+                return self
+
             def run_for(self, cycles: int) -> int:
                 asked.append(cycles)
                 return cycles
@@ -111,6 +114,9 @@ class MainTest(unittest.TestCase):
 
     def test_and_reports_one_reading_per_repeat(self) -> None:
         class Counting:
+            def reset(self) -> "Counting":
+                return self
+
             def run_for(self, cycles: int) -> int:
                 return cycles
 

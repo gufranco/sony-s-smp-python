@@ -99,7 +99,7 @@ def measure(
     """
     seconds = []
     for _ in range(repeats):
-        unit = build(MODEL)
+        unit = build(MODEL).reset()
         started = time.perf_counter()
         unit.run_for(calls)
         seconds.append(time.perf_counter() - started)

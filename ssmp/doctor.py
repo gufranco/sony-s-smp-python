@@ -111,9 +111,16 @@ def _default_build(name: str) -> Any:  # pragma: no cover
 
 
 def _unit(name: str, build: Callable[[str], Any]) -> Finding:
-    """Whether the unit builds, saying exactly what stopped it if not."""
+    """Whether the unit builds and resets, saying what stopped it if not.
+
+    The reset is driven rather than described. It rebuilds both halves on one
+    store, masks the boot program back in at the top page and takes the sound
+    generator to the state that writes no echo, so it is the path a console puts
+    the unit through and the one a report should have exercised.
+    """
     try:
-        build(name)
+        unit = build(name)
+        unit.reset()
     except Exception as reason:
         return Finding(
             name,
@@ -121,7 +128,7 @@ def _unit(name: str, build: Callable[[str], Any]) -> Finding:
             str(reason),
             "the two lines above say which of the three pieces is missing",
         )
-    return Finding(name, True, "builds and starts")
+    return Finding(name, True, "builds, starts and resets")
 
 
 def examine(

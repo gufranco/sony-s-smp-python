@@ -3,11 +3,22 @@
 import sys
 import unittest
 from pathlib import Path
+from typing import NoReturn
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from ssmp import doctor
 from ssmp.errors import NoBootRom
+
+
+class _Buildable:
+    def reset(self) -> "_Buildable":
+        return self
+
+
+class _WillNotReset:
+    def reset(self) -> NoReturn:
+        raise NoBootRom("the unit would not restart")
 
 
 class FindingTest(unittest.TestCase):
@@ -49,10 +60,15 @@ class CheckTest(unittest.TestCase):
 
         self.assertIn(VERSION, doctor._package().detail)
 
-    def test_a_unit_that_builds_passes(self) -> None:
-        found = doctor._unit("ssmp", lambda name: object())
+    def test_a_unit_that_builds_and_resets_passes(self) -> None:
+        found = doctor._unit("ssmp", lambda name: _Buildable())
 
         self.assertTrue(found.ok)
+
+    def test_a_unit_that_builds_and_will_not_reset_does_not(self) -> None:
+        found = doctor._unit("ssmp", lambda name: _WillNotReset())
+
+        self.assertFalse(found.ok)
 
     def test_a_unit_that_will_not_build_says_why(self) -> None:
         def _refuse(name: str) -> object:
