@@ -4,7 +4,7 @@ A model of the Sony S-SMP, the audio unit a Super Nintendo talks to rather than 
 
 [![CI](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml)
 
-**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** more verdicts from a cartridge of them agree, **590** tests, **100%** statement and branch coverage, no dependencies
+**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** more verdicts from a cartridge of them agree, **598** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from ssmp import Chip
@@ -231,7 +231,7 @@ All three are the second rung of [the family's authority ladder](FAMILY.md), the
 artifact and a measurement of one, rather than the fourth.
 
 The `.spc` files are Shay Green's and are not carried here.
-[`conformance/spc.manifest.json`](conformance/spc.manifest.json) identifies them
+[`conformance/checks.manifest.json`](conformance/checks.manifest.json) identifies them
 and carries no bytes. Put copies you own in `spc/` or name a directory in
 `SSMP_SPC_DIR`.
 

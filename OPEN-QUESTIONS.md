@@ -108,7 +108,7 @@ This project answered with the memory underneath, on the grounds that inventing 
 value would be publishing a claim nobody measured. That was the right instinct and
 the wrong answer, and the thing that caught it was
 `initial_regs.spc`, one of the checks
-[`conformance/spc.manifest.json`](conformance/spc.manifest.json) identifies. It
+[`conformance/checks.manifest.json`](conformance/checks.manifest.json) identifies. It
 reads all sixteen of these addresses in order and compares a checksum of the result against a value its
 author took on a console. Of every arrangement of the five, exactly one reproduces
 that checksum, and it is all five answering zero. The SNESdev wiki says the same
@@ -246,5 +246,5 @@ Absent rather than unknown, and absent on purpose:
 - **The boot program.** Sixty four bytes of Sony's, not carried here, not
   downloaded, and not reconstructible from anything in this repository.
 - **The checks taken on hardware.** Shay Green's, not carried here either.
-  [`conformance/spc.manifest.json`](conformance/spc.manifest.json) identifies
+  [`conformance/checks.manifest.json`](conformance/checks.manifest.json) identifies
   them and carries no bytes.

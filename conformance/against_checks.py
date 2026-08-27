@@ -25,7 +25,7 @@ from ssmp import Chip, board, firmware
 if TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Callable
 
-MANIFEST = Path(__file__).resolve().parent / "spc.manifest.json"
+MANIFEST = Path(__file__).resolve().parent / "checks.manifest.json"
 
 ROOM = 60_000_000
 

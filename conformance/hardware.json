@@ -91,7 +91,7 @@
   "checksFromHardware": {
     "what": "Checks by Shay Green, each carrying a value he took on a console.",
     "runner": "conformance/against_checks.py",
-    "manifest": "conformance/spc.manifest.json",
+    "manifest": "conformance/checks.manifest.json",
     "carried": false,
     "ran": [
       {

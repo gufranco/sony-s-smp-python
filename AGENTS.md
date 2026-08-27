@@ -86,7 +86,7 @@ read, where the part answers zero.
 
 ## The checks are not here either
 
-They are Shay Green's. `conformance/spc.manifest.json` identifies three of them
+They are Shay Green's. `conformance/checks.manifest.json` identifies three of them
 and carries no bytes. Copies you own go in `spc/`, or anywhere named by
 `SSMP_SPC_DIR`. Without them `conformance/against_checks.py` exits two and says
 nothing was checked, which is not the same as agreement.

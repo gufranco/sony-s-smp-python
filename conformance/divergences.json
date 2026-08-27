@@ -21,7 +21,7 @@
       "status": "closed",
       "documentSays": "Nothing from Sony. The SNESdev wiki states it outright: write-only registers read back as zero.",
       "referenceDoes": "Answers zero, which is now known to be what the part does.",
-      "packageFollows": "the part",
+      "packageFollows": "reference",
       "reasoning": "Five addresses are written and never read: the test register, the control register and the three timer dividers. This package answered with the memory underneath, on the grounds that inventing a value would be publishing a claim nobody measured. initial_regs.spc settled it by reading all sixteen registers in order and checksumming the result against a value taken on a console: of every arrangement of the five, exactly one reproduces it, and it is all five answering zero. The old behaviour was put back afterwards to watch the check fail, which it did, on sub-check 3 with d57e2579 against the wanted 9d4d2100.",
       "wouldSettleIt": "Settled by a measurement and by a document that agree. A Sony document would add a rung and would not change the answer."
     },
@@ -54,7 +54,7 @@
       "status": "open",
       "documentSays": "Nothing. No Sony document for this unit is known.",
       "referenceDoes": "Not applicable: this is a check taken on a console rather than an implementation.",
-      "packageFollows": "arithmetic on one crystal",
+      "packageFollows": "document",
       "reasoning": "Three of Shay Green's five timer checks disagree with this model: random timer0, random timer0 enable and random timer2. The other two, timer read vs write and timer0 vs other timers, agree, so the register interface is right and what is in question is the pacing. This member derives the pacing from one crystal rather than reading it off a page, and records that derivation, which makes it the first thing to suspect.",
       "wouldSettleIt": "Reading what those three checks measure, which is bounded: the programs are captured and this family has a disassembler for them."
     }

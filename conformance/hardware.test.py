@@ -19,7 +19,7 @@ from ssmp import rates, space, timers
 
 RECORD = Path(__file__).resolve().parent / "hardware.json"
 
-MANIFEST_OF_CHECKS = Path(__file__).resolve().parent / "spc.manifest.json"
+MANIFEST_OF_CHECKS = Path(__file__).resolve().parent / "checks.manifest.json"
 
 _CANNOT_BE_READ = (space.TEST, space.CONTROL, *range(space.TIMER_0_DIVIDER, space.COUNTER_0))
 """The five that are written and never read, which all answer zero."""
