@@ -51,12 +51,12 @@
       "id": "the-timers-disagree-with-a-console-when-driven-at-random-rates",
       "parts": ["ssmp"],
       "severity": "medium",
-      "status": "open",
+      "status": "narrowed",
       "documentSays": "Nothing. No Sony document for this unit is known.",
       "referenceDoes": "Not applicable: this is a check taken on a console rather than an implementation.",
       "packageFollows": "document",
-      "reasoning": "Three of Shay Green's five timer checks disagree with this model: random timer0, random timer0 enable and random timer2. The other two, timer read vs write and timer0 vs other timers, agree, so the register interface is right and what is in question is the pacing. This member derives the pacing from one crystal rather than reading it off a page, and records that derivation, which makes it the first thing to suspect.",
-      "wouldSettleIt": "Reading what those three checks measure, which is bounded: the programs are captured and this family has a disassembler for them."
+      "reasoning": "Three of Shay Green's five timer checks disagree with this model: random timer0, random timer0 enable and random timer2. The other two, timer read vs write and timer0 vs other timers, agree, so the register interface is right and so are the rates relative to each other. Three suspects are now named rather than one. The pacing is derived from one crystal rather than read off a page, and that derivation is recorded. Beyond it there are two choices in ssmp/timers.py that no source reaches: turning a timer on clears its stage and its counter, and writing a divider part way through a count leaves the stage where it was, so lowering the divider below the current stage wraps on the very next tick. Neither is documented anywhere, the boot program never writes a divider twice, and one of the three failing checks is named for the first of them. Both are now under test in ssmp/timers.test.py, so what the model does at those corners is readable without running it. That the rate checks pass while the random ones fail argues against pacing alone being the cause.",
+      "wouldSettleIt": "Reading what those three checks measure, which needs Shay Green's cartridge; it is not on this machine and conformance/cartridge.json records that as carried false. Failing that, a capture of a real unit doing the two things no source reaches: enabling a running timer, and writing a divider below the stage part way through a count."
     }
   ]
 }

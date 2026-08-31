@@ -82,9 +82,21 @@ that reproduces his value.
 Three of his timer checks now say the same thing from the other side.
 `Timers/random timer0`, `random timer0 enable` and `random timer2` all disagree,
 while `timer read vs write` and `timer0 vs other timers` agree, so the register
-interface is right and the pacing is what is in question. That is a much sharper
-handle than the one below, because those three drive the timers directly rather
-than leaning on them to measure something else.
+interface is right and so are the rates relative to each other. That is a much
+sharper handle than the one below, because those three drive the timers directly
+rather than leaning on them to measure something else.
+
+**Three suspects, not one.** The pacing is the first, and it is derived rather
+than read. The other two are choices in
+[`ssmp/timers.py`](ssmp/timers.py) that no source reaches: turning a timer on
+clears its stage and its counter, and writing a divider part way through a count
+leaves the stage where it was, so lowering the divider below the current stage
+wraps on the very next tick. Nothing documents either, the boot program never
+writes a divider twice, and one of the three failing checks is named for the
+first of them. Both are under test in
+[`ssmp/timers.test.py`](ssmp/timers.test.py), so what this model does at those
+corners can be read without running it. That the two rate checks pass while the
+three random ones fail argues against pacing alone being the cause.
 
 None of the ratios tried so far reproduces his value, and there is a reason to be
 careful about reading that as an answer. The same check was run on the author's own implementation, `snes_spc

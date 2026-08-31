@@ -4,7 +4,7 @@ A model of the Sony S-SMP, the audio unit a Super Nintendo talks to rather than 
 
 [![CI](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml)
 
-**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** more verdicts from a cartridge of them agree, **603** tests, **100%** statement and branch coverage, no dependencies
+**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** more verdicts from a cartridge of them agree, **608** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from ssmp import Chip

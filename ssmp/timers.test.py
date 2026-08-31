@@ -145,5 +145,65 @@ class ReadTest(unittest.TestCase):
         self.assertEqual(held.read(), 2)
 
 
+class MidCountTest(unittest.TestCase):
+    """What a divider written part way through a count does to the stage.
+
+    Nothing establishes this. No Sony document for the unit is known, and the
+    boot program never writes a divider twice, so neither source this member
+    rests on reaches it. What the model does is leave the stage alone, which is
+    the choice that treats the divider as a comparison rather than as a reload.
+
+    It is under test rather than under a comment because it is one of the two
+    unsourced choices in this file, and one of the three console checks that
+    disagree is named for the other. A reader deciding whether either is the
+    cause needs to see what the model actually does.
+    """
+
+    def counting(self, divider: int, ticks: int) -> "timers.Timer":
+        timer = timers.Timer(ticks_every=1)
+        timer.enable(True)
+        timer.divider = divider
+        timer.spend(ticks)
+        return timer
+
+    def test_a_divider_written_part_way_through_leaves_the_stage_where_it_was(self) -> None:
+        timer = self.counting(8, 5)
+
+        timer.divider = 3
+
+        self.assertEqual(timer.stage, 5)
+
+    def test_so_lowering_it_below_the_stage_wraps_on_the_very_next_tick(self) -> None:
+        timer = self.counting(8, 5)
+        timer.divider = 3
+
+        timer.spend(1)
+
+        self.assertEqual((timer.stage, timer.counter), (0, 1))
+
+    def test_and_raising_it_carries_the_stage_on_rather_than_starting_over(self) -> None:
+        timer = self.counting(4, 3)
+        timer.divider = 200
+
+        timer.spend(1)
+
+        self.assertEqual((timer.stage, timer.counter), (4, 0))
+
+    def test_enabling_a_timer_that_is_already_on_leaves_the_stage_alone(self) -> None:
+        timer = self.counting(4, 2)
+
+        timer.enable(True)
+
+        self.assertEqual(timer.stage, 2)
+
+    def test_turning_one_off_and_on_again_starts_the_stage_over(self) -> None:
+        timer = self.counting(4, 2)
+
+        timer.enable(False)
+        timer.enable(True)
+
+        self.assertEqual((timer.stage, timer.counter), (0, 0))
+
+
 if __name__ == "__main__":
     unittest.main()
