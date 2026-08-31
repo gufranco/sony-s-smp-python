@@ -26,6 +26,10 @@ if str(Path(__file__).resolve().parent.parent) not in sys.path:  # pragma: no co
 from ssmp import board, firmware, models
 from ssmp.version import VERSION
 
+ROOT = Path(__file__).resolve().parent.parent
+
+from ssmp import environment  # noqa: E402
+
 OLDEST_PYTHON = (3, 12)
 
 
@@ -152,6 +156,10 @@ def report(found: list[Finding]) -> list[str]:
     """The lines a person pastes into an issue."""
     unwell = [one for one in found if not one.ok]
     lines = [f"ssmp {VERSION} on {platform.python_version()}, {platform.system()}", ""]
+    lines.append("  the machine")
+    lines.extend(environment.lines(ROOT))
+    lines.append("")
+    lines.append("  this package")
     lines.extend(one.report for one in found)
     lines.append("")
     if unwell:
