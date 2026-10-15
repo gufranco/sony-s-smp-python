@@ -37,9 +37,6 @@ version = { attr = "ssmp.version.VERSION" }
 [tool.setuptools.package-data]
 ssmp = ["artifacts.manifest.json"]
 
-[tool.setuptools.exclude-package-data]
-ssmp = ["*.test.py"]
-
 [tool.ruff]
 target-version = "py312"
 line-length = 100
