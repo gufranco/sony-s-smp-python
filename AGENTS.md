@@ -135,10 +135,10 @@ the case it exists for.
 ## Conventions that are not negotiable
 
 - Python only, standard library only, no dependencies.
-- No comments in source. Reasoning goes in docstrings, and a step that would need
+- No comments in source, and a docstring counts as one. A step that would need
   a comment needs a better name instead.
-- Tests are `<module>.test.py` beside what they test. Arrange, blank line, one
-  act, blank line, assert. No section labels.
+- Tests are `<module>.test.py` beside what they test. Arrange, act and
+  assert, each block opened by its bare marker.
 - 100% statement and branch coverage, and `mypy` with every strictness flag.
 - Nothing is cleared at construction. Power on scrambles; reset defines.
 
@@ -164,9 +164,13 @@ conformance/against_checks.py  Shay Green's checks, run against the model
 - The search order in `firmware.py` is one rule with a copy in
   `snes-dsp-python` and `snes-st-python` too, because no package is a
   dependency of all three. The three copies of `directories` are byte-identical
-  below the constants and are meant to stay that way. The recipe for the diff
-  is in that function's own docstring, and it is the only thing holding them
-  together.
+  below the constants and are meant to stay that way. The diff that holds
+  them together runs from `def directories` to `return tuple(seen)`:
+
+  ```sh
+  cut='/^def directories/,/^    return tuple(seen)/p'
+  diff <(sed -n "$cut" mine/firmware.py) <(sed -n "$cut" theirs/firmware.py)
+  ```
 - A port is two bytes at one address, not one. Modelling it as one makes both
   sides appear to work until two writes cross.
 - The boot window covers memory rather than replacing it. A program writes under
