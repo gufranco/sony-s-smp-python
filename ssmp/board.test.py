@@ -1,9 +1,3 @@
-"""Building the unit, refusing to when it cannot be built, and saying why.
-
-The cases that need a real boot program say so and skip without one. The rest
-build their own sixty four bytes, so most of this file runs anywhere.
-"""
-
 import sys
 import unittest
 from pathlib import Path
@@ -101,8 +95,6 @@ class WithoutTheHalvesTest(unittest.TestCase):
 
 
 class FromDiskTest(unittest.TestCase):
-    """Reading the program off disk, without needing the real one to do it."""
-
     def test_a_unit_reads_the_program_from_where_the_catalogue_points(self) -> None:
         import tempfile
 
@@ -207,8 +199,6 @@ class PortTest(unittest.TestCase):
 
 
 class OneUnitTest(unittest.TestCase):
-    """That the two halves are one part rather than two sitting side by side."""
-
     def test_the_generator_reads_the_same_memory_the_processor_runs_on(self) -> None:
         unit = _a_unit()
 
@@ -230,23 +220,11 @@ class OneUnitTest(unittest.TestCase):
         self.assertEqual(unit.dsp.phase, (before + spent) & 31)
 
     def test_a_freshly_built_unit_has_already_clocked_it_in_step(self) -> None:
-        """Building one is not free: coming up reads a vector and that costs cycles.
-
-        Those cycles reach the generator like any others, so a unit nobody has
-        run yet is already two clocks in rather than at rest, and the two agree
-        from the first instruction rather than from the second.
-        """
         unit = _a_unit()
 
         self.assertEqual(unit.dsp.phase, unit.cycles & 31)
 
     def test_the_generator_comes_up_reset_rather_than_scrambled(self) -> None:
-        """A scrambled echo register would have it writing over the program.
-
-        Nothing else in this family is cleared at construction, and this is not
-        an exception to that: the console's reset line reaches the generator too,
-        so what it comes up holding is what a reset leaves.
-        """
         generator = board._members()
         assert generator is not None
         core = generator[1].core

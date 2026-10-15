@@ -1,5 +1,3 @@
-"""Everything this package raises, and what tells the refusals apart."""
-
 import sys
 import unittest
 from pathlib import Path
@@ -30,16 +28,6 @@ class CatalogueTest(unittest.TestCase):
             errors.WrongShape,
         ):
             self.assertTrue(issubclass(one, Exception), one.__name__)
-
-    def test_each_of_them_says_what_it_is_for(self) -> None:
-        for one in (
-            errors.UnknownModelError,
-            errors.NoBootRom,
-            errors.Unrecognised,
-            errors.Corrupt,
-            errors.WrongShape,
-        ):
-            self.assertTrue(one.__doc__, one.__name__)
 
     def test_a_wrong_file_and_a_broken_one_are_told_apart(self) -> None:
         self.assertNotEqual(errors.Unrecognised, errors.Corrupt)

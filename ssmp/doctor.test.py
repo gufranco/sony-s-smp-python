@@ -1,5 +1,3 @@
-"""What the doctor looks at, and what it says when something is not there."""
-
 import sys
 import unittest
 from pathlib import Path

@@ -1,10 +1,3 @@
-"""The record held to the model, so neither can drift away from the other.
-
-A record nothing checks is a record that goes stale quietly. Every figure in
-`hardware.json` is compared here against what the package actually does, so a
-change to one that is not a change to the other fails.
-"""
-
 import json
 import sys
 import unittest
@@ -22,7 +15,6 @@ RECORD = Path(__file__).resolve().parent / "hardware.json"
 MANIFEST_OF_CHECKS = Path(__file__).resolve().parent / "checks.manifest.json"
 
 _CANNOT_BE_READ = (space.TEST, space.CONTROL, *range(space.TIMER_0_DIVIDER, space.COUNTER_0))
-"""The five that are written and never read, which all answer zero."""
 
 
 def declared() -> dict[str, Any]:
@@ -105,11 +97,6 @@ class GeneratorTest(unittest.TestCase):
         self.assertIn("spc_dsp6", self.held["howToSettleIt"])
 
     def test_a_unit_here_shares_its_memory_the_way_the_record_says(self) -> None:
-        """Built on sixty four zeroes rather than Sony's sixty four bytes.
-
-        Nothing here runs what is in the boot window, so a stand-in of the right
-        length lets this run on a machine holding no copy of the real one.
-        """
         from ssmp import Chip
 
         unit = Chip("ssmp", boot=bytes(space.BOOT_BYTES))
@@ -164,16 +151,6 @@ class FromHardwareTest(unittest.TestCase):
         self.assertEqual([held.read8(at) for at in _CANNOT_BE_READ], [0x00] * 5)
 
     def test_without_looking_at_the_memory_underneath_to_get_there(self) -> None:
-        """Answering zero and answering a zero that happened to be there differ.
-
-        The model read memory at these addresses before the checksum caught it,
-        and a stub full of zeroes would let that behaviour pass this check. What
-        rules it out is that the read never reaches memory at all.
-
-        The spare register is read alongside them so the recorder is seen to
-        record. Without it this would pass just as well against a stub that had
-        stopped noticing reads, which is a check that cannot fail.
-        """
         store = _AnyMemory()
         held = space.Space(memory=store)
         for at in _CANNOT_BE_READ:
@@ -186,8 +163,6 @@ class FromHardwareTest(unittest.TestCase):
 
 
 class _AnyMemory:
-    """Sixty four kilobytes that remembers being read, so a read can be ruled out."""
-
     def __init__(self) -> None:
         self.held = bytearray(space.SPACE)
         self.read_at: list[int] = []

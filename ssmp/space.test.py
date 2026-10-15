@@ -1,5 +1,3 @@
-"""The sixty four kilobytes as the processor sees them, registers included."""
-
 import sys
 import unittest
 from pathlib import Path
@@ -11,8 +9,6 @@ from ssmp.errors import NoBootRom
 
 
 class Memory:
-    """Sixty four kilobytes and nothing else, which is all a space needs of one."""
-
     def __init__(self, fill: int = 0) -> None:
         self.held = bytearray([fill & 0xFF]) * space.SPACE
 
@@ -24,8 +20,6 @@ class Memory:
 
 
 class Generator:
-    """A sound generator that remembers what it was told."""
-
     def __init__(self) -> None:
         self.held = bytearray(0x80)
         self.written: list[tuple[int, int]] = []

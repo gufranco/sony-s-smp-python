@@ -1,14 +1,3 @@
-"""The console's own upload protocol, driven at the unit end to end.
-
-This is the check that matters most in this repository, because it is the only
-one where the evidence is the part itself. The sixty four bytes in the top page
-are Sony's, the sequence below is the one every Super Nintendo game performs, and
-nothing here was copied from an implementation of either.
-
-A machine without a boot program skips the whole file and says so, rather than
-reporting a pass.
-"""
-
 import sys
 import unittest
 from pathlib import Path
@@ -24,8 +13,6 @@ PRESENT = ssmp.why_not() is None
 
 @unittest.skipUnless(PRESENT, ssmp.why_not() or "")
 class HandshakeTest(unittest.TestCase):
-    """What the unit says before anybody has said anything to it."""
-
     def test_it_answers_the_two_bytes_a_console_waits_for(self) -> None:
         unit = ssmp.Chip("ssmp")
 
@@ -58,8 +45,6 @@ class HandshakeTest(unittest.TestCase):
 
 @unittest.skipUnless(PRESENT, ssmp.why_not() or "")
 class UploadTest(unittest.TestCase):
-    """A block of code moved in through four bytes, the way a cartridge does it."""
-
     def test_a_program_uploaded_through_the_ports_runs(self) -> None:
         unit = ssmp.Chip("ssmp")
 
@@ -120,8 +105,6 @@ class UploadTest(unittest.TestCase):
 
 @unittest.skipUnless(PRESENT, ssmp.why_not() or "")
 class MemoryTest(unittest.TestCase):
-    """What the boot program leaves behind it."""
-
     def test_the_boot_program_clears_the_zero_page_before_the_handshake(self) -> None:
         unit = ssmp.Chip("ssmp", fill=0xFF)
 
@@ -156,8 +139,6 @@ class MemoryTest(unittest.TestCase):
 
 @unittest.skipUnless(PRESENT, ssmp.why_not() or "")
 class FoundOnThisMachineTest(unittest.TestCase):
-    """That the unit finds its own program when nobody hands it one."""
-
     def test_a_unit_built_with_no_program_named_finds_one(self) -> None:
         unit = ssmp.Chip("ssmp")
 

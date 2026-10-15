@@ -1,5 +1,3 @@
-"""What a timer counts, what a read of one costs, and what zero means."""
-
 import sys
 import unittest
 from pathlib import Path
@@ -146,19 +144,6 @@ class ReadTest(unittest.TestCase):
 
 
 class MidCountTest(unittest.TestCase):
-    """What a divider written part way through a count does to the stage.
-
-    Nothing establishes this. No Sony document for the unit is known, and the
-    boot program never writes a divider twice, so neither source this member
-    rests on reaches it. What the model does is leave the stage alone, which is
-    the choice that treats the divider as a comparison rather than as a reload.
-
-    It is under test rather than under a comment because it is one of the two
-    unsourced choices in this file, and one of the three console checks that
-    disagree is named for the other. A reader deciding whether either is the
-    cause needs to see what the model actually does.
-    """
-
     def counting(self, divider: int, ticks: int) -> "timers.Timer":
         timer = timers.Timer(ticks_every=1)
         timer.enable(True)

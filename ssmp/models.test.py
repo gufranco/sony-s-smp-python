@@ -1,5 +1,3 @@
-"""Which units this package covers, and how a name resolves to one."""
-
 import sys
 import unittest
 from pathlib import Path
@@ -58,8 +56,6 @@ class DescribeTest(unittest.TestCase):
 
 
 class ChipTest(unittest.TestCase):
-    """The wrapper every member of the family carries, checked without a program."""
-
     def test_a_unit_is_built_through_the_name_the_caller_gave(self) -> None:
         import ssmp
         from ssmp import firmware
@@ -84,12 +80,6 @@ class PrintingTest(unittest.TestCase):
 
 
 class NamingNoneTest(unittest.TestCase):
-    """That leaving the model out is refused, and refused usefully.
-
-    One unit is the tempting place to allow a default and the worst one: the
-    habit learned here is the habit carried to a member covering sixteen parts.
-    """
-
     def test_building_without_naming_a_model_is_refused(self) -> None:
         with self.assertRaises(UnknownModelError):
             ssmp.Chip()

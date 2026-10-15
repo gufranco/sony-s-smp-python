@@ -1,23 +1,3 @@
-"""What the processor sees when it reads or writes, which is not flat memory.
-
-The processor this unit holds has one address space and no idea that sixteen of
-its addresses are not memory. Everything that makes this unit a unit rather than
-a processor with RAM lives here: four ports to the console, three timers, a
-window onto the sound generator's registers, and a boot program that covers the
-top sixty four bytes until a program switches it away.
-
-Two of those are the reason a flat store is the wrong shape. A read of a timer's
-counter clears it, so a debugger that displays memory changes what the program
-sees. And the top sixty four bytes answer from two different places depending on
-one bit written minutes earlier, so the same address is a constant and a variable
-in one run.
-
-The registers occupy 00F0 to 00FF. Two of the sixteen are ordinary memory that
-nothing in the unit claims, and they are left as memory rather than made to read
-as zero, because a program using them as two spare bytes is using them the way
-the silicon lets it.
-"""
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, override
@@ -31,10 +11,8 @@ if TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Sequence
 
 SPACE = 0x10000
-"""Sixty four kilobytes, which is every address the processor can reach."""
 
 REGISTERS_AT = 0x00F0
-"""Where the sixteen addresses that are not memory begin."""
 
 REGISTER_COUNT = 0x10
 
@@ -48,10 +26,8 @@ TIMER_0_DIVIDER = 0xFA
 COUNTER_0 = 0xFD
 
 BOOT_AT = 0xFFC0
-"""Where the boot program appears when the control register asks for it."""
 
 BOOT_BYTES = 0x40
-"""How long it is. A supplied image of any other length is refused."""
 
 CONTROL_TIMER_0 = 0x01
 CONTROL_TIMER_1 = 0x02
@@ -64,13 +40,6 @@ TIMER_COUNT = 3
 
 
 class Space:
-    """The sixty four kilobytes as the processor sees them.
-
-    Built to be handed to the processor as its store, so the processor stays a
-    processor: it reads and writes bytes and never learns that some of them are
-    a conversation with a console.
-    """
-
     __slots__ = (
         "boot",
         "boot_visible",
@@ -107,7 +76,6 @@ class Space:
             self.write_all(fill)
 
     def write_all(self, value: int) -> None:
-        """Put one byte everywhere in memory, for a caller who asked for it."""
         for address in range(SPACE):
             self.memory.write8(address, value & 0xFF)
 
@@ -121,14 +89,6 @@ class Space:
         return held
 
     def write8(self, address: int, value: int) -> None:
-        """Every write reaches memory, including the ones that also do something.
-
-        The boot window is the reason. It covers memory rather than replacing it,
-        so a program that writes there while it is visible is writing to the RAM
-        underneath, and finds its bytes waiting once it switches the window off.
-        That is how every uploader this unit has ever run gets its own code into
-        the top page.
-        """
         address &= SPACE - 1
         value &= 0xFF
         if REGISTERS_AT <= address < REGISTERS_AT + REGISTER_COUNT:
@@ -161,19 +121,6 @@ class Space:
         return self._read_write_only(address)
 
     def _read_write_only(self, address: int) -> int:
-        """Zero, which is what every register that cannot be read answers.
-
-        Five addresses are written and never read back: the test register, the
-        control register and the three timer dividers. They do not answer with
-        the value last written and they do not answer with the memory underneath.
-        They answer with zero, and a model that returns either of the other two
-        is wrong in a way that only shows up when a program reads them.
-
-        Two sources say so and neither is an implementation. The SNESdev wiki
-        states it outright, and blargg's `initial_regs.spc` carries a checksum
-        taken on a console over all sixteen of these addresses at once: of every
-        arrangement of the five, exactly one reproduces it, and it is this one.
-        """
         del address
         return 0x00
 
@@ -205,12 +152,6 @@ class Space:
         self.memory.write8(address, value)
 
     def _write_control(self, value: int) -> None:
-        """The one register that changes what the address space is.
-
-        Clearing the ports happens on the write rather than while the bit is
-        held, which is why a program can clear them and leave the bit set with no
-        further effect.
-        """
         self.control = value
         self.boot_visible = bool(value & CONTROL_BOOT_VISIBLE)
         self.timers[0].enable(bool(value & CONTROL_TIMER_0))
@@ -221,12 +162,6 @@ class Space:
         )
 
     def _write_dsp(self, value: int) -> None:
-        """A write to the sound generator, which only happens from this side.
-
-        The address register's top bit is not part of an address. A write with it
-        set is refused by the generator rather than folded down, so this passes
-        the address through as written and lets that member decide.
-        """
         if self.dsp is None:
             return
         if self.dsp_address & 0x80:
@@ -234,7 +169,6 @@ class Space:
         self.dsp.write(self.dsp_address & 0x7F, value)
 
     def spend(self, cycles: int) -> None:
-        """Advance every timer by that many processor cycles."""
         for one in self.timers:
             one.spend(cycles)
 

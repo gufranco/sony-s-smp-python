@@ -1,5 +1,3 @@
-"""Four ports, two bytes each, and what keeps the two directions apart."""
-
 import sys
 import unittest
 from pathlib import Path

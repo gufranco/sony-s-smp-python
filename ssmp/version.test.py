@@ -1,5 +1,3 @@
-"""What the package says its version is."""
-
 import sys
 import unittest
 from pathlib import Path

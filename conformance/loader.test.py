@@ -1,11 +1,3 @@
-"""An audio unit written down, put back, and run.
-
-Two kinds of check live here. The first builds a written-down unit by hand, so
-the reading and the restoring are exercised on any machine. The second runs
-blargg's, which carry checksums he took on a console, and those skip out loud
-when the files are not here rather than reporting a pass nobody earned.
-"""
-
 import sys
 import unittest
 from pathlib import Path
@@ -30,14 +22,6 @@ QUICK = ("initial_regs.spc", "initial_in_ports.spc")
 ROOM = 4_000_000
 
 STANDING_IN = bytes(space.BOOT_BYTES)
-"""A boot program of the right length and no content.
-
-The checks below restore a written-down unit and set its program counter
-themselves, so nothing they do ever runs what is in the boot window. Supplying
-sixty four zeroes rather than Sony's sixty four bytes lets every one of them run
-on a machine that holds no copy, and leaves the checks that genuinely need the
-real thing in `boot.test.py` where they belong.
-"""
 
 
 def _a_unit() -> Any:
@@ -45,7 +29,6 @@ def _a_unit() -> Any:
 
 
 def _raw(program: dict[int, int], registers: bytes, pc: int) -> bytes:
-    """One of these files, built rather than read, so no file is needed."""
     header = bytearray(loader.HEADER_BYTES)
     header[: len(loader.SIGNATURE)] = loader.SIGNATURE
     header[loader.PC_AT] = pc & 0xFF
@@ -325,14 +308,6 @@ class PlayingTest(unittest.TestCase):
 
 
 class BlarggTest(unittest.TestCase):
-    """His checks, run as they are, against expectations he took on a console.
-
-    These build the unit with the real boot program rather than the stand-in the
-    checks above use. One of them reads every byte of memory, and the boot window
-    covers the top page while it is visible, so what is behind that window has to
-    be the thing a console would have there.
-    """
-
     @override
     def setUp(self) -> None:
         if board.why_not() is not None:

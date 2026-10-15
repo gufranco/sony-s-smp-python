@@ -1,27 +1,11 @@
-"""Which units this package covers, and what each one is.
-
-The S-SMP is one unit with one behaviour. Sony built the processor and the sound
-generator onto one part, put sixty four bytes of boot program beside them, and
-never sold any of it separately, so there is no family of revisions to model.
-
-The catalogue exists for the same reason it exists in the sibling repositories: a
-hardware difference discovered later should mean adding an entry rather than
-restructuring the package around it. A caller still names the unit, because
-`Chip("ssmp")` reads the same way as every other member of this family and a
-constructor that took nothing would be the odd one out.
-"""
-
 from typing import override
 
 from ssmp.errors import UnknownModelError
 
 SEPARATORS = ("-", "_", " ", ".")
-"""What a reader might put between the letters of a part number."""
 
 
 class Model:
-    """One unit: what it is, what it carries, and how much of it there is."""
-
     __slots__ = ("boot", "memory", "name", "processor", "summary")
 
     def __init__(
@@ -68,16 +52,6 @@ def _plain(name: str) -> str:
 
 
 def lookup(name: str | None) -> Model:
-    """The unit that goes by that name, however it was written.
-
-    Naming nothing is refused rather than filled in. A default would be the one
-    implicit thing in the call that builds a part, and it is worst where it looks
-    most harmless: a caller who learns to leave the model out against a member
-    covering one unit writes the same call against a member covering sixteen.
-
-    Not exported from the package. What a caller wants is the unit, and the unit
-    carries its own model.
-    """
     if name is None:
         raise UnknownModelError(
             "no model was named, and this package will not choose one for you."

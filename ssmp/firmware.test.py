@@ -1,9 +1,3 @@
-"""Recognising a boot program, refusing the wrong one, and saying why.
-
-Every case here builds its own bytes, so the file runs on a machine holding no
-boot program at all. What needs the real one is `conformance/boot.test.py`.
-"""
-
 import json
 import sys
 import tempfile
@@ -22,7 +16,6 @@ ANOTHER = bytes(range(1, firmware.BOOT_BYTES + 1))
 
 
 def _artifacts(image: bytes = A_PROGRAM, bad: bytes | None = None) -> list[dict[str, Any]]:
-    """The entries alone, for the helpers that take them rather than a manifest."""
     found = _a_manifest(image, bad)["artifacts"]
     assert isinstance(found, list)
     return found
@@ -351,14 +344,6 @@ class LoadTest(unittest.TestCase):
 
 
 class DecidingDigestTest(unittest.TestCase):
-    """That the manifest tells a reader which of its four digests decides.
-
-    The reader already knows: `DECIDES` names it and nothing else is compared
-    against. A person cross-checking a copy reads the manifest rather than the
-    module, so the manifest has to say it too, and this is what keeps the two
-    from drifting apart.
-    """
-
     def held(self) -> str:
         return str(firmware.manifest()["decides"])
 

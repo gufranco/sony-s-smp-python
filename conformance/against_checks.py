@@ -1,15 +1,3 @@
-"""Every one of blargg's checks, run against the model, including the slow one.
-
-Kept out of the coverage step because the longest of them is twenty seconds of
-the unit's own time, which is about ten seconds here and a great deal more under
-a tracer. The two quick ones also run in `loader.test.py`; this is where the
-whole set runs, and where the file digests are confirmed rather than assumed.
-
-Exit two means nothing was checked, which is the honest answer on a machine that
-holds neither the boot program nor the files. It is not the same as agreement and
-the run page says so.
-"""
-
 from __future__ import annotations
 
 import json
@@ -33,17 +21,11 @@ NOTHING_CHECKED = 2
 
 
 def declared(path: Path | str | None = None) -> dict[str, Any]:
-    """What this project says blargg's checks are."""
     held: dict[str, Any] = json.loads(Path(path or MANIFEST).read_text())
     return held
 
 
 def confirm(raw: bytes, expected: dict[str, str]) -> list[str]:
-    """Every published digest that the file on disk does not match.
-
-    All four are confirmed rather than only the deciding one, because publishing
-    a value nothing ever looks at is publishing decoration.
-    """
     found = firmware.digests_of(raw)
     return [name for name, value in expected.items() if found.get(name) != value]
 

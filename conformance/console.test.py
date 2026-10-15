@@ -1,13 +1,3 @@
-"""The console's side of the protocol, checked against a unit that is not one.
-
-Every case here uses a stand-in, so the file runs on a machine holding no boot
-program. What it checks is that the sequence written down is the sequence played:
-which ports, in which order, and what it does when nothing answers.
-
-Whether the real part answers it is `boot.test.py`, which needs the real thing
-and skips without it.
-"""
-
 import sys
 import unittest
 from pathlib import Path
@@ -20,8 +10,6 @@ from conformance import console
 
 
 class Deaf:
-    """A unit that never answers, which is what a wrong image looks like."""
-
     def __init__(self) -> None:
         self.written: list[tuple[int, int]] = []
         self.ran = 0
@@ -38,8 +26,6 @@ class Deaf:
 
 
 class Echoing(Deaf):
-    """A unit that hands back whatever was last put in a port, and is ready."""
-
     def __init__(self) -> None:
         super().__init__()
         self.held = {0: console.READY_LOW, 1: console.READY_HIGH, 2: 0x00, 3: 0x00}

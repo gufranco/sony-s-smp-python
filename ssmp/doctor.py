@@ -1,17 +1,3 @@
-"""What is here, what is not, and what to do about it.
-
-Run this before opening an issue and paste what it prints. It is deliberately
-readable by somebody who has never seen this package: every line says what was
-looked at, what was there, and what to do when there is something to do.
-
-The interesting case for this member is a machine that has almost everything.
-The unit is built out of two other repositories and sixty four bytes nobody may
-distribute, so there are three separate ways to be nearly ready, and telling them
-apart is most of what this file is for.
-
-    python3 -m ssmp.doctor
-"""
-
 from __future__ import annotations
 
 import platform
@@ -34,8 +20,6 @@ OLDEST_PYTHON = (3, 12)
 
 
 class Finding:
-    """One thing that was looked at, and what was there."""
-
     __slots__ = ("advice", "detail", "name", "ok")
 
     def __init__(self, name: str, ok: bool, detail: str, advice: str | None = None) -> None:
@@ -46,12 +30,10 @@ class Finding:
 
     @property
     def line(self) -> str:
-        """The one-line form, which is what a reader scans."""
         return f"  {'ok  ' if self.ok else '   !'}  {self.name}: {self.detail}"
 
     @property
     def report(self) -> str:
-        """The same, with what to do about it when there is something to do."""
         if self.ok or not self.advice:
             return self.line
         return f"{self.line}\n         {self.advice}"
@@ -71,16 +53,10 @@ def _python() -> Finding:
 
 
 def _package() -> Finding:
-    """The distribution, named for itself rather than for the unit it models.
-
-    They share the letters, which is why this says version and not much else: a
-    line reading `ssmp: ssmp` would tell a reader nothing.
-    """
     return Finding("package", True, f"ssmp {VERSION}")
 
 
 def _halves(members: Callable[[], tuple[Any, Any] | None]) -> Finding:
-    """Whether the two repositories this unit is assembled from are checked out."""
     found = members()
     return Finding(
         "halves",
@@ -93,7 +69,6 @@ def _halves(members: Callable[[], tuple[Any, Any] | None]) -> Finding:
 
 
 def _boot(why_not: Callable[[], str | None]) -> Finding:
-    """Whether a boot program is on this machine, and what to do if not."""
     said = why_not()
     return Finding(
         "boot program",
@@ -105,23 +80,10 @@ def _boot(why_not: Callable[[], str | None]) -> Finding:
 
 
 def _default_build(name: str) -> Any:  # pragma: no cover
-    """How the unit is built when nobody says otherwise.
-
-    Not measured, because every caller of it takes the builder as an argument so
-    that the decision behind it can be exercised on a machine holding no boot
-    program. This line is the one that needs one.
-    """
     return board.Chip(name)
 
 
 def _unit(name: str, build: Callable[[str], Any]) -> Finding:
-    """Whether the unit builds and resets, saying what stopped it if not.
-
-    The reset is driven rather than described. It rebuilds both halves on one
-    store, masks the boot program back in at the top page and takes the sound
-    generator to the state that writes no echo, so it is the path a console puts
-    the unit through and the one a report should have exercised.
-    """
     try:
         unit = build(name)
         unit.reset()
@@ -140,20 +102,12 @@ def examine(
     members: Callable[[], tuple[Any, Any] | None] = board._members,
     why_not: Callable[[], str | None] = board.why_not,
 ) -> list[Finding]:
-    """Everything worth looking at, in the order a reader wants it.
-
-    The order is the order a reader can act in: the language, then the package,
-    then the two halves, then the program, then the unit itself. Anything that
-    fails makes everything after it fail too, so the first failure is the one to
-    read.
-    """
     found = [_python(), _package(), _halves(members), _boot(why_not)]
     found.extend(_unit(name, build) for name in sorted(models.MODELS))
     return found
 
 
 def report(found: list[Finding]) -> list[str]:
-    """The lines a person pastes into an issue."""
     unwell = [one for one in found if not one.ok]
     lines = [f"ssmp {VERSION} on {platform.python_version()}, {platform.system()}", ""]
     lines.append("  the machine")

@@ -1,9 +1,3 @@
-"""The run that reports what it could not check, checked itself.
-
-Every decision it makes is taken as an argument, so a machine that holds all of
-blargg's files and a machine that holds none of them both exercise every path.
-"""
-
 import json
 import sys
 import tempfile
@@ -19,7 +13,6 @@ from ssmp import firmware
 
 
 def _smallest() -> bytes:
-    """The least that still reads as one of these, so no real file is needed."""
     header = bytearray(loader.HEADER_BYTES)
     header[: len(loader.SIGNATURE)] = loader.SIGNATURE
     return bytes(header) + bytes(loader.RAM_BYTES) + bytes(loader.GENERATOR_BYTES)
@@ -215,8 +208,6 @@ class RunTest(unittest.TestCase):
 
 
 class StandingIn:
-    """Stand in for the run itself, so the reporting is checked without a unit."""
-
     def __init__(self, outcome: Any) -> None:
         self.outcome = outcome
         self.before = loader.play

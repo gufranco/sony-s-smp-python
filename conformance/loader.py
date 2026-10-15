@@ -1,22 +1,3 @@
-"""An SPC file, and the order a player has to restore it in.
-
-A `.spc` file is a whole audio unit written down: sixty four kilobytes of
-memory, the sound generator's registers, and the six processor registers. That
-makes it the one artifact that can be handed to this model and simply run, with
-no console anywhere in the chain and nothing to emulate on the other side of the
-four ports.
-
-The order below is not decoration. Writing the control register clears whichever
-pairs of ports its bits ask for, so a player that restores the ports and then the
-control register loses two of them, and every check downstream reads zero and
-blames the wrong thing. The ports go back last.
-
-Three of these files are checks rather than songs. blargg wrote them to hold a
-player to what a console does, and each carries a checksum he took on hardware,
-so what they settle is settled at the second rung of the ladder rather than by
-agreeing with another implementation.
-"""
-
 from __future__ import annotations
 
 import binascii
@@ -59,13 +40,10 @@ SP_AT = 0x2B
 REGISTERS = 0x00F0
 
 
-class NotAnSpc(ValueError):
-    """The file handed over is not one of these."""
+class NotAnSpc(ValueError): ...
 
 
 class Dump:
-    """One audio unit, written down."""
-
     __slots__ = ("a", "generator", "memory", "pc", "psw", "sp", "x", "y")
 
     def __init__(self, raw: bytes) -> None:
@@ -90,7 +68,6 @@ class Dump:
 
     @property
     def registers(self) -> bytes:
-        """The sixteen addresses that are not memory, as the file holds them."""
         return self.memory[REGISTERS : REGISTERS + 0x10]
 
     @override
@@ -99,18 +76,10 @@ class Dump:
 
 
 def read(path: Path | str) -> Dump:
-    """One of these files, off disk."""
     return Dump(Path(path).read_bytes())
 
 
 def restore(unit: Any, dump: Dump) -> Any:
-    """Put a written-down unit back into a real one, in the order that works.
-
-    Memory first, because everything else sits on top of it. The sound
-    generator next. The control register before the ports, since it is the write
-    that clears them. The processor's own registers last, because the program
-    starts the instant a caller steps the unit.
-    """
     for at in range(RAM_BYTES):
         unit.space.memory.write8(at, dump.memory[at])
     for at in range(GENERATOR_BYTES):
@@ -135,20 +104,11 @@ def restore(unit: Any, dump: Dump) -> Any:
 
 
 def checksum(values: Sequence[int] | bytes) -> bytes:
-    """The checksum blargg's checks compare against, low byte first.
-
-    Read off his own routine rather than guessed at: a reflected CRC-32 begun at
-    all ones with no final inversion. Confirmed against two expectations in
-    `initial_regs.spc` that this model already reproduced before anything was
-    changed, so the arithmetic was settled before it was used to settle anything
-    else.
-    """
     held = binascii.crc32(bytes(values)) ^ 0xFFFFFFFF
     return bytes((held >> (8 * index)) & 0xFF for index in range(4))
 
 
 def directories(environment: Mapping[str, str] | None = None) -> tuple[Path, ...]:
-    """Every place these files are looked for, in the order they are looked at."""
     named = (environment if environment is not None else os.environ).get(DIRECTORY_VARIABLE, "")
     wanted = [Path(where) for where in named.split(os.pathsep) if where]
     wanted += [ALONGSIDE, DEFAULT_DIRECTORY]
@@ -160,7 +120,6 @@ def directories(environment: Mapping[str, str] | None = None) -> tuple[Path, ...
 
 
 def find(name: str, environment: Mapping[str, str] | None = None) -> Path | None:
-    """Where one of these files is on this machine, or nothing when it is not."""
     for where in directories(environment):
         candidate = where / name
         if candidate.is_file():
@@ -169,25 +128,14 @@ def find(name: str, environment: Mapping[str, str] | None = None) -> Path | None
 
 
 AGREED = bytes.fromhex("8fffdc8fffdd8fffde8fffdf6f")
-"""Blargg's harness setting its four checksum bytes back to all ones.
-
-Every one of his checks calls this before a sub-test and again after one agrees,
-so finding it finds both the routine and, in its own operands, the four addresses
-the running checksum lives at. The sequence sits at a different address in
-different files, which is why it is searched for rather than written down.
-"""
 
 DISAGREED = bytes.fromhex("2de4dc2de4dd2de4de2de4df")
-"""The harness pushing those same four bytes, which it does only to report them."""
 
 
-class NoHarness(LookupError):
-    """This file is a song rather than one of blargg's checks."""
+class NoHarness(LookupError): ...
 
 
 class Harness:
-    """Where the two routines are, and where the running checksum lives."""
-
     __slots__ = ("agreed", "checksum_at", "disagreed")
 
     def __init__(self, agreed: int, disagreed: int, checksum_at: int) -> None:
@@ -213,15 +161,12 @@ def _only(memory: bytes, wanted: bytes, what: str) -> int:
 
 
 def harness(dump: Dump) -> Harness:
-    """Blargg's reporting routines, found by what they do rather than by address."""
     agreed = _only(dump.memory, AGREED, "sets four checksum bytes back to all ones")
     disagreed = _only(dump.memory, DISAGREED, "pushes those same four bytes to report them")
     return Harness(agreed, disagreed, dump.memory[agreed + 2])
 
 
 class Outcome:
-    """What a check said, and how far it got before saying it."""
-
     __slots__ = ("agreements", "cycles", "disagreed_at", "reported")
 
     def __init__(self, agreements: int, disagreed_at: int | None, reported: bytes, cycles: int):
@@ -242,23 +187,6 @@ class Outcome:
 
 
 def play(unit: Any, dump: Dump, limit: int) -> Outcome:
-    """Run one of blargg's checks and report what it decided.
-
-    It reports by beeping, which is no use here, so this watches for the two
-    routines it beeps from instead. A sub-check that disagrees stops the run,
-    because the harness reports only the first one and everything after it is
-    the harness restarting rather than more checking.
-
-    A check that runs to the end hands control back to the boot program, which
-    is what blargg's notes mean by re-running the bootloader so the next file
-    can be sent without resetting the console. Reaching the boot window is
-    therefore the signal that there is nothing left to run, and it is the same
-    signal whichever file this is.
-
-    The numbering is the harness's own: sub-check one is it starting up, and the
-    codes in blargg's notes begin at two. A disagreement on `n` is therefore the
-    failure code `n` he documents.
-    """
     restore(unit, dump)
     found = harness(dump)
     agreements = 0

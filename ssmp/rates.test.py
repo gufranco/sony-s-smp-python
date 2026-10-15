@@ -1,5 +1,3 @@
-"""The arithmetic that turns one crystal into a cost in processor cycles."""
-
 import sys
 import unittest
 from pathlib import Path
