@@ -2,7 +2,7 @@
 
 以 Python 實現的 Super Nintendo Sony S-SMP 音效單元：一個 SPC700 處理器與一個 S-DSP 聲音產生器，共用 64 KB 記憶體、四個連接埠、三個計時器和一個 64 位元組的開機程式，並以該開機程式及數值在主機上實測取得的檢查作為標準。
 
-[English](README.md) &nbsp;|&nbsp; [日本語](README.ja.md) &nbsp;|&nbsp; [简体中文](README.zh-Hans.md) &nbsp;|&nbsp; 繁體中文（香港）
+[English](README.md) | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | 繁體中文（香港）
 
 [![CI](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
