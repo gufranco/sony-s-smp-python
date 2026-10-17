@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定中 **14** 个一致，**725** 个测试，**100%** 语句和分支覆盖率，无依赖
+**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定中 **14** 个一致，**730** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 import ssmp
@@ -59,7 +59,7 @@ python3 ssmp/doctor.py
 
 ## 接口
 
-`ssmp.Chip(model, boot=None, identity=None, images=None, fill=None)` 构建一个单元，构建后即已上电并运行引导程序。`model` 为必填参数。
+`ssmp.Chip(model, boot=None, identity=None, images=None, fill=None)` 构建一个处于刚上电状态的单元：处理器、声音发生器和内存都是随机状态，在调用 `reset()` 之前什么都不运行。`model` 为必填参数。
 
 | 参数 | 含义 |
 |:--|:--|
@@ -73,7 +73,7 @@ python3 ssmp/doctor.py
 
 | 调用 | 效果 |
 |:--|:--|
-| `reset()` | 用同一段引导程序构建全新的处理器、内存、声音发生器和寄存器空间。返回该单元 |
+| `reset()` | 即主机的复位线。用同一段引导程序构建全新的处理器、内存、声音发生器和寄存器空间，然后复位声音发生器和处理器，处理器随即开始运行引导程序。返回该单元 |
 | `step()` | 执行一条处理器指令。返回所用周期数 |
 | `run_for(cycles)` | 执行指令，直到至少经过 `cycles` 个周期。返回实际消耗的周期数 |
 | `read(index)` | 主机在端口 `index`（0 到 3）读到的值：单元最后写入该端口的字节 |
@@ -241,7 +241,7 @@ print(rates.SLOW_TIMER_CYCLES, rates.FAST_TIMER_CYCLES)
 128 16
 ```
 
-声音发生器上电时处于复位状态，而不是随机状态，这是本单元中唯一的例外。主机的复位线连到它，而处于复位状态的声音发生器不写回声。随机的回声寄存器会让它指向它随后会覆盖的内存。
+构建单元时，声音发生器和处理器一样处于随机状态。主机的复位线同时连到两者，所以 `reset()` 会复位两者。处于复位状态的声音发生器不写回声。没有被复位的声音发生器照常接收时钟，如果它随机的标志寄存器开启了回声写入，它就会写到随机的回声寄存器所指向的地方。这一点被如实建模而不是被阻止，真实单元是否如此、怎样才能确定，见 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)。
 
 ## 未建模的内容
 

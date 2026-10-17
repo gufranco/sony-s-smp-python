@@ -24,7 +24,7 @@ top page.
 ```python
 from ssmp import Chip
 
-unit = Chip("ssmp")
+unit = Chip("ssmp").reset()
 unit.run_for(6300)
 unit.read(0), unit.read(1)  # 0xaa, 0xbb: the unit is listening
 unit.write(0, 0xCC)  # what a console says to start a transfer
@@ -45,7 +45,7 @@ sixty four bytes never touch.
 
 ## What is settled and what is not
 
-**Not settled: 5 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
+**Not settled: 6 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
 the measurement that would close it. The sharpest is that nothing here is a
 timing claim against a console, because the two crystals are independent.
 
@@ -192,9 +192,15 @@ conformance/against_checks.py  Shay Green's checks, run against the model
   own, and it is clocked once per processor cycle. Both are easy to leave out
   and nothing fails loudly when you do: the unit runs, the handshake works, and
   no sound is ever produced.
-- The generator is reset at construction. That is the one exception to power on
-  scrambles, reset defines, and it is there because a scrambled echo register
-  points somewhere and the generator writes there.
+- Building a unit resets nothing: the generator and the processor both come up
+  scrambled. `reset()` is the console's reset line, which reaches both halves,
+  so it resets the generator to what `resetLine` in its record lists and then
+  the processor. A check, a runner or an example that wants the boot program
+  running calls `reset()` itself.
+- A generator nobody reset is clocked like any other, and when its scrambled
+  flag register leaves echo writes on it writes wherever its scrambled echo
+  registers point. That is what power on does here, and it is modelled rather
+  than prevented. `OPEN-QUESTIONS.md` says what would settle it.
 
 ## Before calling anything finished
 

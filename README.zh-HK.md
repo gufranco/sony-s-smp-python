@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** 個連接埠就是與主機之間的全部介面，**3** 項附有在主機上實測數值的檢查，**0** 項不符，一個檢查卡帶的 **18** 項判定中有 **14** 項相符，**725** 項測試，**100%** 語句與分支覆蓋率，無任何依賴
+**4** 個連接埠就是與主機之間的全部介面，**3** 項附有在主機上實測數值的檢查，**0** 項不符，一個檢查卡帶的 **18** 項判定中有 **14** 項相符，**730** 項測試，**100%** 語句與分支覆蓋率，無任何依賴
 
 ```python
 import ssmp
@@ -59,7 +59,7 @@ python3 ssmp/doctor.py
 
 ## 介面
 
-`ssmp.Chip(model, boot=None, identity=None, images=None, fill=None)` 建立一個單元，該單元已通電並正在執行開機程式。`model` 為必填。
+`ssmp.Chip(model, boot=None, identity=None, images=None, fill=None)` 建立一個處於剛通電狀態的單元：處理器、聲音產生器和記憶體都被打亂，在呼叫 `reset()` 之前甚麼都不會執行。`model` 為必填。
 
 | 參數 | 含義 |
 |:--|:--|
@@ -73,7 +73,7 @@ python3 ssmp/doctor.py
 
 | 呼叫 | 作用 |
 |:--|:--|
-| `reset()` | 以同一開機程式建立全新的處理器、記憶體、聲音產生器和暫存器空間。傳回該單元 |
+| `reset()` | 即主機的重設線。以同一開機程式建立全新的處理器、記憶體、聲音產生器和暫存器空間，然後重設聲音產生器和處理器，處理器隨即開始執行開機程式。傳回該單元 |
 | `step()` | 執行一條處理器指令。傳回所用的週期數 |
 | `run_for(cycles)` | 執行指令，直至至少經過 `cycles` 個週期。傳回所耗的週期數 |
 | `read(index)` | 主機在連接埠 `index`（0 至 3）讀到的內容：單元最後寫入該處的位元組 |
@@ -241,7 +241,7 @@ print(rates.SLOW_TIMER_CYCLES, rates.FAST_TIMER_CYCLES)
 128 16
 ```
 
-產生器啟動時處於重設狀態而非被打亂，這是本單元中唯一的例外。主機的重設線連接到它，而處於重設狀態的產生器不會寫入回聲。被打亂的回聲暫存器會令它指向一段隨後被它覆寫的記憶體。
+建立單元時，產生器和處理器一樣處於被打亂的狀態。主機的重設線同時連接到兩者，所以 `reset()` 會重設兩者。處於重設狀態的產生器不會寫入回聲。未被重設的產生器照常接收時脈，如果它被打亂的旗標暫存器開啟了回聲寫入，它就會寫到被打亂的回聲暫存器所指向的位置。這一點如實建模而不加阻止，至於真實單元是否如此、怎樣才能確定，見 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)。
 
 ## 未模擬的部分
 

@@ -32,7 +32,7 @@ def confirm(raw: bytes, expected: dict[str, str]) -> list[str]:
 
 def main(
     say: Callable[[str], None] = print,
-    build: Callable[[], Any] = lambda: Chip("ssmp"),
+    build: Callable[[], Any] = lambda: Chip("ssmp").reset(),
     why_not: Callable[[], str | None] = board.why_not,
     find: Callable[[str], Path | None] = loader.find,
     held: dict[str, Any] | None = None,

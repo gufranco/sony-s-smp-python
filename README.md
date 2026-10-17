@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** verdicts from a cartridge of checks agree, **725** tests, **100%** statement and branch coverage, no dependencies
+**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** verdicts from a cartridge of checks agree, **730** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 import ssmp
@@ -59,7 +59,7 @@ Releases follow [Semantic Versioning](https://semver.org/) and are cut from the 
 
 ## The interface
 
-`ssmp.Chip(model, boot=None, identity=None, images=None, fill=None)` builds one unit, powered on and running its boot program. `model` is required.
+`ssmp.Chip(model, boot=None, identity=None, images=None, fill=None)` builds one unit as power on leaves it: the processor, the sound generator and memory scrambled, and nothing running until `reset()`. `model` is required.
 
 | Argument | Meaning |
 |:--|:--|
@@ -73,7 +73,7 @@ Releases follow [Semantic Versioning](https://semver.org/) and are cut from the 
 
 | Call | Effect |
 |:--|:--|
-| `reset()` | Builds a fresh processor, memory, sound generator and register space from the same boot program. Returns the unit |
+| `reset()` | The console's reset line. Builds a fresh processor, memory, sound generator and register space from the same boot program, then resets the sound generator and the processor, which starts the boot program. Returns the unit |
 | `step()` | One processor instruction. Returns the cycles it took |
 | `run_for(cycles)` | Instructions until at least `cycles` cycles have passed. Returns the cycles spent |
 | `read(index)` | What the console reads at port `index`, 0 to 3: the byte the unit last wrote there |
@@ -241,7 +241,7 @@ print(rates.SLOW_TIMER_CYCLES, rates.FAST_TIMER_CYCLES)
 128 16
 ```
 
-The generator comes up reset rather than scrambled, the one exception in this unit. The console's reset line reaches it, and a reset generator writes no echo. Scrambled echo registers would point it at memory it then overwrites.
+A unit is built with the generator scrambled, as the processor is, and `reset()` resets both, because the console's reset line reaches both. A reset generator writes no echo. One nobody reset is clocked as it stands, and when its scrambled flag register leaves echo writes on, it writes wherever its scrambled echo registers point. That is modelled rather than prevented, and [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) says what would settle whether a real unit does it.
 
 ## What is not modelled
 

@@ -167,6 +167,39 @@ wired, reaches the envelope group, and reports a disagreement. Which of the 111
 disagrees, and whether the fault is in the generator, in this wiring, or in the
 harness that drove it, is not isolated.
 
+## Before the console's reset reaches the unit
+
+### What the sound generator writes between power on and the reset.
+
+**The document says.** Nothing. No Sony document for this unit is known, and
+the generator's own record marks what it holds at power on, and what a reset
+sets beyond the flag register, as unverified.
+
+**What this project does.** Builds the unit with the generator scrambled from
+its seed and the processor scrambled too, and resets neither. A caller who runs
+a unit before calling `reset()` clocks that scrambled generator, and when its
+scrambled flag register leaves echo writes on, it writes its echo buffer
+wherever its scrambled registers point, into the memory the processor runs on.
+Nothing here stops that. `reset()` is the console's reset line: it resets the
+generator to what `resetLine` in
+[sony-s-dsp-python](https://github.com/gufranco/sony-s-dsp-python)'s record
+lists, with the flag register at `$e0`, which turns echo writes off, and then
+resets the processor, which starts the boot program.
+
+**Why.** The console's reset line reaches both halves, so the unit's reset
+resets both, and a unit nobody reset holds what power on left in both. Whether a
+real generator runs, and writes, before that line reaches it is not settled by
+any source here. With the seed this package builds the generator from, the
+question does not bite: the scrambled flag register comes up as `$25`, whose
+bit 5 turns echo writes off, and a unit run for 64,000 cycles without a reset
+had its generator write nothing to memory (as of 2026-10-17). A scramble with
+that bit clear would write, and this model would let it.
+
+**What would settle or reopen it.** A logic capture of a real unit's memory bus
+from the rail coming up until the reset line is released, repeated across power
+cycles, which shows whether the generator drives any write before the reset
+reaches it.
+
 ## What a whole cartridge of his checks said
 
 `spc_smp.sfc` carries nineteen checks with values taken on a console. Eighteen

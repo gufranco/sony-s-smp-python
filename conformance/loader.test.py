@@ -25,7 +25,7 @@ STANDING_IN = bytes(space.BOOT_BYTES)
 
 
 def _a_unit() -> Any:
-    return Chip("ssmp", boot=STANDING_IN)
+    return Chip("ssmp", boot=STANDING_IN).reset()
 
 
 def _raw(program: dict[int, int], registers: bytes, pc: int) -> bytes:
@@ -314,26 +314,36 @@ class BlarggTest(unittest.TestCase):
             self.skipTest(f"no unit can be built here: {board.why_not()}")
 
     def test_every_quick_check_agrees(self) -> None:
-        outcomes = {}
-        for name in QUICK:
-            where = loader.find(name)
-            if where is None:
-                self.skipTest(
-                    f"{name} is not on this machine. It is blargg's and is not carried"
-                    f" here; put a copy in {loader.DEFAULT_DIRECTORY.name}/ or name a"
-                    f" directory in {loader.DIRECTORY_VARIABLE}"
-                )
-            outcomes[name] = loader.play(Chip("ssmp"), loader.read(where), ROOM)
+        # Arrange
+        found = {name: loader.find(name) for name in QUICK}
+        held = {name: where for name, where in found.items() if where is not None}
+        for name in sorted(set(QUICK) - set(held)):
+            self.skipTest(
+                f"{name} is not on this machine. It is blargg's and is not carried"
+                f" here; put a copy in {loader.DEFAULT_DIRECTORY.name}/ or name a"
+                f" directory in {loader.DIRECTORY_VARIABLE}"
+            )
 
+        # Act
+        outcomes = {
+            name: loader.play(Chip("ssmp").reset(), loader.read(where), ROOM)
+            for name, where in held.items()
+        }
+
+        # Assert
         self.assertEqual([one for one, said in outcomes.items() if not said.agreed], [])
 
     def test_the_one_that_reads_the_ports_first_gets_all_four(self) -> None:
+        # Arrange
         where = loader.find("initial_in_ports.spc")
         if where is None:
             self.skipTest("initial_in_ports.spc is not on this machine")
+        unit = Chip("ssmp").reset()
 
-        said = loader.play(Chip("ssmp"), loader.read(where), ROOM)
+        # Act
+        said = loader.play(unit, loader.read(where), ROOM)
 
+        # Assert
         self.assertTrue(said.agreed)
 
     def test_a_unit_whose_write_only_registers_read_back_fails_his_checksum(self) -> None:

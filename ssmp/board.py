@@ -122,11 +122,10 @@ class Chip:
 
     def _start(self) -> None:
         store = self._processor.Memory(fill=self._fill)
-        self.dsp = self._generator.Chip(GENERATOR_MODEL, memory=store).reset()
+        self.dsp = self._generator.Chip(GENERATOR_MODEL, memory=store)
         self.space = Space(boot=self._boot, memory=store, dsp=self.dsp)
         self.processor = self._processor.Cpu(PROCESSOR_MODEL, memory=self.space)
         self.processor.on_cycle = self._spent
-        self.processor.reset()
 
     def _spent(self) -> None:
         self.cycles += 1
@@ -136,6 +135,8 @@ class Chip:
 
     def reset(self) -> Chip:
         self._start()
+        self.dsp.reset()
+        self.processor.reset()
         return self
 
     def step(self) -> int:

@@ -87,8 +87,25 @@ class GeneratorTest(unittest.TestCase):
     def test_the_record_says_the_two_halves_share_one_memory(self) -> None:
         self.assertTrue(self.held["sharesMemoryWithTheProcessor"])
 
-    def test_and_that_the_generator_is_reset_rather_than_left_scrambled(self) -> None:
-        self.assertTrue(self.held["resetAtConstruction"])
+    def test_and_that_building_a_unit_leaves_the_generator_scrambled(self) -> None:
+        # Arrange
+        held = self.held
+
+        # Act
+        claimed = held["resetAtConstruction"]
+
+        # Assert
+        self.assertIs(claimed, False)
+
+    def test_and_that_the_unit_reset_is_what_resets_it(self) -> None:
+        # Arrange
+        held = self.held
+
+        # Act
+        claimed = held["resetWithTheUnit"]
+
+        # Assert
+        self.assertIs(claimed, True)
 
     def test_it_does_not_claim_what_the_generator_produces_is_checked(self) -> None:
         self.assertFalse(self.held["verified"])

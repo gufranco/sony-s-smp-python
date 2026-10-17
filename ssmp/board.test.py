@@ -1,6 +1,8 @@
+import json
 import sys
 import unittest
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -9,13 +11,30 @@ from ssmp.errors import NoBootRom, WrongShape
 
 MADE_UP = bytes(range(space.BOOT_BYTES))
 
+GENERATOR_RECORD = board.GENERATOR / "conformance" / "hardware.json"
+
 
 def _an_identity() -> firmware.Identity:
     return firmware.Identity("ssmp", "spc700", "made up", space.BOOT_BYTES)
 
 
-def _a_unit(fill: int | None = None) -> board.Chip:
+def _a_unit_nobody_reset(fill: int | None = None) -> board.Chip:
     return board.Chip("ssmp", boot=MADE_UP, identity=_an_identity(), fill=fill)
+
+
+def _a_unit(fill: int | None = None) -> board.Chip:
+    return _a_unit_nobody_reset(fill).reset()
+
+
+def _what_a_reset_sets() -> dict[str, Any]:
+    held: dict[str, Any] = json.loads(GENERATOR_RECORD.read_text())["resetLine"]["sets"]
+    return held
+
+
+def _the_halves() -> tuple[Any, Any]:
+    found = board._members()
+    assert found is not None
+    return found
 
 
 class AvailabilityTest(unittest.TestCase):
@@ -96,15 +115,19 @@ class WithoutTheHalvesTest(unittest.TestCase):
 
 class FromDiskTest(unittest.TestCase):
     def test_a_unit_reads_the_program_from_where_the_catalogue_points(self) -> None:
+        # Arrange
         import tempfile
 
         with tempfile.TemporaryDirectory() as where:
             path = Path(where) / "made-up.bin"
             path.write_bytes(MADE_UP)
-
             unit = board.Chip("ssmp", images={"ssmp": (_an_identity(), path)})
 
-            self.assertEqual(unit.processor.pc, MADE_UP[62] | MADE_UP[63] << 8)
+        # Act
+        unit.reset()
+
+        # Assert
+        self.assertEqual(unit.processor.pc, MADE_UP[62] | MADE_UP[63] << 8)
 
     def test_and_carries_the_identity_the_catalogue_gave_it(self) -> None:
         import tempfile
@@ -224,14 +247,64 @@ class OneUnitTest(unittest.TestCase):
 
         self.assertEqual(unit.dsp.phase, unit.cycles & 31)
 
-    def test_the_generator_comes_up_reset_rather_than_scrambled(self) -> None:
-        generator = board._members()
-        assert generator is not None
-        core = generator[1].core
+    def test_a_unit_nobody_reset_leaves_the_generator_as_power_on_left_it(self) -> None:
+        # Arrange
+        processor, generator = _the_halves()
+        powered = generator.Chip(board.GENERATOR_MODEL, memory=processor.Memory())
 
-        unit = _a_unit()
+        # Act
+        unit = _a_unit_nobody_reset()
 
-        self.assertEqual(unit.dsp.registers[core.REG_FLG], core.RESET_FLAGS)
+        # Assert
+        self.assertEqual(unit.dsp.registers, powered.registers)
+
+    def test_and_the_processor_too(self) -> None:
+        # Arrange
+        processor, _ = _the_halves()
+        powered = processor.Cpu(board.PROCESSOR_MODEL)
+
+        # Act
+        unit = _a_unit_nobody_reset()
+
+        # Assert
+        self.assertEqual(unit.processor.pc, powered.pc)
+
+    def test_a_reset_sets_the_generator_registers_its_record_lists(self) -> None:
+        # Arrange
+        _, generator = _the_halves()
+        sets = _what_a_reset_sets()
+        flags = generator.core.REG_FLG
+        cleared = bytes([int(sets["registers"], 16)]) * generator.REGISTER_COUNT
+        expected = cleared[:flags] + bytes([int(sets["FLG"], 16)]) + cleared[flags + 1 :]
+        unit = _a_unit_nobody_reset()
+
+        # Act
+        unit.reset()
+
+        # Assert
+        self.assertEqual(bytes(unit.dsp.registers), expected)
+
+    def test_and_starts_its_noise_generator_where_the_record_says(self) -> None:
+        # Arrange
+        chip = _what_a_reset_sets()["chip"]
+        unit = _a_unit_nobody_reset()
+
+        # Act
+        unit.reset()
+
+        # Assert
+        self.assertEqual(unit.dsp.noise, int(chip["noise"], 16))
+
+    def test_a_unit_nobody_reset_clocks_the_generator_it_powered_on_with(self) -> None:
+        # Arrange
+        unit = _a_unit_nobody_reset()
+        before = unit.dsp.phase
+
+        # Act
+        spent = unit.run_for(64)
+
+        # Assert
+        self.assertEqual(unit.dsp.phase, (before + spent) & 31)
 
     def test_so_running_it_leaves_memory_where_a_caller_put_it(self) -> None:
         unit = _a_unit()
