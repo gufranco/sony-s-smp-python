@@ -10,7 +10,7 @@ from ssmp.ports import COUNT as PORT_COUNT
 from ssmp.space import BOOT_BYTES, Space
 
 if TYPE_CHECKING:  # pragma: no cover
-    from collections.abc import Callable, Sequence
+    from collections.abc import Sequence
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -43,29 +43,29 @@ def _members() -> tuple[Any, Any] | None:
     try:
         import sdsp
         import spc700
-    except ImportError:  # pragma: no cover
+    except ImportError:
         return None
     return spc700, sdsp
 
 
 def available(
     held: dict[str, tuple[Any, Path]] | None = None,
-    members: Callable[[], tuple[Any, Any] | None] = _members,
+    catalogue: dict[str, Any] | None = None,
 ) -> dict[str, tuple[Any, Path]]:
     if held is None:
-        if members() is None:
+        if _members() is None:
             return {}
-        held = {identity.part: (identity, path) for identity, path in firmware.search()}
+        held = {
+            identity.part: (identity, path)
+            for identity, path in firmware.search(catalogue=catalogue)
+        }
     return dict(held)
 
 
-def why_not(
-    held: dict[str, tuple[Any, Path]] | None = None,
-    members: Callable[[], tuple[Any, Any] | None] = _members,
-) -> str | None:
-    if members() is None:
+def why_not(held: dict[str, tuple[Any, Path]] | None = None) -> str | None:
+    if _members() is None:
         return WHY_NOT_PROCESSOR
-    if not available(held, members):
+    if not available(held):
         return WHY_NOT_BOOT
     return None
 
@@ -92,9 +92,8 @@ class Chip:
         identity: Any | None = None,
         images: dict[str, tuple[Any, Path]] | None = None,
         fill: int | None = None,
-        members: Callable[[], tuple[Any, Any] | None] = _members,
     ) -> None:
-        found = members()
+        found = _members()
         if found is None:
             raise NoBootRom(WHY_NOT_PROCESSOR)
         processor, generator = found

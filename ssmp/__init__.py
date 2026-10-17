@@ -4,6 +4,7 @@ from . import models
 from .board import Chip as _Chip
 from .board import available, why_not
 from .errors import Corrupt, NoBootRom, UnknownModelError, Unrecognised, WrongShape
+from .firmware import identify
 from .models import MODELS, Model
 from .version import VERSION
 
@@ -26,5 +27,6 @@ __all__ = [
     "WrongShape",
     "__version__",
     "available",
+    "identify",
     "why_not",
 ]

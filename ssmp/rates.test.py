@@ -1,68 +1,74 @@
 import sys
 import unittest
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from ssmp import rates
+import ssmp
+from conformance import monitor
+
+PROCESSOR_HZ = 24_576_000 // 24
+
+SAMPLE_HZ = 24_576_000 // 768
 
 
-class DivisionTest(unittest.TestCase):
-    def test_the_crystal_divides_into_the_sampling_rate_without_a_remainder(self) -> None:
-        self.assertEqual(rates.CRYSTAL_HZ % 768, 0)
-
-    def test_and_into_the_processor(self) -> None:
-        self.assertEqual(rates.CRYSTAL_HZ % rates.PROCESSOR_DIVISOR, 0)
-
-    def test_and_into_both_timer_rates(self) -> None:
-        for one in (rates.SLOW_TIMER_DIVISOR, rates.FAST_TIMER_DIVISOR):
-            self.assertEqual(rates.CRYSTAL_HZ % one, 0, one)
-
-    def test_the_sampling_rate_is_the_one_the_generator_records(self) -> None:
-        self.assertEqual(rates.CRYSTAL_HZ // 768, 32_000)
-
-    def test_the_processor_runs_at_a_little_over_a_megahertz(self) -> None:
-        self.assertEqual(rates.PROCESSOR_HZ, 1_024_000)
-
-    def test_two_timers_tick_at_eight_kilohertz(self) -> None:
-        self.assertEqual(rates.SLOW_TIMER_HZ, 8_000)
-
-    def test_the_third_ticks_eight_times_faster(self) -> None:
-        self.assertEqual(rates.FAST_TIMER_HZ, rates.SLOW_TIMER_HZ * 8)
+def a_unit() -> Any:
+    return ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=0x00).reset()
 
 
-class CostTest(unittest.TestCase):
-    def test_a_slow_tick_costs_the_cycles_the_ratio_names(self) -> None:
-        self.assertEqual(rates.SLOW_TIMER_CYCLES, 128)
+class TimerCostTest(unittest.TestCase):
+    def test_timer_0_ticks_every_128_processor_cycles(self) -> None:
+        # Arrange
+        unit = a_unit()
 
-    def test_a_fast_tick_costs_an_eighth_of_that(self) -> None:
-        self.assertEqual(rates.FAST_TIMER_CYCLES, 16)
+        # Act
+        found = monitor.timer_period(unit, 0, divider=1, gap=1500)
 
-    def test_the_cost_is_derived_from_the_two_rates_rather_than_tabulated(self) -> None:
-        self.assertEqual(rates.cycles_per_tick(8_000, 1_024_000), 128)
+        # Assert
+        self.assertAlmostEqual(found, PROCESSOR_HZ / 8_000, delta=1)
 
-    def test_a_unit_with_the_same_ratios_behaves_the_same_way(self) -> None:
-        self.assertEqual(rates.cycles_per_tick(16_000, 2_048_000), rates.SLOW_TIMER_CYCLES)
+    def test_and_so_does_timer_1(self) -> None:
+        # Arrange
+        unit = a_unit()
+
+        # Act
+        found = monitor.timer_period(unit, 1, divider=1, gap=1500)
+
+        # Assert
+        self.assertAlmostEqual(found, PROCESSOR_HZ / 8_000, delta=1)
+
+    def test_timer_2_ticks_eight_times_as_often(self) -> None:
+        # Arrange
+        unit = a_unit()
+
+        # Act
+        found = monitor.timer_period(unit, 2, divider=1, gap=150)
+
+        # Assert
+        self.assertAlmostEqual(found, PROCESSOR_HZ / 64_000, delta=0.5)
+
+    def test_so_timer_2_dividing_by_eight_keeps_pace_with_timer_0_dividing_by_one(self) -> None:
+        # Arrange
+        unit = a_unit()
+
+        # Act
+        found = monitor.timer_period(unit, 2, divider=8, gap=1500)
+
+        # Assert
+        self.assertAlmostEqual(found, PROCESSOR_HZ / 8_000, delta=1)
 
 
-class GeneratorTest(unittest.TestCase):
-    def test_the_sample_rate_is_the_one_the_neighbouring_member_records(self) -> None:
-        self.assertEqual(rates.SAMPLE_HZ, 32_000)
+class GeneratorClockTest(unittest.TestCase):
+    def test_a_sample_lasts_as_many_processor_cycles_as_the_two_rates_divide_into(self) -> None:
+        # Arrange
+        unit = a_unit()
 
-    def test_the_generator_runs_at_the_same_rate_as_the_processor(self) -> None:
-        self.assertEqual(rates.GENERATOR_HZ, rates.PROCESSOR_HZ)
+        # Act
+        found = monitor.sample_period(unit)
 
-    def test_so_one_processor_cycle_costs_one_of_its_clocks(self) -> None:
-        self.assertEqual(rates.GENERATOR_CLOCKS, 1)
-
-    def test_and_that_is_derived_rather_than_written_down(self) -> None:
-        self.assertEqual(
-            rates.clocks_per_cycle(64_000 * rates.CLOCKS_PER_SAMPLE, 1_024_000),
-            2,
-        )
-
-    def test_the_two_divisors_multiply_out_to_the_sample_divisor(self) -> None:
-        self.assertEqual(rates.PROCESSOR_DIVISOR * rates.CLOCKS_PER_SAMPLE, rates.SAMPLE_DIVISOR)
+        # Assert
+        self.assertAlmostEqual(found, PROCESSOR_HZ / SAMPLE_HZ, delta=1)
 
 
 if __name__ == "__main__":

@@ -6,8 +6,8 @@ from typing import Any, override
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import ssmp
 from conformance import loader
-from ssmp import Chip, board, space
 
 CHECKS = {
     "initial_regs.spc": "the six processor registers, all sixteen ports and registers, "
@@ -21,11 +21,19 @@ QUICK = ("initial_regs.spc", "initial_in_ports.spc")
 
 ROOM = 4_000_000
 
-STANDING_IN = bytes(space.BOOT_BYTES)
+STANDING_IN = bytes(64)
+
+BOOT_VISIBLE = 0x80
+
+CLEAR_PORTS_01 = 0x10
+
+CLEAR_PORTS_23 = 0x20
+
+SPIN = (0x2F, 0xFE)
 
 
 def _a_unit() -> Any:
-    return Chip("ssmp", boot=STANDING_IN).reset()
+    return ssmp.Chip("ssmp", boot=STANDING_IN).reset()
 
 
 def _raw(program: dict[int, int], registers: bytes, pc: int) -> bytes:
@@ -41,9 +49,7 @@ def _raw(program: dict[int, int], registers: bytes, pc: int) -> bytes:
     return bytes(header) + bytes(memory) + bytes(loader.GENERATOR_BYTES)
 
 
-def _registers(
-    control: int = space.CONTROL_BOOT_VISIBLE, ports: bytes = b"\x00\x00\x00\x00"
-) -> bytes:
+def _registers(control: int = BOOT_VISIBLE, ports: bytes = b"\x00\x00\x00\x00") -> bytes:
     held = bytearray(0x10)
     held[0x01] = control
     held[0x04:0x08] = ports
@@ -100,49 +106,78 @@ class ReadingTest(unittest.TestCase):
         self.assertEqual(loader.read(where).pc, 0x0200)
 
 
+def _restored_and_run(program: bytes, registers: bytes, generator: bytes = b"") -> Any:
+    raw = bytearray(_raw(_laid_out(0x0400, program), registers, 0x0400))
+    raw[loader.GENERATOR_AT : loader.GENERATOR_AT + len(generator)] = generator
+    unit = loader.restore(_a_unit(), loader.Dump(bytes(raw)))
+    unit.run_for(200)
+    return unit
+
+
 class RestoringTest(unittest.TestCase):
     def test_memory_comes_back(self) -> None:
-        held = loader.Dump(_raw({0x0400: 0x5A}, _registers(), 0x0400))
+        # Arrange
+        program = bytes((0xE5, 0x00, 0x05, 0xC4, 0xF5, *SPIN))
+        raw = _raw({**_laid_out(0x0400, program), 0x0500: 0x5A}, _registers(), 0x0400)
+        unit = loader.restore(_a_unit(), loader.Dump(raw))
 
-        unit = loader.restore(_a_unit(), held)
+        # Act
+        unit.run_for(200)
 
-        self.assertEqual(unit.space.read8(0x0400), 0x5A)
+        # Assert
+        self.assertEqual(unit.read(1), 0x5A)
 
     def test_the_ports_survive_a_control_value_that_clears_them(self) -> None:
-        asks_for_a_clear = space.CONTROL_CLEAR_PORTS_01 | space.CONTROL_CLEAR_PORTS_23
-        held = loader.Dump(
-            _raw({}, _registers(control=asks_for_a_clear, ports=b"\x12\x34\x56\x78"), 0x0400)
+        # Arrange
+        copying = bytes(
+            (
+                *(0xE4, 0xF4, 0xC4, 0xF4),
+                *(0xE4, 0xF5, 0xC4, 0xF5),
+                *(0xE4, 0xF6, 0xC4, 0xF6),
+                *(0xE4, 0xF7, 0xC4, 0xF7),
+                *SPIN,
+            )
+        )
+        asks_for_a_clear = BOOT_VISIBLE | CLEAR_PORTS_01 | CLEAR_PORTS_23
+
+        # Act
+        unit = _restored_and_run(
+            copying, _registers(control=asks_for_a_clear, ports=b"\x12\x34\x56\x78")
         )
 
-        unit = loader.restore(_a_unit(), held)
-
-        self.assertEqual(
-            bytes(unit.space.read8(space.PORT_0 + index) for index in range(4)),
-            b"\x12\x34\x56\x78",
-        )
+        # Assert
+        self.assertEqual(bytes(unit.read(index) for index in range(4)), b"\x12\x34\x56\x78")
 
     def test_the_console_side_of_the_ports_comes_back_too(self) -> None:
+        # Arrange
         held = loader.Dump(_raw({}, _registers(ports=b"\x12\x34\x56\x78"), 0x0400))
 
+        # Act
         unit = loader.restore(_a_unit(), held)
 
+        # Assert
         self.assertEqual(bytes(unit.read(index) for index in range(4)), b"\x12\x34\x56\x78")
 
     def test_the_generator_comes_back(self) -> None:
-        raw = bytearray(_raw({}, _registers(), 0x0400))
-        raw[loader.GENERATOR_AT + 0x0C] = 0x7F
-        held = loader.Dump(bytes(raw))
+        # Arrange
+        reading = bytes((0x8F, 0x0C, 0xF2, 0xE4, 0xF3, 0xC4, 0xF5, *SPIN))
+        generator = bytes(0x0C) + b"\x7f"
 
-        unit = loader.restore(_a_unit(), held)
+        # Act
+        unit = _restored_and_run(reading, _registers(), generator)
 
-        self.assertEqual(unit.space.dsp.read(0x0C), 0x7F)
+        # Assert
+        self.assertEqual(unit.read(1), 0x7F)
 
     def test_the_cycle_count_starts_again(self) -> None:
+        # Arrange
         unit = _a_unit()
         unit.run_for(100)
 
+        # Act
         loader.restore(unit, loader.Dump(_raw({}, _registers(), 0x0400)))
 
+        # Assert
         self.assertEqual(unit.cycles, 0)
 
 
@@ -310,8 +345,8 @@ class PlayingTest(unittest.TestCase):
 class BlarggTest(unittest.TestCase):
     @override
     def setUp(self) -> None:
-        if board.why_not() is not None:
-            self.skipTest(f"no unit can be built here: {board.why_not()}")
+        if ssmp.why_not() is not None:
+            self.skipTest(f"no unit can be built here: {ssmp.why_not()}")
 
     def test_every_quick_check_agrees(self) -> None:
         # Arrange
@@ -326,7 +361,7 @@ class BlarggTest(unittest.TestCase):
 
         # Act
         outcomes = {
-            name: loader.play(Chip("ssmp").reset(), loader.read(where), ROOM)
+            name: loader.play(ssmp.Chip("ssmp").reset(), loader.read(where), ROOM)
             for name, where in held.items()
         }
 
@@ -338,7 +373,7 @@ class BlarggTest(unittest.TestCase):
         where = loader.find("initial_in_ports.spc")
         if where is None:
             self.skipTest("initial_in_ports.spc is not on this machine")
-        unit = Chip("ssmp").reset()
+        unit = ssmp.Chip("ssmp").reset()
 
         # Act
         said = loader.play(unit, loader.read(where), ROOM)

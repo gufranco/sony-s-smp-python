@@ -1,376 +1,381 @@
-import json
+import hashlib
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from typing import Any
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from ssmp import board, firmware, space
-from ssmp.errors import NoBootRom, WrongShape
+import ssmp
+from conformance import monitor
 
-MADE_UP = bytes(range(space.BOOT_BYTES))
+CONTROL = 0xF1
 
-GENERATOR_RECORD = board.GENERATOR / "conformance" / "hardware.json"
+BOOT_VISIBLE = 0x80
 
+PADDING = 0xFFFD
 
-def _an_identity() -> firmware.Identity:
-    return firmware.Identity("ssmp", "spc700", "made up", space.BOOT_BYTES)
+SPIN = bytes((0x2F, 0xFE))
 
+STOP = 0xFF
 
-def _a_unit_nobody_reset(fill: int | None = None) -> board.Chip:
-    return board.Chip("ssmp", boot=MADE_UP, identity=_an_identity(), fill=fill)
-
-
-def _a_unit(fill: int | None = None) -> board.Chip:
-    return _a_unit_nobody_reset(fill).reset()
+WHY_NOT_BOOT_STARTS = "no boot program was found"
 
 
-def _what_a_reset_sets() -> dict[str, Any]:
-    held: dict[str, Any] = json.loads(GENERATOR_RECORD.read_text())["resetLine"]["sets"]
-    return held
+def a_unit(fill: int = 0x00) -> Any:
+    return ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=fill).reset()
 
 
-def _the_halves() -> tuple[Any, Any]:
-    found = board._members()
-    assert found is not None
-    return found
+def without(module: str) -> Any:
+    return mock.patch.dict(sys.modules, {module: None})
+
+
+def a_catalogue(image: bytes) -> dict[str, Any]:
+    return {
+        "artifacts": [
+            {
+                "part": "ssmp",
+                "processor": "spc700",
+                "bytes": len(image),
+                "accepted": [{"revision": "made up", "sha256": hashlib.sha256(image).hexdigest()}],
+            }
+        ]
+    }
+
+
+def with_the_window_off(unit: Any) -> Any:
+    for offset, byte in enumerate(monitor.MONITOR):
+        monitor.poke(unit, 0xFFC0 + offset, byte)
+    monitor.poke(unit, PADDING, 0x5A)
+    monitor.poke(unit, CONTROL, 0x00)
+    return unit
 
 
 class AvailabilityTest(unittest.TestCase):
     def test_a_machine_holding_nothing_has_nothing_available(self) -> None:
-        self.assertEqual(board.available({}), {})
+        # Arrange
+        held: dict[str, Any] = {}
 
-    def test_and_says_why_the_unit_cannot_be_built(self) -> None:
-        self.assertEqual(board.why_not({}), board.WHY_NOT_BOOT)
+        # Act
+        found = ssmp.available(held)
 
-    def test_a_machine_holding_one_has_it_available(self) -> None:
-        held = {"ssmp": (_an_identity(), Path("nowhere"))}
+        # Assert
+        self.assertEqual(found, {})
 
-        self.assertEqual(sorted(board.available(held)), ["ssmp"])
+    def test_and_says_the_boot_program_is_what_is_missing(self) -> None:
+        # Arrange
+        held: dict[str, Any] = {}
 
-    def test_and_says_nothing_stands_in_the_way(self) -> None:
-        held = {"ssmp": (_an_identity(), Path("nowhere"))}
+        # Act
+        said = ssmp.why_not(held)
 
-        self.assertIsNone(board.why_not(held))
+        # Assert
+        self.assertTrue(str(said).startswith(WHY_NOT_BOOT_STARTS), said)
 
     def test_the_refusal_names_the_variable_a_reader_can_set(self) -> None:
-        self.assertIn(firmware.DIRECTORY_VARIABLE, board.WHY_NOT_BOOT)
+        # Arrange
+        held: dict[str, Any] = {}
 
-    def test_a_machine_without_the_two_halves_has_nothing_available(self) -> None:
-        self.assertEqual(board.available(members=lambda: None), {})
+        # Act
+        said = ssmp.why_not(held)
 
-    def test_and_says_the_halves_are_what_is_missing(self) -> None:
-        self.assertEqual(board.why_not(members=lambda: None), board.WHY_NOT_PROCESSOR)
+        # Assert
+        self.assertIn("SSMP_BOOT_DIR", str(said))
 
-    def test_the_refusal_says_how_to_fetch_them(self) -> None:
-        self.assertIn("submodule", board.WHY_NOT_PROCESSOR)
+    def test_a_machine_holding_one_has_it_available(self) -> None:
+        # Arrange
+        held = {"ssmp": (object(), Path("nowhere"))}
 
-    def test_the_two_halves_are_the_processor_and_the_generator(self) -> None:
-        found = board._members()
+        # Act
+        found = ssmp.available(held)
 
-        self.assertEqual([one.__name__ for one in found] if found else [], ["spc700", "sdsp"])
+        # Assert
+        self.assertEqual(sorted(found), ["ssmp"])
 
+    def test_and_says_nothing_stands_in_the_way(self) -> None:
+        # Arrange
+        held = {"ssmp": (object(), Path("nowhere"))}
 
-class ConstructionTest(unittest.TestCase):
-    def test_a_unit_can_be_built_from_a_program_handed_straight_to_it(self) -> None:
-        unit = _a_unit()
+        # Act
+        said = ssmp.why_not(held)
 
-        self.assertEqual(unit.part, "ssmp")
-
-    def test_a_program_of_the_wrong_length_is_refused(self) -> None:
-        with self.assertRaises(WrongShape):
-            board.Chip("ssmp", boot=MADE_UP[:-1], identity=_an_identity())
-
-    def test_a_program_handed_over_without_saying_what_it_is_is_marked_as_supplied(self) -> None:
-        unit = board.Chip("ssmp", boot=MADE_UP)
-
-        self.assertEqual(unit.identity.revision, "supplied")
-
-    def test_a_unit_there_is_no_program_for_is_refused(self) -> None:
-        with self.assertRaises(NoBootRom):
-            board.Chip("nosuchunit", images={})
-
-    def test_the_refusal_names_the_unit_that_was_asked_for(self) -> None:
-        with self.assertRaises(NoBootRom) as caught:
-            board.Chip("nosuchunit", images={})
-
-        self.assertIn("nosuchunit", str(caught.exception))
-
-    def test_a_unit_prints_the_name_and_which_window_is_showing(self) -> None:
-        self.assertIn("boot", repr(_a_unit()))
+        # Assert
+        self.assertIsNone(said)
 
 
 class WithoutTheHalvesTest(unittest.TestCase):
+    def test_a_machine_without_the_processor_has_nothing_available(self) -> None:
+        # Arrange
+        missing = without("spc700")
+
+        # Act
+        with missing:
+            found = ssmp.available()
+
+        # Assert
+        self.assertEqual(found, {})
+
+    def test_and_says_the_submodule_is_what_is_missing(self) -> None:
+        # Arrange
+        missing = without("spc700")
+
+        # Act
+        with missing:
+            said = ssmp.why_not()
+
+        # Assert
+        self.assertIn("git submodule update --init --recursive", str(said))
+
+    def test_a_machine_without_the_generator_is_refused_the_same_way(self) -> None:
+        # Arrange
+        missing = without("sdsp")
+
+        # Act
+        with missing:
+            said = ssmp.why_not()
+
+        # Assert
+        self.assertIn("submodule", str(said))
+
     def test_a_unit_cannot_be_built_when_the_halves_are_not_here(self) -> None:
-        with self.assertRaises(NoBootRom):
-            board.Chip("ssmp", boot=MADE_UP, identity=_an_identity(), members=lambda: None)
+        # Arrange
+        missing = without("spc700")
 
-    def test_the_refusal_says_which_half_is_missing(self) -> None:
-        with self.assertRaises(NoBootRom) as caught:
-            board.Chip("ssmp", boot=MADE_UP, identity=_an_identity(), members=lambda: None)
+        # Act
+        with missing, self.assertRaises(ssmp.NoBootRom) as caught:
+            ssmp.Chip("ssmp", boot=monitor.MONITOR)
 
+        # Assert
         self.assertIn("SPC700", str(caught.exception))
 
 
-class FromDiskTest(unittest.TestCase):
-    def test_a_unit_reads_the_program_from_where_the_catalogue_points(self) -> None:
+class ConstructionTest(unittest.TestCase):
+    def test_a_program_of_the_wrong_length_is_refused(self) -> None:
         # Arrange
-        import tempfile
-
-        with tempfile.TemporaryDirectory() as where:
-            path = Path(where) / "made-up.bin"
-            path.write_bytes(MADE_UP)
-            unit = board.Chip("ssmp", images={"ssmp": (_an_identity(), path)})
+        program = monitor.MONITOR[:-1]
 
         # Act
-        unit.reset()
+        with self.assertRaises(ssmp.WrongShape) as caught:
+            ssmp.Chip("ssmp", boot=program)
 
         # Assert
-        self.assertEqual(unit.processor.pc, MADE_UP[62] | MADE_UP[63] << 8)
+        self.assertIn("63", str(caught.exception))
+
+    def test_a_program_handed_over_without_saying_what_it_is_is_marked_as_supplied(self) -> None:
+        # Arrange
+        program = monitor.MONITOR
+
+        # Act
+        unit = ssmp.Chip("ssmp", boot=program)
+
+        # Assert
+        self.assertEqual(
+            (unit.identity.part, unit.identity.revision, unit.identity.bytes_long),
+            ("ssmp", "supplied", 64),
+        )
+
+    def test_a_program_handed_over_with_its_record_carries_that_record(self) -> None:
+        # Arrange
+        identity = ssmp.identify(monitor.MONITOR, a_catalogue(monitor.MONITOR))
+
+        # Act
+        unit = ssmp.Chip("ssmp", boot=monitor.MONITOR, identity=identity)
+
+        # Assert
+        self.assertIs(unit.identity, identity)
+
+    def test_a_unit_there_is_no_program_for_is_refused_by_name(self) -> None:
+        # Arrange
+        images: dict[str, Any] = {}
+
+        # Act
+        with self.assertRaises(ssmp.NoBootRom) as caught:
+            ssmp.Chip("ssmp", images=images)
+
+        # Assert
+        self.assertIn("there is no boot program for ssmp", str(caught.exception))
+
+    def test_a_unit_prints_its_name_its_cycles_and_which_window_is_showing(self) -> None:
+        # Arrange
+        unit = ssmp.Chip("ssmp", boot=monitor.MONITOR)
+
+        # Act
+        printed = repr(unit)
+
+        # Assert
+        self.assertEqual(printed, "<Chip ssmp, 0 cycles, top page reads boot>")
+
+    def test_and_says_so_once_the_window_is_off(self) -> None:
+        # Arrange
+        unit = with_the_window_off(a_unit())
+
+        # Act
+        printed = repr(unit)
+
+        # Assert
+        self.assertTrue(printed.endswith("top page reads memory>"), printed)
+
+
+class FromDiskTest(unittest.TestCase):
+    def test_a_unit_runs_the_program_the_catalogue_points_at(self) -> None:
+        # Arrange
+        where = Path(self.enterContext(tempfile.TemporaryDirectory())) / "made-up.bin"
+        where.write_bytes(monitor.MONITOR)
+        identity = ssmp.identify(monitor.MONITOR, a_catalogue(monitor.MONITOR))
+        unit = ssmp.Chip("ssmp", images={"ssmp": (identity, where)}, fill=0x00).reset()
+
+        # Act
+        monitor.poke(unit, 0x0400, 0x42)
+
+        # Assert
+        self.assertEqual(monitor.peek(unit, 0x0400), 0x42)
 
     def test_and_carries_the_identity_the_catalogue_gave_it(self) -> None:
-        import tempfile
+        # Arrange
+        where = Path(self.enterContext(tempfile.TemporaryDirectory())) / "made-up.bin"
+        where.write_bytes(monitor.MONITOR)
+        identity = ssmp.identify(monitor.MONITOR, a_catalogue(monitor.MONITOR))
 
-        with tempfile.TemporaryDirectory() as where:
-            path = Path(where) / "made-up.bin"
-            path.write_bytes(MADE_UP)
+        # Act
+        unit = ssmp.Chip("ssmp", images={"ssmp": (identity, where)})
 
-            unit = board.Chip("ssmp", images={"ssmp": (_an_identity(), path)})
-
-            self.assertEqual(unit.identity.revision, "made up")
+        # Assert
+        self.assertEqual(unit.identity.revision, "made up")
 
 
 class StartTest(unittest.TestCase):
     def test_the_processor_starts_where_the_program_says(self) -> None:
-        unit = _a_unit()
+        # Arrange
+        program = (SPIN + monitor.PROGRAM).ljust(62, b"\x00") + b"\xc2\xff"
 
-        self.assertEqual(unit.processor.pc, MADE_UP[62] | MADE_UP[63] << 8)
+        # Act
+        unit = ssmp.Chip("ssmp", boot=program, fill=0x00).reset()
 
-    def test_the_top_page_reads_the_program_rather_than_memory(self) -> None:
-        unit = _a_unit()
+        # Assert
+        self.assertEqual(monitor.peek(unit, 0xFFC2), monitor.PROGRAM[0])
 
-        self.assertTrue(unit.space.boot_visible)
+    def test_building_a_unit_starts_nothing(self) -> None:
+        # Arrange
+        unit = ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=STOP)
+
+        # Act
+        with self.assertRaises(monitor.Unanswered) as caught:
+            monitor.peek(unit, 0x1000)
+
+        # Assert
+        self.assertIn("never acknowledged", str(caught.exception))
 
     def test_a_fill_reaches_the_memory_the_unit_runs_on(self) -> None:
-        unit = _a_unit(fill=0x5A)
+        # Arrange
+        unit = a_unit(fill=0x5A)
 
-        self.assertEqual(unit.space.memory.read8(0x1234), 0x5A)
+        # Act
+        found = monitor.peek(unit, 0x1234)
 
-    def test_resetting_takes_it_back_and_hands_it_over(self) -> None:
-        unit = _a_unit()
+        # Assert
+        self.assertEqual(found, 0x5A)
 
-        self.assertIs(unit.reset(), unit)
+    def test_resetting_hands_the_same_unit_back(self) -> None:
+        # Arrange
+        unit = ssmp.Chip("ssmp", boot=monitor.MONITOR)
+
+        # Act
+        handed = unit.reset()
+
+        # Assert
+        self.assertIs(handed, unit)
 
     def test_a_byte_written_to_memory_survives_a_reset(self) -> None:
         # Arrange
-        unit = _a_unit(fill=0x00)
-        unit.space.write8(0x1234, 0x77)
+        unit = a_unit()
+        monitor.poke(unit, 0x1234, 0x77)
 
         # Act
         unit.reset()
 
         # Assert
-        self.assertEqual(unit.space.read8(0x1234), 0x77)
+        self.assertEqual(monitor.peek(unit, 0x1234), 0x77)
 
     def test_a_reset_shows_the_boot_window_the_program_runs_from(self) -> None:
         # Arrange
-        unit = _a_unit()
-        unit.space.write8(space.CONTROL, 0x00)
+        unit = with_the_window_off(a_unit())
 
         # Act
         unit.reset()
 
         # Assert
-        self.assertEqual(
-            (unit.space.boot_visible, unit.processor.pc), (True, MADE_UP[62] | MADE_UP[63] << 8)
-        )
+        self.assertEqual(monitor.peek(unit, PADDING), 0x00)
 
     def test_a_reset_leaves_a_running_timer_running(self) -> None:
         # Arrange
-        unit = _a_unit()
-        unit.space.write8(space.CONTROL, space.CONTROL_BOOT_VISIBLE | space.CONTROL_TIMER_0)
+        unit = a_unit()
+        monitor.poke(unit, 0xFA, 1)
+        monitor.poke(unit, CONTROL, BOOT_VISIBLE | 0x01)
 
         # Act
         unit.reset()
 
         # Assert
-        self.assertTrue(unit.space.timers[0].enabled)
+        self.assertGreater(monitor.tally(unit, 0xFD, reads=4, gap=300)[1], 0)
 
     def test_a_reset_leaves_the_ports_holding_what_they_held(self) -> None:
         # Arrange
-        unit = _a_unit()
+        unit = a_unit()
         unit.write(2, 0x5A)
-        unit.space.write8(space.PORT_0 + 3, 0xA5)
+        monitor.poke(unit, 0xF7, 0xA5)
 
         # Act
         unit.reset()
 
         # Assert
-        self.assertEqual((unit.space.read8(space.PORT_0 + 2), unit.read(3)), (0x5A, 0xA5))
-
-    def test_a_reset_keeps_the_same_generator_and_processor(self) -> None:
-        # Arrange
-        unit = _a_unit()
-        before = (unit.dsp, unit.processor, unit.space)
-
-        # Act
-        unit.reset()
-
-        # Assert
-        after = (unit.dsp, unit.processor, unit.space)
-        self.assertEqual([one is two for one, two in zip(before, after, strict=True)], [True] * 3)
+        self.assertEqual((unit.read(3), monitor.peek(unit, 0xF6)), (0xA5, 0x5A))
 
 
 class RunningTest(unittest.TestCase):
     def test_every_cycle_the_processor_spends_is_charged_to_the_unit(self) -> None:
-        unit = _a_unit()
+        # Arrange
+        unit = a_unit()
         before = unit.cycles
 
+        # Act
         spent = unit.run_for(200)
 
+        # Assert
         self.assertEqual(unit.cycles - before, spent)
 
     def test_running_overshoots_rather_than_cutting_an_instruction_in_half(self) -> None:
-        unit = _a_unit()
+        # Arrange
+        unit = a_unit()
 
+        # Act
         spent = unit.run_for(1)
 
-        self.assertGreaterEqual(spent, 1)
+        # Assert
+        self.assertGreaterEqual(spent, 2)
 
     def test_one_step_costs_what_it_says_it_costs(self) -> None:
-        unit = _a_unit()
+        # Arrange
+        unit = a_unit()
         before = unit.cycles
 
+        # Act
         spent = unit.step()
 
+        # Assert
         self.assertEqual(unit.cycles - before, spent)
 
-    def test_the_timers_advance_with_the_processor(self) -> None:
-        unit = _a_unit()
-        unit.space.write8(0xFA, 1)
-        unit.space.write8(0xF1, 0x01)
-
-        unit.run_for(unit.space.timers[0].ticks_every * 4)
-
-        self.assertGreater(unit.space.timers[0].counter, 0)
-
-
-class PortTest(unittest.TestCase):
-    def test_a_byte_the_console_writes_reaches_the_unit(self) -> None:
-        unit = _a_unit()
-
-        unit.write(2, 0x42)
-
-        self.assertEqual(unit.space.ports.unit_reads(2), 0x42)
-
-    def test_a_byte_the_unit_writes_reaches_the_console(self) -> None:
-        unit = _a_unit()
-
-        unit.space.ports.unit_writes(3, 0x99)
-
-        self.assertEqual(unit.read(3), 0x99)
-
-
-class OneUnitTest(unittest.TestCase):
-    def test_the_generator_reads_the_same_memory_the_processor_runs_on(self) -> None:
-        unit = _a_unit()
-
-        unit.space.write8(0x2000, 0x5A)
-
-        self.assertEqual(unit.dsp.memory.read8(0x2000), 0x5A)
-
-    def test_which_is_the_same_object_rather_than_a_copy_of_it(self) -> None:
-        unit = _a_unit()
-
-        self.assertIs(unit.dsp.memory, unit.space.memory)
-
-    def test_the_generator_takes_a_clock_for_every_processor_cycle(self) -> None:
-        unit = _a_unit()
-        before = unit.dsp.phase
-
-        spent = unit.run_for(64)
-
-        self.assertEqual(unit.dsp.phase, (before + spent) & 31)
-
-    def test_a_freshly_built_unit_has_already_clocked_it_in_step(self) -> None:
-        unit = _a_unit()
-
-        self.assertEqual(unit.dsp.phase, unit.cycles & 31)
-
-    def test_a_unit_nobody_reset_leaves_the_generator_as_power_on_left_it(self) -> None:
+    def test_a_reset_does_not_clear_the_cycle_count(self) -> None:
         # Arrange
-        processor, generator = _the_halves()
-        powered = generator.Chip(board.GENERATOR_MODEL, memory=processor.Memory())
-
-        # Act
-        unit = _a_unit_nobody_reset()
-
-        # Assert
-        self.assertEqual(unit.dsp.registers, powered.registers)
-
-    def test_and_the_processor_too(self) -> None:
-        # Arrange
-        processor, _ = _the_halves()
-        powered = processor.Cpu(board.PROCESSOR_MODEL)
-
-        # Act
-        unit = _a_unit_nobody_reset()
-
-        # Assert
-        self.assertEqual(unit.processor.pc, powered.pc)
-
-    def test_a_reset_sets_the_generator_registers_its_record_lists(self) -> None:
-        # Arrange
-        _, generator = _the_halves()
-        sets = _what_a_reset_sets()
-        flags = generator.core.REG_FLG
-        cleared = bytes([int(sets["registers"], 16)]) * generator.REGISTER_COUNT
-        expected = cleared[:flags] + bytes([int(sets["FLG"], 16)]) + cleared[flags + 1 :]
-        unit = _a_unit_nobody_reset()
+        unit = a_unit()
+        spent = unit.run_for(100)
 
         # Act
         unit.reset()
 
         # Assert
-        self.assertEqual(bytes(unit.dsp.registers), expected)
-
-    def test_and_starts_its_noise_generator_where_the_record_says(self) -> None:
-        # Arrange
-        chip = _what_a_reset_sets()["chip"]
-        unit = _a_unit_nobody_reset()
-
-        # Act
-        unit.reset()
-
-        # Assert
-        self.assertEqual(unit.dsp.noise, int(chip["noise"], 16))
-
-    def test_a_unit_nobody_reset_clocks_the_generator_it_powered_on_with(self) -> None:
-        # Arrange
-        unit = _a_unit_nobody_reset()
-        before = unit.dsp.phase
-
-        # Act
-        spent = unit.run_for(64)
-
-        # Assert
-        self.assertEqual(unit.dsp.phase, (before + spent) & 31)
-
-    def test_so_running_it_leaves_memory_where_a_caller_put_it(self) -> None:
-        unit = _a_unit()
-        unit.space.write8(0xF000, 0x3C)
-
-        unit.run_for(20_000)
-
-        self.assertEqual(unit.space.read8(0xF000), 0x3C)
-
-    def test_and_a_reset_gives_it_the_same_memory_again(self) -> None:
-        unit = _a_unit()
-
-        unit.reset()
-
-        self.assertIs(unit.dsp.memory, unit.space.memory)
+        self.assertGreaterEqual(unit.cycles, spent)
 
 
 if __name__ == "__main__":

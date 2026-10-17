@@ -43,7 +43,7 @@ class Finding:
         return f"<Finding {self.name} {'ok' if self.ok else 'not ok'}>"
 
 
-def _python() -> Finding:
+def check_python() -> Finding:
     return Finding(
         "python",
         sys.version_info[:2] >= OLDEST_PYTHON,
@@ -52,11 +52,11 @@ def _python() -> Finding:
     )
 
 
-def _package() -> Finding:
+def check_package() -> Finding:
     return Finding("package", True, f"ssmp {VERSION}")
 
 
-def _halves(members: Callable[[], tuple[Any, Any] | None]) -> Finding:
+def check_halves(members: Callable[[], tuple[Any, Any] | None]) -> Finding:
     found = members()
     return Finding(
         "halves",
@@ -68,7 +68,7 @@ def _halves(members: Callable[[], tuple[Any, Any] | None]) -> Finding:
     )
 
 
-def _boot(why_not: Callable[[], str | None]) -> Finding:
+def check_boot(why_not: Callable[[], str | None]) -> Finding:
     said = why_not()
     return Finding(
         "boot program",
@@ -83,7 +83,7 @@ def _default_build(name: str) -> Any:  # pragma: no cover
     return board.Chip(name)
 
 
-def _unit(name: str, build: Callable[[str], Any]) -> Finding:
+def check_unit(name: str, build: Callable[[str], Any]) -> Finding:
     try:
         unit = build(name)
         unit.reset()
@@ -102,8 +102,8 @@ def examine(
     members: Callable[[], tuple[Any, Any] | None] = board._members,
     why_not: Callable[[], str | None] = board.why_not,
 ) -> list[Finding]:
-    found = [_python(), _package(), _halves(members), _boot(why_not)]
-    found.extend(_unit(name, build) for name in sorted(models.MODELS))
+    found = [check_python(), check_package(), check_halves(members), check_boot(why_not)]
+    found.extend(check_unit(name, build) for name in sorted(models.MODELS))
     return found
 
 

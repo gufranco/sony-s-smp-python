@@ -4,36 +4,60 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from ssmp import errors
+import ssmp
+
+REFUSALS = (
+    ssmp.UnknownModelError,
+    ssmp.NoBootRom,
+    ssmp.Unrecognised,
+    ssmp.Corrupt,
+    ssmp.WrongShape,
+)
 
 
 class CatalogueTest(unittest.TestCase):
     def test_every_refusal_this_package_makes_is_its_own(self) -> None:
-        named = [
-            errors.UnknownModelError,
-            errors.NoBootRom,
-            errors.Unrecognised,
-            errors.Corrupt,
-            errors.WrongShape,
-        ]
+        # Arrange
+        named = REFUSALS
 
-        self.assertEqual(len({one.__name__ for one in named}), len(named))
+        # Act
+        distinct = {one.__name__ for one in named}
+
+        # Assert
+        self.assertEqual(len(distinct), 5)
 
     def test_each_of_them_is_an_exception(self) -> None:
-        for one in (
-            errors.UnknownModelError,
-            errors.NoBootRom,
-            errors.Unrecognised,
-            errors.Corrupt,
-            errors.WrongShape,
-        ):
-            self.assertTrue(issubclass(one, Exception), one.__name__)
+        # Arrange
+        named = REFUSALS
+
+        # Act
+        found = [issubclass(one, Exception) for one in named]
+
+        # Assert
+        self.assertEqual(found, [True] * 5)
 
     def test_a_wrong_file_and_a_broken_one_are_told_apart(self) -> None:
-        self.assertNotEqual(errors.Unrecognised, errors.Corrupt)
+        # Arrange
+        wrong = ssmp.Unrecognised
 
-    def test_a_refusal_carries_the_message_it_was_given(self) -> None:
-        self.assertIn("why", str(errors.NoBootRom("why not")))
+        # Act
+        same = issubclass(wrong, ssmp.Corrupt) or issubclass(ssmp.Corrupt, wrong)
+
+        # Assert
+        self.assertIs(same, False)
+
+    def test_a_wrong_model_is_refused_with_a_sentence_saying_what_there_is(self) -> None:
+        # Arrange
+        name = "s-cpu"
+
+        # Act
+        with self.assertRaises(ssmp.UnknownModelError) as caught:
+            ssmp.Chip(name)
+
+        # Assert
+        self.assertEqual(
+            str(caught.exception), "s-cpu is not a unit this package covers; there is ssmp"
+        )
 
 
 if __name__ == "__main__":

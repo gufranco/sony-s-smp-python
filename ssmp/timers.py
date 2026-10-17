@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import override
-
 COUNTER_MASK = 0x0F
 
 DIVIDER_WHEN_ZERO = 256
@@ -46,8 +44,3 @@ class Timer:
         held = self.counter
         self.counter = 0
         return held
-
-    @override
-    def __repr__(self) -> str:
-        state = "on" if self.enabled else "off"
-        return f"<Timer {state}, dividing by {self.divides_by()}, counter {self.counter}>"

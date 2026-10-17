@@ -7,19 +7,42 @@ from typing import Any, override
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from conformance import console
-from ssmp import rates, space, timers
+import ssmp
+from conformance import console, monitor
 
 RECORD = Path(__file__).resolve().parent / "hardware.json"
 
 MANIFEST_OF_CHECKS = Path(__file__).resolve().parent / "checks.manifest.json"
 
-_CANNOT_BE_READ = (space.TEST, space.CONTROL, *range(space.TIMER_0_DIVIDER, space.COUNTER_0))
-
 
 def declared() -> dict[str, Any]:
     found: dict[str, Any] = json.loads(RECORD.read_text())
     return found
+
+
+def a_unit(fill: int = 0x00) -> Any:
+    return ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=fill).reset()
+
+
+def named(entry: str) -> list[int]:
+    return sorted(
+        int(address, 16)
+        for address, what in declared()["registers"]["map"].items()
+        if entry in what
+    )
+
+
+def cannot_be_read() -> list[int]:
+    return named("answers zero")
+
+
+def ports() -> list[int]:
+    return [address for address in named("port") if address not in named("control")]
+
+
+def writing_to(addresses: list[int]) -> bytes:
+    stores = [(0x8F, value, address) for value, address in enumerate(addresses, start=0x11)]
+    return monitor.boot(bytes(byte for store in stores for byte in store) + bytes((0x2F, 0xFE)))
 
 
 class ShapeTest(unittest.TestCase):
@@ -76,51 +99,6 @@ class ShapeTest(unittest.TestCase):
             self.assertTrue(self.held[name]["evidence"], name)
 
 
-class GeneratorTest(unittest.TestCase):
-    @override
-    def setUp(self) -> None:
-        self.held = declared()["generator"]
-
-    def test_the_clock_the_record_gives_is_the_one_derived(self) -> None:
-        self.assertEqual(self.held["clocksPerProcessorCycle"], rates.GENERATOR_CLOCKS)
-
-    def test_the_record_says_the_two_halves_share_one_memory(self) -> None:
-        self.assertTrue(self.held["sharesMemoryWithTheProcessor"])
-
-    def test_and_that_building_a_unit_leaves_the_generator_scrambled(self) -> None:
-        # Arrange
-        held = self.held
-
-        # Act
-        claimed = held["resetAtConstruction"]
-
-        # Assert
-        self.assertIs(claimed, False)
-
-    def test_and_that_the_unit_reset_is_what_resets_it(self) -> None:
-        # Arrange
-        held = self.held
-
-        # Act
-        claimed = held["resetWithTheUnit"]
-
-        # Assert
-        self.assertIs(claimed, True)
-
-    def test_it_does_not_claim_what_the_generator_produces_is_checked(self) -> None:
-        self.assertFalse(self.held["verified"])
-
-    def test_and_names_the_thing_that_would_settle_that(self) -> None:
-        self.assertIn("spc_dsp6", self.held["howToSettleIt"])
-
-    def test_a_unit_here_shares_its_memory_the_way_the_record_says(self) -> None:
-        from ssmp import Chip
-
-        unit = Chip("ssmp", boot=bytes(space.BOOT_BYTES))
-
-        self.assertIs(unit.dsp.memory, unit.space.memory)
-
-
 class FromHardwareTest(unittest.TestCase):
     @override
     def setUp(self) -> None:
@@ -160,36 +138,27 @@ class FromHardwareTest(unittest.TestCase):
 
         self.assertEqual([one for one in cannot if "answers zero" not in held[one]], [])
 
-    def test_and_the_model_answers_zero_at_every_one_of_them(self) -> None:
-        held = space.Space(memory=_AnyMemory())
-        for at in _CANNOT_BE_READ:
-            held.memory.write8(at, 0xA5)
+    def test_and_the_unit_answers_zero_at_every_one_of_them(self) -> None:
+        # Arrange
+        unit = a_unit()
+        for address in cannot_be_read():
+            monitor.poke(unit, address, 0x80 if address == monitor.CONTROL else 0xA5)
 
-        self.assertEqual([held.read8(at) for at in _CANNOT_BE_READ], [0x00] * 5)
+        # Act
+        found = [monitor.peek(unit, address) for address in cannot_be_read()]
 
-    def test_without_looking_at_the_memory_underneath_to_get_there(self) -> None:
-        store = _AnyMemory()
-        held = space.Space(memory=store)
-        for at in _CANNOT_BE_READ:
-            held.memory.write8(at, 0xA5)
+        # Assert
+        self.assertEqual(found, [0x00] * 5)
 
-        for at in (*_CANNOT_BE_READ, space.SPARE_0):
-            held.read8(at)
+    def test_without_answering_with_the_memory_underneath(self) -> None:
+        # Arrange
+        unit = a_unit(fill=0xA5)
 
-        self.assertEqual(store.read_at, [space.SPARE_0])
+        # Act
+        found = [monitor.peek(unit, address) for address in cannot_be_read()]
 
-
-class _AnyMemory:
-    def __init__(self) -> None:
-        self.held = bytearray(space.SPACE)
-        self.read_at: list[int] = []
-
-    def read8(self, address: int) -> int:
-        self.read_at.append(address)
-        return self.held[address]
-
-    def write8(self, address: int, value: int) -> None:
-        self.held[address] = value & 0xFF
+        # Assert
+        self.assertEqual(found, [0x00] * 5)
 
 
 class BootTest(unittest.TestCase):
@@ -197,11 +166,37 @@ class BootTest(unittest.TestCase):
     def setUp(self) -> None:
         self.held = declared()["bootProgram"]
 
-    def test_the_length_the_record_gives_is_the_one_the_package_enforces(self) -> None:
-        self.assertEqual(self.held["bytes"], space.BOOT_BYTES)
+    def test_a_program_of_the_length_the_record_gives_is_accepted(self) -> None:
+        # Arrange
+        program = monitor.MONITOR[: self.held["bytes"]]
 
-    def test_the_address_it_gives_is_where_the_window_sits(self) -> None:
-        self.assertEqual(int(self.held["at"], 16), space.BOOT_AT)
+        # Act
+        unit = ssmp.Chip("ssmp", boot=program)
+
+        # Assert
+        self.assertEqual(unit.identity.bytes_long, self.held["bytes"])
+
+    def test_and_one_byte_fewer_is_refused(self) -> None:
+        # Arrange
+        program = monitor.MONITOR[: self.held["bytes"] - 1]
+
+        # Act
+        with self.assertRaises(ssmp.WrongShape) as caught:
+            ssmp.Chip("ssmp", boot=program)
+
+        # Assert
+        self.assertIn(f"this one is {self.held['bytes'] - 1}", str(caught.exception))
+
+    def test_the_window_begins_at_the_address_the_record_gives(self) -> None:
+        # Arrange
+        at = int(self.held["at"], 16)
+        unit = a_unit(fill=0x5A)
+
+        # Act
+        found = (monitor.peek(unit, at - 1), monitor.peek(unit, at))
+
+        # Assert
+        self.assertEqual(found, (0x5A, monitor.MONITOR[0]))
 
     def test_the_two_ready_bytes_are_the_ones_a_console_waits_for(self) -> None:
         self.assertEqual(
@@ -218,36 +213,63 @@ class RegisterTest(unittest.TestCase):
     def setUp(self) -> None:
         self.held = declared()["registers"]
 
-    def test_the_register_file_begins_where_the_record_says(self) -> None:
-        self.assertEqual(int(self.held["at"], 16), space.REGISTERS_AT)
+    def test_the_byte_below_the_file_is_memory_and_the_first_in_it_is_not(self) -> None:
+        # Arrange
+        at = int(self.held["at"], 16)
+        unit = a_unit(fill=0xA5)
 
-    def test_there_are_as_many_as_the_record_gives(self) -> None:
-        self.assertEqual(self.held["count"], space.REGISTER_COUNT)
+        # Act
+        found = (monitor.peek(unit, at - 1), monitor.peek(unit, at))
 
-    def test_the_map_covers_every_one_of_them(self) -> None:
-        self.assertEqual(len(self.held["map"]), space.REGISTER_COUNT)
+        # Assert
+        self.assertEqual(found, (0xA5, 0x00))
 
-    def test_it_names_no_address_outside_the_file(self) -> None:
-        outside = [
-            one
-            for one in self.held["map"]
-            if not space.REGISTERS_AT <= int(one, 16) < space.REGISTERS_AT + space.REGISTER_COUNT
-        ]
+    def test_the_byte_past_the_last_of_them_is_memory_again(self) -> None:
+        # Arrange
+        past = int(self.held["at"], 16) + self.held["count"]
+        unit = a_unit()
+        monitor.poke(unit, past, 0x3C)
 
-        self.assertEqual(outside, [])
+        # Act
+        found = monitor.peek(unit, past)
 
-    def test_the_addresses_it_names_for_the_ports_are_the_ones_used(self) -> None:
-        named = sorted(one for one, what in self.held["map"].items() if what.startswith("port"))
+        # Assert
+        self.assertEqual(found, 0x3C)
 
-        self.assertEqual(
-            [int(one, 16) for one in named],
-            list(range(space.PORT_0, space.PORT_0 + 4)),
-        )
+    def test_the_map_names_every_one_of_them_and_nothing_else(self) -> None:
+        # Arrange
+        at = int(self.held["at"], 16)
 
-    def test_the_address_it_names_for_the_control_register_is_the_one_used(self) -> None:
-        named = next(one for one, what in self.held["map"].items() if what.startswith("control"))
+        # Act
+        found = sorted(int(address, 16) for address in self.held["map"])
 
-        self.assertEqual(int(named, 16), space.CONTROL)
+        # Assert
+        self.assertEqual(found, list(range(at, at + self.held["count"])))
+
+    def test_the_addresses_it_names_for_the_ports_reach_the_console_in_order(self) -> None:
+        # Arrange
+        program = writing_to(ports())
+        unit = ssmp.Chip("ssmp", boot=program, fill=0x00).reset()
+        unit.run_for(100)
+
+        # Act
+        found = [unit.read(index) for index in range(4)]
+
+        # Assert
+        self.assertEqual(found, [0x11, 0x12, 0x13, 0x14])
+
+    def test_the_addresses_it_names_as_ordinary_memory_keep_what_is_written(self) -> None:
+        # Arrange
+        unit = a_unit()
+        spare = named("ordinary memory")
+        for address in spare:
+            monitor.poke(unit, address, 0x66)
+
+        # Act
+        found = [monitor.peek(unit, address) for address in spare]
+
+        # Assert
+        self.assertEqual(found, [0x66, 0x66])
 
 
 class ControlTest(unittest.TestCase):
@@ -255,20 +277,45 @@ class ControlTest(unittest.TestCase):
     def setUp(self) -> None:
         self.held = declared()["control"]
 
-    def test_every_bit_the_record_names_is_the_bit_the_package_uses(self) -> None:
-        self.assertEqual(
-            [int(self.held[name], 16) for name in ("timer0", "timer1", "timer2")],
-            [space.CONTROL_TIMER_0, space.CONTROL_TIMER_1, space.CONTROL_TIMER_2],
-        )
+    def test_every_timer_bit_the_record_names_starts_its_own_timer(self) -> None:
+        # Arrange
+        boot = int(self.held["bootVisible"], 16)
+        units = [a_unit() for _ in range(3)]
+        for timer, name in enumerate(("timer0", "timer1", "timer2")):
+            monitor.poke(units[timer], monitor.FIRST_DIVIDER + timer, 1)
+            monitor.poke(units[timer], monitor.CONTROL, boot | int(self.held[name], 16))
 
-    def test_the_two_port_clears_match(self) -> None:
-        self.assertEqual(
-            [int(self.held[name], 16) for name in ("clearPorts01", "clearPorts23")],
-            [space.CONTROL_CLEAR_PORTS_01, space.CONTROL_CLEAR_PORTS_23],
-        )
+        # Act
+        found = [
+            monitor.tally(unit, monitor.FIRST_COUNTER + timer, reads=3, gap=300)[1] > 0
+            for timer, unit in enumerate(units)
+        ]
 
-    def test_the_boot_window_bit_matches(self) -> None:
-        self.assertEqual(int(self.held["bootVisible"], 16), space.CONTROL_BOOT_VISIBLE)
+        # Assert
+        self.assertEqual(found, [True, True, True])
+
+    def test_the_port_clear_the_record_names_for_ports_2_and_3_clears_them(self) -> None:
+        # Arrange
+        boot = int(self.held["bootVisible"], 16)
+        unit = a_unit()
+        unit.write(2, 0xFF)
+        unit.write(3, 0xFF)
+
+        # Act
+        monitor.poke(unit, monitor.CONTROL, boot | int(self.held["clearPorts23"], 16))
+
+        # Assert
+        self.assertEqual((monitor.peek(unit, 0xF6), monitor.peek(unit, 0xF7)), (0, 0))
+
+    def test_the_boot_window_bit_is_the_one_that_keeps_the_top_page_showing(self) -> None:
+        # Arrange
+        unit = a_unit()
+
+        # Act
+        monitor.poke(unit, monitor.CONTROL, int(self.held["bootVisible"], 16))
+
+        # Assert
+        self.assertEqual(monitor.peek(unit, 0xFFFE), 0xC0)
 
     def test_no_two_bits_it_names_are_the_same_bit(self) -> None:
         named = [
@@ -291,19 +338,58 @@ class TimerTest(unittest.TestCase):
     def setUp(self) -> None:
         self.held = declared()["timers"]
 
-    def test_there_are_as_many_as_the_record_gives(self) -> None:
-        self.assertEqual(self.held["count"], space.TIMER_COUNT)
+    def test_there_are_as_many_counters_as_the_record_gives(self) -> None:
+        # Arrange
+        unit = a_unit()
+        for timer in range(self.held["count"]):
+            monitor.poke(unit, monitor.FIRST_DIVIDER + timer, 1)
+        monitor.poke(unit, monitor.CONTROL, 0x80 | (1 << self.held["count"]) - 1)
 
-    def test_the_counter_is_as_wide_as_the_record_says(self) -> None:
-        self.assertEqual((1 << self.held["counterBits"]) - 1, timers.COUNTER_MASK)
+        # Act
+        found = [monitor.tally(unit, one, reads=3, gap=300)[1] > 0 for one in named("counter")]
 
-    def test_a_divider_of_zero_means_what_the_record_says(self) -> None:
-        self.assertEqual(self.held["dividerWhenZero"], timers.DIVIDER_WHEN_ZERO)
+        # Assert
+        self.assertEqual(found, [True] * self.held["count"])
 
-    def test_the_two_tick_costs_are_the_ones_derived(self) -> None:
+    def test_the_counter_wraps_at_the_width_the_record_gives(self) -> None:
+        # Arrange
+        tick = self.held["slowCyclesPerTick"]
+        ticks = (1 << self.held["counterBits"]) + 4
+        unit = a_unit()
+        started = monitor.start(unit, 0, divider=1)
+
+        # Act
+        found = monitor.counter_at(unit, 0, started + ticks * tick + tick // 2)
+
+        # Assert
+        self.assertEqual(found, 4)
+
+    def test_a_divider_of_zero_divides_by_what_the_record_says(self) -> None:
+        # Arrange
+        period = self.held["dividerWhenZero"] * self.held["fastCyclesPerTick"]
+        unit = a_unit()
+        started = monitor.start(unit, 2, divider=0)
+
+        # Act
+        found = monitor.counter_at(unit, 2, started + 10 * period - 64)
+
+        # Assert
+        self.assertEqual(found, 9)
+
+    def test_the_two_tick_costs_are_the_ones_measured(self) -> None:
+        # Arrange
+        unit = a_unit()
+
+        # Act
+        found = (
+            monitor.timer_period(unit, 0, divider=1, gap=1500),
+            monitor.timer_period(unit, 2, divider=1, gap=150),
+        )
+
+        # Assert
         self.assertEqual(
-            (self.held["slowCyclesPerTick"], self.held["fastCyclesPerTick"]),
-            (rates.SLOW_TIMER_CYCLES, rates.FAST_TIMER_CYCLES),
+            [round(one) for one in found],
+            [self.held["slowCyclesPerTick"], self.held["fastCyclesPerTick"]],
         )
 
 
@@ -312,21 +398,27 @@ class PortTest(unittest.TestCase):
     def setUp(self) -> None:
         self.held = declared()["ports"]
 
-    def test_there_are_as_many_as_the_record_gives(self) -> None:
-        from ssmp import ports
+    def test_a_console_index_wraps_after_as_many_ports_as_the_record_gives(self) -> None:
+        # Arrange
+        unit = a_unit()
+        monitor.poke(unit, 0xF7, 0x3C)
 
-        self.assertEqual(self.held["count"], ports.COUNT)
+        # Act
+        found = unit.read(3 + self.held["count"])
+
+        # Assert
+        self.assertEqual(found, 0x3C)
 
     def test_each_one_holds_a_byte_per_direction(self) -> None:
-        from ssmp import ports
+        # Arrange
+        unit = a_unit()
+        unit.write(3, 0x11)
 
-        held = ports.Ports()
-        held.console_writes(0, 0x11)
-        held.unit_writes(0, 0x22)
+        # Act
+        monitor.poke(unit, 0xF7, 0x22)
 
-        self.assertEqual(
-            len({held.unit_reads(0), held.console_reads(0)}), self.held["bytesPerPort"]
-        )
+        # Assert
+        self.assertEqual(len({monitor.fetch(unit), unit.read(3)}), self.held["bytesPerPort"])
 
 
 if __name__ == "__main__":

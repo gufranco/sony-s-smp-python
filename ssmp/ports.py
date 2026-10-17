@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import override
-
 COUNT = 4
 
 
@@ -29,10 +27,3 @@ class Ports:
             self.from_console[0:2] = b"\x00\x00"
         if upper:
             self.from_console[2:4] = b"\x00\x00"
-
-    @override
-    def __repr__(self) -> str:
-        return (
-            f"<Ports console->unit {bytes(self.from_console).hex()},"
-            f" unit->console {bytes(self.from_unit).hex()}>"
-        )

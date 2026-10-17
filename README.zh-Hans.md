@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定中 **14** 个一致，**734** 个测试，**100%** 语句和分支覆盖率，无依赖
+**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定中 **14** 个一致，**682** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 import ssmp
@@ -99,8 +99,9 @@ python3 ssmp/doctor.py
 |:--|:--|
 | `ssmp.MODELS` | 唯一的 `Model` 记录，以名称为键 |
 | `ssmp.Model` | 包含 `name`、`summary`、`processor`、`memory` 和 `boot` 的记录 |
-| `ssmp.why_not()` | 可以在本机构建单元时为 `None`，否则为说明缺少什么的一句话 |
-| `ssmp.available()` | 在本机找到的引导程序，以型号名称为键 |
+| `ssmp.why_not(held=None)` | 可以在本机构建单元时为 `None`，否则为说明缺少什么的一句话。`held` 是用来代替搜索进行判断的目录，形状与 `available()` 的返回值相同 |
+| `ssmp.available(held=None, catalogue=None)` | 在本机找到的引导程序，以型号名称为键。给出 `held` 时不搜索，原样返回。`catalogue` 是与 [`ssmp/artifacts.manifest.json`](ssmp/artifacts.manifest.json) 形状相同的清单，用来代替本包自带的清单识别文件 |
+| `ssmp.identify(image, catalogue=None)` | 引导程序字节的记录，带有 `part`、`processor`、`revision` 和 `bytes_long`。会抛出 `Unrecognised` 或 `Corrupt`，有修复办法时会指出。`catalogue` 与 `available()` 相同 |
 | `ssmp.VERSION`、`ssmp.__version__` | 已安装的版本 |
 
 | 错误 | 抛出时机 |
@@ -113,7 +114,6 @@ python3 ssmp/doctor.py
 
 ```python
 import ssmp
-from ssmp import firmware
 
 for name in (None, "s-dsp"):
     try:
@@ -127,7 +127,7 @@ except ssmp.WrongShape as error:
     print(error)
 
 try:
-    firmware.identify(bytes(100))
+    ssmp.identify(bytes(100))
 except ssmp.Unrecognised as error:
     print(error)
 ```
@@ -310,11 +310,12 @@ ssmp
 uvx ruff@0.16.3 format --check .
 uvx ruff@0.16.3 check .
 uvx --python 3.12 mypy==1.14.1
-python3 -m coverage erase
+cov=(uvx --python 3.12 --from coverage==7.6.10 --with setuptools==84.0.0 coverage)
+"${cov[@]}" erase
 for file in $(find ssmp conformance -name '*.test.py' | sort); do
-  python3 -m coverage run -a "$file"
+  "${cov[@]}" run -a "$file"
 done
-python3 -m coverage report
+"${cov[@]}" report
 ```
 
 每个模块旁边都有一个以其命名的测试文件，每个测试文件都可单独运行。覆盖率是硬性门禁检查，要求语句和分支覆盖率达到 100%。凡是需要引导程序或 Shay Green 某个文件的检查，都会跳过并说明原因，而不是报告通过。

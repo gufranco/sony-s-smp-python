@@ -41,8 +41,6 @@ MODELS: dict[str, Model] = {
     )
 }
 
-DEFAULT_MODEL = "ssmp"
-
 
 def _plain(name: str) -> str:
     found = name.strip().lower()

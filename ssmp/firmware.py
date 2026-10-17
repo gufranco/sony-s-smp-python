@@ -33,8 +33,6 @@ DIGESTS = ("crc32", "md5", "sha1", "sha256")
 
 DECIDES = "sha256"
 
-DIGEST_WIDTHS = {"crc32": 8, "md5": 32, "sha1": 40, "sha256": 64}
-
 HEX_BYTE = re.compile(rb"(?:0x)?([0-9a-fA-F]{2})")
 
 
@@ -61,8 +59,8 @@ class Identity:
         return f"<Identity {self.part} {self.revision} for {self.processor}>"
 
 
-def manifest(path: Path | str | None = None) -> dict[str, Any]:
-    held: dict[str, Any] = json.loads(Path(path or MANIFEST).read_text())
+def manifest() -> dict[str, Any]:
+    held: dict[str, Any] = json.loads(MANIFEST.read_text())
     return held
 
 
@@ -165,11 +163,6 @@ def _diagnosis(image: bytes, digest: str, entries: list[dict[str, Any]]) -> str:
         "It is the right length with different content, which is either a"
         " revision nobody has catalogued or a damaged copy."
     )
-
-
-def load(space: Any, image: bytes) -> None:
-    check_shape(image)
-    space.boot = bytes(image)
 
 
 def found(where: Path, catalogue: dict[str, Any] | None = None) -> Iterator[tuple[Identity, Path]]:

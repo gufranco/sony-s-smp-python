@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-本体とのインターフェースは**4**つのポートがすべてです。実機で採取した値を持つチェックが**3**つ、不一致は**0**件、チェックを集めたカートリッジによる判定**18**件のうち**14**件が一致、テストは**734**件、ステートメントとブランチのカバレッジは**100%**、依存関係はありません。
+本体とのインターフェースは**4**つのポートがすべてです。実機で採取した値を持つチェックが**3**つ、不一致は**0**件、チェックを集めたカートリッジによる判定**18**件のうち**14**件が一致、テストは**682**件、ステートメントとブランチのカバレッジは**100%**、依存関係はありません。
 
 ```python
 import ssmp
@@ -99,8 +99,9 @@ python3 ssmp/doctor.py
 |:--|:--|
 | `ssmp.MODELS` | 唯一の`Model`レコードで、名前をキーとします |
 | `ssmp.Model` | `name`、`summary`、`processor`、`memory`、`boot`を持つレコードです |
-| `ssmp.why_not()` | ここでユニットを構築できれば`None`、できなければ何が足りないかを示す一文です |
-| `ssmp.available()` | ここで見つかったブートプログラムで、モデル名をキーとします |
+| `ssmp.why_not(held=None)` | ここでユニットを構築できれば`None`、できなければ何が足りないかを示す一文です。`held`は探索の代わりに判定するカタログで、`available()`が返すのと同じ形です |
+| `ssmp.available(held=None, catalogue=None)` | ここで見つかったブートプログラムで、モデル名をキーとします。`held`を渡すと探索せずにそのまま返します。`catalogue`は[`ssmp/artifacts.manifest.json`](ssmp/artifacts.manifest.json)と同じ形のマニフェストで、このパッケージが持つものの代わりにファイルの照合に使います |
+| `ssmp.identify(image, catalogue=None)` | ブートプログラムのバイト列の記録で、`part`、`processor`、`revision`、`bytes_long`を持ちます。`Unrecognised`か`Corrupt`を送出し、修正方法があればそれを示します。`catalogue`は`available()`と同じです |
 | `ssmp.VERSION`、`ssmp.__version__` | インストールされているバージョンです |
 
 | エラー | 発生する条件 |
@@ -113,7 +114,6 @@ python3 ssmp/doctor.py
 
 ```python
 import ssmp
-from ssmp import firmware
 
 for name in (None, "s-dsp"):
     try:
@@ -127,7 +127,7 @@ except ssmp.WrongShape as error:
     print(error)
 
 try:
-    firmware.identify(bytes(100))
+    ssmp.identify(bytes(100))
 except ssmp.Unrecognised as error:
     print(error)
 ```
@@ -310,11 +310,12 @@ S-SMPに関するSonyの文書は、存在が知られていません。その�
 uvx ruff@0.16.3 format --check .
 uvx ruff@0.16.3 check .
 uvx --python 3.12 mypy==1.14.1
-python3 -m coverage erase
+cov=(uvx --python 3.12 --from coverage==7.6.10 --with setuptools==84.0.0 coverage)
+"${cov[@]}" erase
 for file in $(find ssmp conformance -name '*.test.py' | sort); do
-  python3 -m coverage run -a "$file"
+  "${cov[@]}" run -a "$file"
 done
-python3 -m coverage report
+"${cov[@]}" report
 ```
 
 各モジュールには、その名前にちなんだテストファイルが隣にあり、それぞれ単独で実行できます。カバレッジはステートメントとブランチで100%の必須ゲートです。ブートプログラムやShay Greenのファイルを必要とするチェックは、合格と報告するのではなく、スキップしてその旨を表示します。

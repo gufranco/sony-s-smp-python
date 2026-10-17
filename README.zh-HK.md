@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** 個連接埠就是與主機之間的全部介面，**3** 項附有在主機上實測數值的檢查，**0** 項不符，一個檢查卡帶的 **18** 項判定中有 **14** 項相符，**734** 項測試，**100%** 語句與分支覆蓋率，無任何依賴
+**4** 個連接埠就是與主機之間的全部介面，**3** 項附有在主機上實測數值的檢查，**0** 項不符，一個檢查卡帶的 **18** 項判定中有 **14** 項相符，**682** 項測試，**100%** 語句與分支覆蓋率，無任何依賴
 
 ```python
 import ssmp
@@ -99,8 +99,9 @@ python3 ssmp/doctor.py
 |:--|:--|
 | `ssmp.MODELS` | 唯一的 `Model` 記錄，以名稱為鍵 |
 | `ssmp.Model` | 含有 `name`、`summary`、`processor`、`memory` 和 `boot` 的記錄 |
-| `ssmp.why_not()` | 若在此處可以建立單元則為 `None`，否則為說明缺少甚麼的句子 |
-| `ssmp.available()` | 在此處找到的開機程式，以型號名稱為鍵 |
+| `ssmp.why_not(held=None)` | 若在此處可以建立單元則為 `None`，否則為說明缺少甚麼的句子。`held` 是用來代替搜尋作判斷的目錄，形狀與 `available()` 的回傳值相同 |
+| `ssmp.available(held=None, catalogue=None)` | 在此處找到的開機程式，以型號名稱為鍵。提供 `held` 時不作搜尋，原樣交回。`catalogue` 是與 [`ssmp/artifacts.manifest.json`](ssmp/artifacts.manifest.json) 形狀相同的清單，用來代替本套件附帶的清單辨認檔案 |
+| `ssmp.identify(image, catalogue=None)` | 開機程式位元組的記錄，帶有 `part`、`processor`、`revision` 和 `bytes_long`。會拋出 `Unrecognised` 或 `Corrupt`，有修正方法時會指出。`catalogue` 與 `available()` 相同 |
 | `ssmp.VERSION`、`ssmp.__version__` | 已安裝的版本 |
 
 | 錯誤 | 引發時機 |
@@ -113,7 +114,6 @@ python3 ssmp/doctor.py
 
 ```python
 import ssmp
-from ssmp import firmware
 
 for name in (None, "s-dsp"):
     try:
@@ -127,7 +127,7 @@ except ssmp.WrongShape as error:
     print(error)
 
 try:
-    firmware.identify(bytes(100))
+    ssmp.identify(bytes(100))
 except ssmp.Unrecognised as error:
     print(error)
 ```
@@ -310,11 +310,12 @@ ssmp
 uvx ruff@0.16.3 format --check .
 uvx ruff@0.16.3 check .
 uvx --python 3.12 mypy==1.14.1
-python3 -m coverage erase
+cov=(uvx --python 3.12 --from coverage==7.6.10 --with setuptools==84.0.0 coverage)
+"${cov[@]}" erase
 for file in $(find ssmp conformance -name '*.test.py' | sort); do
-  python3 -m coverage run -a "$file"
+  "${cov[@]}" run -a "$file"
 done
-python3 -m coverage report
+"${cov[@]}" report
 ```
 
 每個模組旁邊都有一個以其命名的測試檔案，各自可以獨立執行。覆蓋率是硬性關卡檢查，語句與分支均須達到 100%。凡需要開機程式或 Shay Green 檔案的檢查，都會跳過並說明原因，而不是報告通過。

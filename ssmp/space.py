@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any
 
 from ssmp import rates
 from ssmp.ports import COUNT as PORT_COUNT
@@ -52,14 +52,8 @@ class Space:
         "timers",
     )
 
-    def __init__(
-        self,
-        boot: Sequence[int] | None = None,
-        memory: Any = None,
-        dsp: Any = None,
-        fill: int | None = None,
-    ) -> None:
-        self.boot = bytes(boot) if boot is not None else None
+    def __init__(self, boot: Sequence[int], memory: Any, dsp: Any) -> None:
+        self.boot = bytes(boot)
         self.memory = memory
         self.dsp = dsp
         self.ports = Ports()
@@ -72,23 +66,17 @@ class Space:
         self.control = CONTROL_BOOT_VISIBLE
         self.boot_visible = True
         self.dsp_address = 0
-        if fill is not None:
-            self.write_all(fill)
 
     def reset(self) -> None:
         self.control |= CONTROL_BOOT_VISIBLE
         self.boot_visible = True
-
-    def write_all(self, value: int) -> None:
-        for address in range(SPACE):
-            self.memory.write8(address, value & 0xFF)
 
     def read8(self, address: int) -> int:
         address &= SPACE - 1
         if REGISTERS_AT <= address < REGISTERS_AT + REGISTER_COUNT:
             return self._read_register(address)
         if self.boot_visible and address >= BOOT_AT:
-            return self._read_boot(address)
+            return self.boot[address - BOOT_AT]
         held: int = self.memory.read8(address)
         return held
 
@@ -99,16 +87,6 @@ class Space:
             self._write_register(address, value)
             return
         self.memory.write8(address, value)
-
-    def _read_boot(self, address: int) -> int:
-        if self.boot is None:
-            from ssmp.errors import NoBootRom
-
-            raise NoBootRom(
-                "the boot window is visible and no boot program was supplied, so"
-                " there is nothing at this address to read"
-            )
-        return self.boot[address - BOOT_AT]
 
     def _read_register(self, address: int) -> int:
         if PORT_0 <= address < PORT_0 + PORT_COUNT:
@@ -129,8 +107,6 @@ class Space:
         return 0x00
 
     def _read_dsp(self) -> int:
-        if self.dsp is None:
-            return 0
         held: int = self.dsp.read(self.dsp_address & 0x7F)
         return held
 
@@ -166,8 +142,6 @@ class Space:
         )
 
     def _write_dsp(self, value: int) -> None:
-        if self.dsp is None:
-            return
         if self.dsp_address & 0x80:
             return
         self.dsp.write(self.dsp_address & 0x7F, value)
@@ -175,8 +149,3 @@ class Space:
     def spend(self, cycles: int) -> None:
         for one in self.timers:
             one.spend(cycles)
-
-    @override
-    def __repr__(self) -> str:
-        window = "boot" if self.boot_visible else "memory"
-        return f"<Space, top page reads {window}, control ${self.control:02X}>"

@@ -1,7 +1,9 @@
+import hashlib
 import json
 import sys
 import tempfile
 import unittest
+import zlib
 from pathlib import Path
 from typing import Any, override
 
@@ -9,7 +11,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from conformance import against_checks, loader
-from ssmp import firmware
+
+DIGESTS = ("crc32", "md5", "sha1", "sha256")
+
+
+def _digests(raw: bytes) -> dict[str, str]:
+    return {
+        "crc32": f"{zlib.crc32(raw):08x}",
+        "md5": hashlib.md5(raw, usedforsecurity=False).hexdigest(),
+        "sha1": hashlib.sha1(raw, usedforsecurity=False).hexdigest(),
+        "sha256": hashlib.sha256(raw).hexdigest(),
+    }
 
 
 def _smallest() -> bytes:
@@ -26,7 +38,7 @@ def _entry(name: str = "a.spc", raw: bytes = RAW) -> dict[str, Any]:
         "name": name,
         "covers": "something",
         "bytes": len(raw),
-        "digests": firmware.digests_of(raw),
+        "digests": _digests(raw),
     }
 
 
@@ -57,17 +69,24 @@ class DeclaredTest(unittest.TestCase):
         self.assertEqual([one for one in self.held["checks"] if not one["covers"]], [])
 
     def test_each_one_carries_all_four_digests(self) -> None:
-        self.assertEqual(
-            [
-                one["name"]
-                for one in self.held["checks"]
-                if set(one["digests"]) != set(firmware.DIGESTS)
-            ],
-            [],
-        )
+        # Arrange
+        wanted = set(DIGESTS)
+
+        # Act
+        short = [one["name"] for one in self.held["checks"] if set(one["digests"]) != wanted]
+
+        # Assert
+        self.assertEqual(short, [])
 
     def test_the_deciding_digest_is_the_one_the_family_decides_on(self) -> None:
-        self.assertEqual(self.held["decides"], firmware.DECIDES)
+        # Arrange
+        family = "sha256"
+
+        # Act
+        decides = self.held["decides"]
+
+        # Assert
+        self.assertEqual(decides, family)
 
     def test_it_says_the_files_are_not_carried_here(self) -> None:
         self.assertIn("is carried here", self.held["why"])
@@ -84,14 +103,39 @@ class DeclaredTest(unittest.TestCase):
 
 class ConfirmTest(unittest.TestCase):
     def test_a_file_matching_every_published_value_reports_nothing(self) -> None:
-        held = against_checks.confirm(RAW, firmware.digests_of(RAW))
+        # Arrange
+        published = _digests(RAW)
 
+        # Act
+        held = against_checks.confirm(RAW, published)
+
+        # Assert
         self.assertEqual(held, [])
 
     def test_a_file_matching_none_of_them_reports_all_four(self) -> None:
-        held = against_checks.confirm(b"different", firmware.digests_of(RAW))
+        # Arrange
+        published = _digests(RAW)
 
-        self.assertEqual(sorted(held), sorted(firmware.DIGESTS))
+        # Act
+        held = against_checks.confirm(b"different", published)
+
+        # Assert
+        self.assertEqual(sorted(held), sorted(DIGESTS))
+
+    def test_each_digest_is_computed_the_way_its_algorithm_defines_it(self) -> None:
+        # Arrange
+        published = {
+            "crc32": "cbf43926",
+            "md5": "25f9e794323b453885f5181f1b624d0b",
+            "sha1": "f7c3bc1d808e04732adf679965ccc34ca7ae3441",
+            "sha256": "15e2b0d3c33891ebb0f1ef609ec419420c20e320ce94c65fbc8c3312448eb225",
+        }
+
+        # Act
+        held = against_checks.confirm(b"123456789", published)
+
+        # Assert
+        self.assertEqual(held, [])
 
     def test_a_value_published_for_a_digest_nobody_computed_is_reported(self) -> None:
         held = against_checks.confirm(RAW, {"whirlpool": "00"})

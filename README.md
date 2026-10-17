@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** verdicts from a cartridge of checks agree, **734** tests, **100%** statement and branch coverage, no dependencies
+**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** verdicts from a cartridge of checks agree, **682** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 import ssmp
@@ -99,8 +99,9 @@ Releases follow [Semantic Versioning](https://semver.org/) and are cut from the 
 |:--|:--|
 | `ssmp.MODELS` | The one `Model` record, keyed by name |
 | `ssmp.Model` | A record with `name`, `summary`, `processor`, `memory` and `boot` |
-| `ssmp.why_not()` | `None` when a unit can be built here, or the sentence saying what is missing |
-| `ssmp.available()` | The boot programs found here, keyed by model name |
+| `ssmp.why_not(held=None)` | `None` when a unit can be built here, or the sentence saying what is missing. `held` is a catalogue to judge in place of searching, in the shape `available()` returns |
+| `ssmp.available(held=None, catalogue=None)` | The boot programs found here, keyed by model name. `held` is handed back as it is, in place of a search. `catalogue` is a manifest in the shape of [`ssmp/artifacts.manifest.json`](ssmp/artifacts.manifest.json) to identify files against, in place of the one this package carries |
+| `ssmp.identify(image, catalogue=None)` | The record of a boot program's bytes, with `part`, `processor`, `revision` and `bytes_long`. Raises `Unrecognised` or `Corrupt`, naming the repair when there is one. `catalogue` is as for `available()` |
 | `ssmp.VERSION`, `ssmp.__version__` | The installed version |
 
 | Error | Raised when |
@@ -113,7 +114,6 @@ Releases follow [Semantic Versioning](https://semver.org/) and are cut from the 
 
 ```python
 import ssmp
-from ssmp import firmware
 
 for name in (None, "s-dsp"):
     try:
@@ -127,7 +127,7 @@ except ssmp.WrongShape as error:
     print(error)
 
 try:
-    firmware.identify(bytes(100))
+    ssmp.identify(bytes(100))
 except ssmp.Unrecognised as error:
     print(error)
 ```
@@ -310,11 +310,12 @@ Where the sources contradict the model, or each other, the entry is in [`conform
 uvx ruff@0.16.3 format --check .
 uvx ruff@0.16.3 check .
 uvx --python 3.12 mypy==1.14.1
-python3 -m coverage erase
+cov=(uvx --python 3.12 --from coverage==7.6.10 --with setuptools==84.0.0 coverage)
+"${cov[@]}" erase
 for file in $(find ssmp conformance -name '*.test.py' | sort); do
-  python3 -m coverage run -a "$file"
+  "${cov[@]}" run -a "$file"
 done
-python3 -m coverage report
+"${cov[@]}" report
 ```
 
 Each module has a test file beside it, named after it, and each runs on its own. Coverage is a hard gate at 100% statement and branch. Every check that needs the boot program or one of Shay Green's files skips and says so, rather than reporting a pass.
