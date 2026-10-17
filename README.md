@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** verdicts from a cartridge of checks agree, **730** tests, **100%** statement and branch coverage, no dependencies
+**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** verdicts from a cartridge of checks agree, **734** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 import ssmp
@@ -73,7 +73,7 @@ Releases follow [Semantic Versioning](https://semver.org/) and are cut from the 
 
 | Call | Effect |
 |:--|:--|
-| `reset()` | The console's reset line. Builds a fresh processor, memory, sound generator and register space from the same boot program, then resets the sound generator and the processor, which starts the boot program. Returns the unit |
+| `reset()` | The console's reset line. Shows the boot window, then resets the sound generator and the processor, which starts the boot program. Memory, the timers, the ports and the other registers keep what they held. Returns the unit |
 | `step()` | One processor instruction. Returns the cycles it took |
 | `run_for(cycles)` | Instructions until at least `cycles` cycles have passed. Returns the cycles spent |
 | `read(index)` | What the console reads at port `index`, 0 to 3: the byte the unit last wrote there |

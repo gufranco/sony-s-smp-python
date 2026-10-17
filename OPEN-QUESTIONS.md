@@ -200,6 +200,27 @@ from the rail coming up until the reset line is released, repeated across power
 cycles, which shows whether the generator drives any write before the reset
 reaches it.
 
+### What the reset line sets in the unit's own registers, and whether memory survives it.
+
+**The document says.** Nothing. No Sony document for this unit is known, and
+none of Shay Green's results records a state taken across a reset.
+
+**What this project does.** `reset()` shows the boot window, resets the
+generator and resets the processor, and nothing else. Memory keeps every byte.
+The timers keep their enables, dividers, stages and counters, the ports keep
+both directions, and the test register and the generator's address register
+keep what was last written.
+
+**Why.** The boot window is the one register setting with a source: the boot
+program never writes `$f1`, and the processor leaves reset through the vector at
+`$fffe`, which only the boot program supplies, so the window has to be visible
+then. Nothing settles the rest, and a reset leaves what it does not define
+holding what it held.
+
+**What would settle or reopen it.** A capture of a real unit's registers and
+memory either side of a console reset, with the timers running and the ports
+written before it.
+
 ## What a whole cartridge of his checks said
 
 `spc_smp.sfc` carries nineteen checks with values taken on a console. Eighteen

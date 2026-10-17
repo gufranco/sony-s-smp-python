@@ -134,7 +134,7 @@ class Chip:
             self.dsp.clock()
 
     def reset(self) -> Chip:
-        self._start()
+        self.space.reset()
         self.dsp.reset()
         self.processor.reset()
         return self

@@ -162,13 +162,64 @@ class StartTest(unittest.TestCase):
 
         self.assertIs(unit.reset(), unit)
 
-    def test_and_the_memory_it_ran_on_is_gone(self) -> None:
+    def test_a_byte_written_to_memory_survives_a_reset(self) -> None:
+        # Arrange
         unit = _a_unit(fill=0x00)
-        unit.space.memory.write8(0x1234, 0x77)
+        unit.space.write8(0x1234, 0x77)
 
+        # Act
         unit.reset()
 
-        self.assertEqual(unit.space.memory.read8(0x1234), 0x00)
+        # Assert
+        self.assertEqual(unit.space.read8(0x1234), 0x77)
+
+    def test_a_reset_shows_the_boot_window_the_program_runs_from(self) -> None:
+        # Arrange
+        unit = _a_unit()
+        unit.space.write8(space.CONTROL, 0x00)
+
+        # Act
+        unit.reset()
+
+        # Assert
+        self.assertEqual(
+            (unit.space.boot_visible, unit.processor.pc), (True, MADE_UP[62] | MADE_UP[63] << 8)
+        )
+
+    def test_a_reset_leaves_a_running_timer_running(self) -> None:
+        # Arrange
+        unit = _a_unit()
+        unit.space.write8(space.CONTROL, space.CONTROL_BOOT_VISIBLE | space.CONTROL_TIMER_0)
+
+        # Act
+        unit.reset()
+
+        # Assert
+        self.assertTrue(unit.space.timers[0].enabled)
+
+    def test_a_reset_leaves_the_ports_holding_what_they_held(self) -> None:
+        # Arrange
+        unit = _a_unit()
+        unit.write(2, 0x5A)
+        unit.space.write8(space.PORT_0 + 3, 0xA5)
+
+        # Act
+        unit.reset()
+
+        # Assert
+        self.assertEqual((unit.space.read8(space.PORT_0 + 2), unit.read(3)), (0x5A, 0xA5))
+
+    def test_a_reset_keeps_the_same_generator_and_processor(self) -> None:
+        # Arrange
+        unit = _a_unit()
+        before = (unit.dsp, unit.processor, unit.space)
+
+        # Act
+        unit.reset()
+
+        # Assert
+        after = (unit.dsp, unit.processor, unit.space)
+        self.assertEqual([one is two for one, two in zip(before, after, strict=True)], [True] * 3)
 
 
 class RunningTest(unittest.TestCase):

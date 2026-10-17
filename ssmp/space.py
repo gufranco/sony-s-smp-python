@@ -75,6 +75,10 @@ class Space:
         if fill is not None:
             self.write_all(fill)
 
+    def reset(self) -> None:
+        self.control |= CONTROL_BOOT_VISIBLE
+        self.boot_visible = True
+
     def write_all(self, value: int) -> None:
         for address in range(SPACE):
             self.memory.write8(address, value & 0xFF)

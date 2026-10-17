@@ -45,7 +45,7 @@ sixty four bytes never touch.
 
 ## What is settled and what is not
 
-**Not settled: 6 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
+**Not settled: 7 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
 the measurement that would close it. The sharpest is that nothing here is a
 timing claim against a console, because the two crystals are independent.
 
@@ -197,6 +197,9 @@ conformance/against_checks.py  Shay Green's checks, run against the model
   so it resets the generator to what `resetLine` in its record lists and then
   the processor. A check, a runner or an example that wants the boot program
   running calls `reset()` itself.
+- `reset()` never rebuilds anything. It shows the boot window, which the boot
+  program needs to leave reset at all, and resets the two halves. Memory, the
+  timers, the ports and the other registers hold what they held.
 - A generator nobody reset is clocked like any other, and when its scrambled
   flag register leaves echo writes on it writes wherever its scrambled echo
   registers point. That is what power on does here, and it is modelled rather
