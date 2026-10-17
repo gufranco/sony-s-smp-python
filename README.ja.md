@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-本体とのインターフェースは**4**つのポートがすべてです。実機で採取した値を持つチェックが**3**つ、不一致は**0**件、チェックを集めたカートリッジによる判定**18**件のうち**14**件が一致、テストは**682**件、ステートメントとブランチのカバレッジは**100%**、依存関係はありません。
+本体とのインターフェースは**4**つのポートがすべてです。実機で採取した値を持つチェックが**3**つ、不一致は**0**件、チェックを集めたカートリッジによる判定**18**件のうち**14**件が一致、テストは**690**件、ステートメントとブランチのカバレッジは**100%**、依存関係はありません。
 
 ```python
 import ssmp
@@ -309,7 +309,7 @@ S-SMPに関するSonyの文書は、存在が知られていません。その�
 ```bash
 uvx ruff@0.16.3 format --check .
 uvx ruff@0.16.3 check .
-uvx --python 3.12 mypy==1.14.1
+uvx --python 3.12 --with types-setuptools==84.0.0.20260812 mypy==1.14.1
 cov=(uvx --python 3.12 --from coverage==7.6.10 --with setuptools==84.0.0 coverage)
 "${cov[@]}" erase
 for file in $(find ssmp conformance -name '*.test.py' | sort); do

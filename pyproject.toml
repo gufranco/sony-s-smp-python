@@ -138,6 +138,6 @@ exclude_also = [
 # The submodules are checked in their own repositories, against their own gate.
 # Following imports into them here would report the state of somebody else's
 # project, and a finding nobody in this one can act on.
-module = ["spc700.*", "sdsp.*", "setuptools.*"]
+module = ["spc700.*", "sdsp.*"]
 follow_imports = "skip"
 ignore_missing_imports = true

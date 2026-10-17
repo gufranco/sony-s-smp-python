@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定中 **14** 个一致，**682** 个测试，**100%** 语句和分支覆盖率，无依赖
+**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定中 **14** 个一致，**690** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 import ssmp
@@ -309,7 +309,7 @@ ssmp
 ```bash
 uvx ruff@0.16.3 format --check .
 uvx ruff@0.16.3 check .
-uvx --python 3.12 mypy==1.14.1
+uvx --python 3.12 --with types-setuptools==84.0.0.20260812 mypy==1.14.1
 cov=(uvx --python 3.12 --from coverage==7.6.10 --with setuptools==84.0.0 coverage)
 "${cov[@]}" erase
 for file in $(find ssmp conformance -name '*.test.py' | sort); do

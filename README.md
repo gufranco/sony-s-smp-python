@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** verdicts from a cartridge of checks agree, **682** tests, **100%** statement and branch coverage, no dependencies
+**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** verdicts from a cartridge of checks agree, **690** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 import ssmp
@@ -309,7 +309,7 @@ Where the sources contradict the model, or each other, the entry is in [`conform
 ```bash
 uvx ruff@0.16.3 format --check .
 uvx ruff@0.16.3 check .
-uvx --python 3.12 mypy==1.14.1
+uvx --python 3.12 --with types-setuptools==84.0.0.20260812 mypy==1.14.1
 cov=(uvx --python 3.12 --from coverage==7.6.10 --with setuptools==84.0.0 coverage)
 "${cov[@]}" erase
 for file in $(find ssmp conformance -name '*.test.py' | sort); do
