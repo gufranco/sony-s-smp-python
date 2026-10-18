@@ -171,6 +171,23 @@ their reasons live here, beside those of the other exclusions:
   coverage sees it while earlier versions do not.
 - A lone ellipsis and a signature ending in one are excluded: a protocol method
   has no body to run, and the same version split applies.
+- `@unittest\.skipUnless\(CLOCKED,` in the coverage exclusions: this member is
+  not a clocked part, so the family tests that drive a clock are skipped here
+  and their bodies never run.
+- `@unittest\.skipUnless\(A_PART,`,
+  `@unittest\.skipUnless\(A_PART and BUILDABLE,` and
+  `^def accounts_for_a_reset\(` in the coverage exclusions: this member is not a
+  part, so the family tests that build a `Chip` and account for its reset are
+  skipped here and their bodies never run.
+- `@unittest\.skipUnless\(QUOTED,` in the coverage exclusions: this record
+  quotes no document, so the family tests that hold a quote checker to the
+  pipeline are skipped here.
+- `@unittest\.skipUnless\(VARIANTS,` and `^def built\(` in the coverage
+  exclusions: this package names no variants, so the family test that finds each
+  one built in the readme is skipped here.
+- `@unittest\.skipUnless\(SOLD_AS_A_COMPONENT,`, `^def machine_mentions\(` and
+  `^def listing\(` in the coverage exclusions: this part only existed inside one
+  machine, so the family sweep for machine names is skipped here.
 
 ## Layout
 
