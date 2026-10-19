@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定中 **14** 个一致，**814** 个测试，**100%** 语句和分支覆盖率，无依赖
+**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定全部一致，**814** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 import ssmp
@@ -290,7 +290,7 @@ ssmp
 
 三个全部一致。[`conformance/hardware.json`](conformance/hardware.json) 记录了每次运行。
 
-**一盘检查卡带，由精简的主机驱动。** Shay Green 的 `spc_smp` 卡带得出 18 个判定，其中 14 个一致，逐一记录在 [`conformance/cartridge.json`](conformance/cartridge.json) 中。一致的判定包括 `CPU/verify IPL ROM` 和 `CPU/smp reg read-write behavior`。四个不一致中有三个涉及定时器节奏，也就是 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) 已经围绕的问题。第四个是 `CPU Timing/mem access times`，记在处理器名下。
+**一盘检查卡带，由精简的主机驱动。** Shay Green 的 `spc_smp` 卡带得出 18 个判定，全部 18 个一致，逐一记录在 [`conformance/cartridge.json`](conformance/cartridge.json) 中，其中包括 `CPU/verify IPL ROM`、`CPU/smp reg read-write behavior`、三个随机定时器检查和 `CPU Timing/mem access times`。他的 `spc_dsp6` 卡带以同样方式驱动，关于声音发生器得出 104 个判定，全部 104 个一致。其背后的定时器和寄存器修正记录在 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) 中。
 
 `.spc` 文件属于 Shay Green，不在这里携带。[`conformance/checks.manifest.json`](conformance/checks.manifest.json) 用大小和四个摘要识别它们。请把你拥有的副本放在 `spc/` 中，或在 `SSMP_SPC_DIR` 中指定一个目录；没有它们时，`python3 -m conformance.against_checks` 以 2 退出，并说明未检查任何内容。
 

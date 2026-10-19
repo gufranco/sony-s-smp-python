@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-本体とのインターフェースは**4**つのポートがすべてです。実機で採取した値を持つチェックが**3**つ、不一致は**0**件、チェックを集めたカートリッジによる判定**18**件のうち**14**件が一致、テストは**814**件、ステートメントとブランチのカバレッジは**100%**、依存関係はありません。
+本体とのインターフェースは**4**つのポートがすべてです。実機で採取した値を持つチェックが**3**つ、不一致は**0**件、チェックを集めたカートリッジによる判定**18**件のすべてが一致、テストは**814**件、ステートメントとブランチのカバレッジは**100%**、依存関係はありません。
 
 ```python
 import ssmp
@@ -290,7 +290,7 @@ S-SMPに関するSonyの文書は、存在が知られていません。Nintendo
 
 3つとも一致します。[`conformance/hardware.json`](conformance/hardware.json)に各実行が記録されています。
 
-**簡略化した本体で動かす、チェックを集めたカートリッジ。** Shay Greenの`spc_smp`カートリッジは18件の判定に到達し、14件が一致します。1件ずつ[`conformance/cartridge.json`](conformance/cartridge.json)に記録しています。一致したものには`CPU/verify IPL ROM`と`CPU/smp reg read-write behavior`が含まれます。4件の不一致のうち3件はタイマーの進み方に関するもので、[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)がすでに扱っている問題です。4件目の`CPU Timing/mem access times`は、プロセッサ側の問題として記録しています。
+**簡略化した本体で動かす、チェックを集めたカートリッジ。** Shay Greenの`spc_smp`カートリッジは18件の判定に到達し、18件すべてが一致します。1件ずつ[`conformance/cartridge.json`](conformance/cartridge.json)に記録しており、`CPU/verify IPL ROM`、`CPU/smp reg read-write behavior`、3つのランダムタイマーのチェック、`CPU Timing/mem access times`が含まれます。同じ方法で動かした`spc_dsp6`カートリッジは音源について104件の判定に到達し、104件すべてが一致します。その背後にあるタイマーとレジスタの修正は[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)に記録しています。
 
 `.spc`ファイルはShay Greenのものであり、ここには含まれていません。[`conformance/checks.manifest.json`](conformance/checks.manifest.json)がサイズと4つのダイジェストでそれらを識別します。お持ちのコピーを`spc/`に置くか、`SSMP_SPC_DIR`でディレクトリを指定してください。ない場合、`python3 -m conformance.against_checks`は終了コード2で終了し、何もチェックされなかったことを示します。
 

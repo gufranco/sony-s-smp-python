@@ -3,9 +3,10 @@
 What this project does not know for certain, and what it would take to find out.
 
 This is a short list, and the reason is the subject. Almost everything this
-member models is settled by the part's own boot program, which is Sony's code
-rather than anybody's reading of it, or by checks Shay Green wrote that carry
-values he took on a console. What is left is what neither of those reaches.
+member models is settled by Nintendo's development manual, which prints the
+timers, by the part's own boot program, which is Sony's code rather than
+anybody's reading of it, or by checks Shay Green wrote that carry values he took
+on a console. What is left is what none of those reaches.
 
 Every entry is also in
 [`conformance/divergences.json`](conformance/divergences.json) with its status
@@ -52,66 +53,44 @@ than a decision here.
 **What would settle or reopen it.** Nothing needs settling. It is written down so
 a reader does not mistake the absence of a check for an absence of thought.
 
-## Where a figure comes from a ratio rather than a printed row
-
-### The rate the timers tick at.
-
-**The document says.** Nothing about this unit. What is printed is the sound
-generator's sampling rate, and that is in the neighbouring member.
-
-**What this project follows.** The ratio between the timers and the processor,
-which is 128 processor cycles for the two slow timers and 16 for the fast one.
-The crystal and its four divisions are in
-[`ssmp/rates.py`](ssmp/rates.py) as the reasoning behind the ratio rather than as
-a claim of their own.
-
-**Why.** A unit built around a different crystal with the same ratios behaves
-identically here, so the ratio is the weaker claim and it is the one worth
-making. Every one of the four divisions is a whole number, which is the only
-evidence offered that the division is the right one.
-
-**What would settle or reopen it.** A Sony document, or a measurement of a timer
-against the processor on real hardware. There is now a third way, and it needs
-neither. Shay Green's `spc_mem_access_times.sfc` uses the timers as its phase
-reference while it walks the instruction set, and checks the result against a
-value he took on a console, `8f 77 58 15`. The answer moves with this ratio: at
-128 and 16 processor cycles per tick the check produces `08 42 1c 30`, and at 256
-and 32 it produces `92 33 b8 c9`. So the rate is measurable by finding the one
-that reproduces his value.
-
-Three of his timer checks now say the same thing from the other side.
-`Timers/random timer0`, `random timer0 enable` and `random timer2` all disagree,
-while `timer read vs write` and `timer0 vs other timers` agree, so the register
-interface is right and so are the rates relative to each other. That is a much
-sharper handle than the one below, because those three drive the timers directly
-rather than leaning on them to measure something else.
-
-**Three suspects, not one.** The pacing is the first, and it is derived rather
-than read. The other two are choices in
-[`ssmp/timers.py`](ssmp/timers.py) that no source reaches: turning a timer on
-clears its stage and its counter, and writing a divider part way through a count
-leaves the stage where it was, so lowering the divider below the current stage
-wraps on the very next tick. Nothing documents either, the boot program never
-writes a divider twice, and one of the three failing checks is named for the
-first of them. Both are under test in
-[`ssmp/timers.test.py`](ssmp/timers.test.py), so what this model does at those
-corners can be read without running it. That the two rate checks pass while the
-three random ones fail argues against pacing alone being the cause.
-
-None of the ratios tried so far reproduces his value, and there is a reason to be
-careful about reading that as an answer. The same check was run on the author's own implementation, `snes_spc
-0.9.0`, and on this family's parts composed, both with no console attached and
-both handed the identical program: they agree byte for byte at `5e 71 f3 c3`,
-while a console gives `8f 77 58 15`. Two implementations agreeing with each other
-and neither agreeing with hardware points at the console the cartridge is driven
-from rather than at any ratio inside this unit.
-
-So the coupling is real and the route stays open, but it is not a way to measure
-the rate until the console around it is faithful enough to trust. What this buys
-is a constraint rather than an answer, and it is recorded because a constraint
-that nobody wrote down is a measurement nobody can repeat.
-
 ## What was open and is now closed
+
+**The rate the timers tick at, and how they count.** Book I of Nintendo's
+development manual prints it: Figure 3-5-1 draws one prescaler on a 2.048 MHz
+clock, and page 3-5-1 says it feeds timers 0 and 1 at 8 kHz and timer 2 at
+64 kHz. Page 3-1-1 gives the shortest instruction as 1.953 microseconds, and
+Appendix C gives the shortest instructions two cycles, so a cycle is 976.5
+nanoseconds and the ticks are 128 and 16 cycles apart. Page 3-5-2 says switching
+a timer on clears its two counters, the stage is matched to the divider by
+equality, and a reset stops the timers. Every one of those is quoted in
+[`conformance/hardware.json`](conformance/hardware.json) with its page and held
+by a test.
+
+This model had the rates and had the rest wrong: it restarted a prescaler for
+each timer whenever one was switched on, and wrapped a divider lowered below the
+stage at once. Shay Green's `spc_smp.sfc` found it. Its three random timer checks
+and its memory access check disagreed with values he took on a console, and with
+the prescaler shared and free running and the divider matched by equality, all
+four reproduce them (as of 2026-10-19). The cartridge is SHA-256
+`2ed302c5b989675d4ab6b40001fd5166ac4c6e0188a6b1b6df878e4608999c03`, from
+`https://gitlab.com/higan/snes-test-roms` at commit
+`26e8aa91e0d3b90b901e7e693bc4a8244b391d7b`, and is not carried here.
+
+**How fast the sound generator runs beside the processor.** One generator clock
+per processor cycle. The 41 checks in the timing group of Shay Green's
+`spc_dsp6.sfc` read and write the generator's registers at named steps of its
+thirty two step schedule, timed by this processor's own instructions, and all 41
+reproduce the values he took on a console. A generator running at any other rate
+beside the processor would move every one of those steps.
+
+**What the sound generator produces once it is running, as far as the cartridge
+reaches.** All 104 verdicts `spc_dsp6.sfc` reaches here agree with a console.
+The seven that used to disagree had three causes, two in the generator and one
+here: every write to the sixteen registers also lands in the memory beneath them,
+which the generator reads directly, and `$F8` and `$F9` read back what was last
+written to them rather than that memory. The check `Misc/$F0-$FF are not ram`
+reproduces its console value only with both. The sample values themselves are
+the generator's question and stay in its own record.
 
 **What the five registers nothing reads back actually answer.** Zero. All five of
 them: the test register, the control register, and the three timer dividers.
@@ -128,44 +107,6 @@ thing in words, which is a second source and not an implementation.
 
 The old behaviour was put back on purpose afterwards to watch the check fail:
 sub-check 3 disagreed and reported `d57e2579` against the `9d4d2100` it wanted.
-
-## Where a wire is derived rather than measured
-
-### How fast the sound generator runs beside the processor.
-
-**The document says.** Nothing. No Sony document for this unit is known.
-
-**What this project follows.** One of the generator's clocks per processor
-cycle, derived in [`ssmp/rates.py`](ssmp/rates.py) rather than written down. One
-crystal reaches the processor through a divisor of 24 and reaches the generator
-through 768 for a sample with 32 clocks inside it. Twenty four times thirty two
-is seven hundred and sixty eight, so both land on 1,024,000 a second.
-
-**Why.** It is the same shape as the timer ratios beside it: a unit built around
-a different crystal with the same divisors behaves identically here, so the
-ratio is the claim and the crystal is the reasoning behind it.
-
-**What would settle or reopen it.** A Sony document, or a measurement of the
-sample rate against the processor on real hardware.
-
-### What the sound generator actually produces once it is running.
-
-**The document says.** Nothing here. The generator is its own member and carries
-its own record.
-
-**What this project does.** Wires it to the shared memory and clocks it, and
-checks that doing so does not disturb anything: blargg's three checks still
-agree, including the one that reads every byte of memory and the echo buffer.
-
-**Why.** That rules out the generator writing where it should not. It says
-nothing about whether what comes out is right, and this member does not claim it
-does.
-
-**What would settle or reopen it.** blargg's `spc_dsp6.sfc`, which carries 111
-checks taken on a console. It runs against this unit now that the generator is
-wired, reaches the envelope group, and reports a disagreement. Which of the 111
-disagrees, and whether the fault is in the generator, in this wiring, or in the
-harness that drove it, is not isolated.
 
 ## Before the console's reset reaches the unit
 
@@ -227,37 +168,23 @@ written before it.
 ## What a whole cartridge of his checks said
 
 `spc_smp.sfc` carries nineteen checks with values taken on a console. Eighteen
-reached a verdict here and fourteen agree, including the two that bear directly
-on what this member models:
+reach a verdict here and all eighteen agree (as of 2026-10-19):
 
-| Check                                                                 |               |
-| --------------------------------------------------------------------- | ------------- |
-| `CPU/verify IPL ROM`                                                  | agrees        |
-| `CPU/smp reg read-write behavior`                                     | agrees        |
-| `CPU/addw and subw`, `psw is 8 independent bits`, `tset tclr`         | agree         |
-| `CPU/wrap-around mem`, `wrap-around pc`, `wrap-around sp`             | agree         |
-| `CPU Instructions/Edge arith`, `Full BRK`, `Full CMP`, `Full DAA DAS` | agree         |
-| `Timers/timer read vs write`, `timer0 vs other timers`                | agree         |
-| `Timers/random timer0`, `random timer0 enable`, `random timer2`       | **disagree**  |
-| `CPU Timing/mem access times`                                         | **disagrees** |
+| Check                                                                 |       |
+| --------------------------------------------------------------------- | ----- |
+| `CPU/verify IPL ROM`                                                  | agree |
+| `CPU/smp reg read-write behavior`                                     | agree |
+| `CPU/addw and subw`, `psw is 8 independent bits`, `tset tclr`         | agree |
+| `CPU/wrap-around mem`, `wrap-around pc`, `wrap-around sp`             | agree |
+| `CPU Instructions/Edge arith`, `Full BRK`, `Full CMP`, `Full DAA DAS` | agree |
+| `CPU Timing/mem access times`                                         | agree |
+| `Timers/timer read vs write`, `timer0 vs other timers`                | agree |
+| `Timers/random timer0`, `random timer0 enable`, `random timer2`       | agree |
 
-The first of those is the boot program held to somebody else's checksum rather
-than to its own digest, and the second is the register file this session's fix
-changed, confirmed by a check that is not the one that found it.
-
-Every verdict is in [`conformance/cartridge.json`](conformance/cartridge.json)
-with both values beside it.
-
-**Three timer checks disagree and two agree.** The two that agree are the
-register interface, `timer read vs write` and `timer0 vs other timers`. The three
-that disagree all drive the timers at rates chosen at random. So what is in
-question is the pacing rather than the interface, and pacing is exactly the
-figure this member derives rather than reads off a page. That is the sharpest
-lead the timer rate question has.
-
-The fourth disagreement, `CPU Timing/mem access times`, is recorded against
-[sony-spc700-python](https://github.com/gufranco/sony-spc700-python), where the
-author's own implementation was shown to agree with this family's.
+The nineteenth, `CPU Timing/time all opcodes`, prints its name and reaches no
+comparison here. Every verdict is in
+[`conformance/cartridge.json`](conformance/cartridge.json) with both values
+beside it.
 
 ## What is not in question
 

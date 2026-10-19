@@ -2,93 +2,128 @@
   "what": "Every check in Shay Green's spc_smp cartridge that reached a verdict, and what each one said. The values a console produced are read out of his own uploaded programs; the values here are read out of this unit's memory.",
   "why": "His harness reports only the first failure and then restarts, so one disagreement hides every check after it. The run records the verdict and then turns that check's four conditional branches into no-ops so it carries on. Nothing rewrites what a check expects: a verdict is ignored, never changed.",
   "carried": false,
-  "producedBy": "A cut-down console driving the cartridge into this unit. It is not carried here, for the reason given under what is deliberately not modelled: a console processor is not part of what this member models. What is carried is this record, so the verdicts can be disputed without rebuilding the harness.",
+  "producedBy": "A cut-down console driving the cartridge into this unit: a 65816 from mos65xx-python, the cartridge decoded as LoROM, $2140-$2143 wired to the unit's four ports, and the four-byte comparison against $dc to $df every check ends with turned into no-ops after its verdict is recorded. It is not carried here, for the reason given under what is deliberately not modelled. What is carried is this record, so the verdicts can be disputed without rebuilding the harness.",
   "verdicts": 18,
-  "agreed": 14,
-  "disagreed": 4,
+  "agreed": 18,
+  "disagreed": 0,
   "checks": [
     {
       "check": "CPU Instructions/Edge arith",
-      "agreed": true
+      "agreed": true,
+      "console": "ec 84 4c 6b",
+      "thisModel": "ec 84 4c 6b"
     },
     {
       "check": "CPU Instructions/Full BRK",
-      "agreed": true
+      "agreed": true,
+      "console": "3e f7 4f 65",
+      "thisModel": "3e f7 4f 65"
     },
     {
       "check": "CPU Instructions/Full CMP",
-      "agreed": true
+      "agreed": true,
+      "console": "c2 84 1a 6d",
+      "thisModel": "c2 84 1a 6d"
     },
     {
       "check": "CPU Instructions/Full DAA DAS",
-      "agreed": true
+      "agreed": true,
+      "console": "f3 1d f2 72",
+      "thisModel": "f3 1d f2 72"
     },
     {
       "check": "CPU Timing/mem access times",
-      "agreed": false,
+      "agreed": true,
       "console": "8f 77 58 15",
-      "thisModel": "08 42 1c 30"
+      "thisModel": "8f 77 58 15"
     },
     {
       "check": "CPU/addw and subw",
-      "agreed": true
+      "agreed": true,
+      "console": "83 71 eb 51",
+      "thisModel": "83 71 eb 51"
     },
     {
       "check": "CPU/psw is 8 independent bits",
-      "agreed": true
+      "agreed": true,
+      "console": "8c 73 fa d6",
+      "thisModel": "8c 73 fa d6"
     },
     {
       "check": "CPU/smp reg read-write behavior",
-      "agreed": true
+      "agreed": true,
+      "console": "af a7 e5 f8",
+      "thisModel": "af a7 e5 f8"
     },
     {
       "check": "CPU/tset tclr",
-      "agreed": true
+      "agreed": true,
+      "console": "cb 91 81 20",
+      "thisModel": "cb 91 81 20"
     },
     {
       "check": "CPU/verify IPL ROM",
-      "agreed": true
+      "agreed": true,
+      "console": "bf c5 44 bb",
+      "thisModel": "bf c5 44 bb"
     },
     {
       "check": "CPU/wrap-around mem",
-      "agreed": true
+      "agreed": true,
+      "console": "fa 50 ea b9",
+      "thisModel": "fa 50 ea b9"
     },
     {
       "check": "CPU/wrap-around pc",
-      "agreed": true
+      "agreed": true,
+      "console": "54 f3 26 6d",
+      "thisModel": "54 f3 26 6d"
     },
     {
       "check": "CPU/wrap-around sp",
-      "agreed": true
+      "agreed": true,
+      "console": "89 c2 80 e4",
+      "thisModel": "89 c2 80 e4"
     },
     {
       "check": "Timers/random timer0",
-      "agreed": false,
+      "agreed": true,
       "console": "31 0f 17 fd",
-      "thisModel": "51 c2 c3 b1"
+      "thisModel": "31 0f 17 fd"
     },
     {
       "check": "Timers/random timer0 enable",
-      "agreed": false,
+      "agreed": true,
       "console": "86 f2 47 9f",
-      "thisModel": "65 3c f1 97"
+      "thisModel": "86 f2 47 9f"
     },
     {
       "check": "Timers/random timer2",
-      "agreed": false,
+      "agreed": true,
       "console": "3e d6 7e c1",
-      "thisModel": "fc ce 47 3f"
+      "thisModel": "3e d6 7e c1"
     },
     {
       "check": "Timers/timer read vs write",
-      "agreed": true
+      "agreed": true,
+      "console": "d0 6c d0 a9",
+      "thisModel": "d0 6c d0 a9"
     },
     {
       "check": "Timers/timer0 vs other timers",
-      "agreed": true
+      "agreed": true,
+      "console": "fe 2f a1 ba",
+      "thisModel": "fe 2f a1 ba"
     }
   ],
   "verified": true,
-  "evidence": "The boot program and the register file are both settled by a check written by somebody else and taken on a console: CPU/verify IPL ROM and CPU/smp reg read-write behavior both agree. So do the eight instruction and wrap-around checks beside them.",
-  "howToSettleIt": "Three of the four disagreements are timers: Timers/random timer0, random timer0 enable and random timer2. Timers/timer read vs write and Timers/timer0 vs other timers agree, so the register interface is right and the pacing is what is in question, which is the same figure the timer rate question here turns on. The fourth, CPU Timing/mem access times, is recorded against the processor and is not a verdict on this unit alone."
+  "evidence": "All eighteen verdicts agree with values taken on a console, including the three random timer checks and the memory access check, which agree since the timers share one free-running prescaler and match the divider by equality.",
+  "howToSettleIt": "Settled for what the cartridge reaches. The nineteenth check, CPU Timing/time all opcodes, prints its name and reaches no comparison here.",
+  "cartridge": {
+    "name": "spc_smp.sfc",
+    "sha256": "2ed302c5b989675d4ab6b40001fd5166ac4c6e0188a6b1b6df878e4608999c03",
+    "from": "https://gitlab.com/higan/snes-test-roms",
+    "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+    "runOn": "2026-10-19"
+  }
 }

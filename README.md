@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** verdicts from a cartridge of checks agree, **814** tests, **100%** statement and branch coverage, no dependencies
+**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **18** of **18** verdicts from a cartridge of checks agree, **814** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 import ssmp
@@ -290,7 +290,7 @@ No Sony document for the S-SMP is known to exist. Nintendo's development manual,
 
 All three agree. [`conformance/hardware.json`](conformance/hardware.json) records each run.
 
-**A cartridge of checks, driven by a cut-down console.** Shay Green's `spc_smp` cartridge reaches 18 verdicts and 14 agree, recorded one by one in [`conformance/cartridge.json`](conformance/cartridge.json). Among the agreeing ones are `CPU/verify IPL ROM` and `CPU/smp reg read-write behavior`. Three of the four disagreements are timer pacing, the question [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) already turns on. The fourth, `CPU Timing/mem access times`, is recorded against the processor.
+**A cartridge of checks, driven by a cut-down console.** Shay Green's `spc_smp` cartridge reaches 18 verdicts and all 18 agree, recorded one by one in [`conformance/cartridge.json`](conformance/cartridge.json), among them `CPU/verify IPL ROM`, `CPU/smp reg read-write behavior`, the three random timer checks and `CPU Timing/mem access times`. His `spc_dsp6` cartridge, driven the same way, reaches 104 verdicts about the sound generator and all 104 agree. [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) records what the timer and register fixes behind those were.
 
 The `.spc` files are Shay Green's and are not carried here. [`conformance/checks.manifest.json`](conformance/checks.manifest.json) identifies them by size and four digests. Put copies you own in `spc/` or name a directory in `SSMP_SPC_DIR`; without them, `python3 -m conformance.against_checks` exits 2 and says nothing was checked.
 

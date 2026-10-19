@@ -1,7 +1,7 @@
 {
   "note": "Every place this member models something no document settles, or where its two halves and the part itself could be read differently. Each entry names what stands behind the choice and what would change it. The list is short because the part's own boot program settles most of what this member adds.",
   "authority": "hardware.json holds the ladder. Rung one is empty, because Sony published nothing for this unit. Rung two has two things in it: the part's own boot program, which is where the console interface comes from, and checksums Shay Green took on a console, which settle what the boot program never touches. Below that are the records of the two members this unit is assembled from.",
-  "readOn": "2026-08-26",
+  "readOn": "2026-10-19",
   "divergences": [
     {
       "id": "no-ratio-between-the-two-clocks",
@@ -73,12 +73,12 @@
       "id": "the-timers-disagree-with-a-console-when-driven-at-random-rates",
       "parts": ["ssmp"],
       "severity": "medium",
-      "status": "narrowed",
-      "documentSays": "Nothing. No Sony document for this unit is known.",
-      "referenceDoes": "Not applicable: this is a check taken on a console rather than an implementation.",
+      "status": "closed",
+      "documentSays": "Book I of Nintendo's development manual, Figure 3-5-1 and pages 3-5-1 and 3-5-2: one prescaler on a 2.048 MHz clock feeds timers 0 and 1 at 8 kHz and timer 2 at 64 kHz, switching a timer on clears its two counters, and the stage is cleared when its value corresponds to the divider.",
+      "referenceDoes": "Shay Green's spc_smp.sfc random timer0, random timer0 enable and random timer2 checks, and its mem access times check, compare against values taken on a console.",
       "packageFollows": "document",
-      "reasoning": "Three of Shay Green's five timer checks disagree with this model: random timer0, random timer0 enable and random timer2. The other two, timer read vs write and timer0 vs other timers, agree, so the register interface is right and so are the rates relative to each other. Three suspects are now named rather than one. The pacing is derived from one crystal rather than read off a page, and that derivation is recorded. Beyond it there are two choices in ssmp/timers.py that no source reaches: turning a timer on clears its stage and its counter, and writing a divider part way through a count leaves the stage where it was, so lowering the divider below the current stage wraps on the very next tick. Neither is documented anywhere, the boot program never writes a divider twice, and one of the three failing checks is named for the first of them. Both are now under test in ssmp/timers.test.py, so what the model does at those corners is readable without running it. That the rate checks pass while the random ones fail argues against pacing alone being the cause.",
-      "wouldSettleIt": "Reading what those three checks measure, which needs Shay Green's cartridge; it is not on this machine and conformance/cartridge.json records that as carried false. Failing that, a capture of a real unit doing the two things no source reaches: enabling a running timer, and writing a divider below the stage part way through a count."
+      "reasoning": "This model restarted a prescaler for each timer whenever one was switched on, and wrapped a divider lowered below the stage on the very next tick. Both disagree with what the manual draws and says, and the three random timer checks and the memory access check disagreed with the console. With one prescaler running from construction and never restarted, and the stage matched by equality so a lowered divider is reached after the stage wraps through 255, all eighteen verdicts the cartridge reaches agree, as recorded in cartridge.json.",
+      "wouldSettleIt": "Settled by the document and by four checks taken on a console, run on 2026-10-19 against spc_smp.sfc, SHA-256 2ed302c5b989675d4ab6b40001fd5166ac4c6e0188a6b1b6df878e4608999c03, from https://gitlab.com/higan/snes-test-roms at commit 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b."
     }
   ]
 }

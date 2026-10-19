@@ -48,7 +48,7 @@ what those sixty four bytes never touch.
 
 ## What is settled and what is not
 
-**Not settled: 7 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
+**Not settled: 4 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
 the measurement that would close it. The sharpest is that nothing here is a
 timing claim against a console, because the two crystals are independent.
 
@@ -56,8 +56,14 @@ Settled by the part rather than by agreement with anybody: the handshake, the
 transfer, the acknowledgement, a second block after the first, and the jump.
 
 Settled by a measurement somebody took on a console: all sixteen addresses that
-are not memory, read in order and checksummed together, and that memory comes
-back whole across nineteen point eight million cycles.
+are not memory, read in order and checksummed together, that memory comes
+back whole across nineteen point eight million cycles, and every verdict two
+cartridges of checks reach: 18 of 18 in `spc_smp.sfc` and 104 of 104 in
+`spc_dsp6.sfc`.
+
+Settled by Nintendo's Book I: the control register's timer and port bits, the
+timer rates, the shared prescaler, the divider match, and that a reset stops the
+timers.
 
 ## It needs a boot program and carries none
 
