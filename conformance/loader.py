@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, override
 
 from ssmp import space as spacemod
+from ssmp import timers
 
 if TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Mapping, Sequence
@@ -87,8 +88,11 @@ def restore(unit: Any, dump: Dump) -> Any:
     held = dump.registers
     unit.space.test = held[0x00]
     unit.space.dsp_address = held[0x02]
+    for index in range(spacemod.SPARE_COUNT):
+        unit.space.write8(spacemod.SPARE_0 + index, held[0x08 + index])
     for index in range(3):
         unit.space.timers[index].divider = held[0x0A + index]
+        unit.space.timers[index].counter = held[0x0D + index] & timers.COUNTER_MASK
     unit.space.write8(spacemod.CONTROL, held[0x01])
     for index in range(4):
         unit.space.ports.console_writes(index, held[0x04 + index])

@@ -158,6 +158,32 @@ class RestoringTest(unittest.TestCase):
         # Assert
         self.assertEqual(bytes(unit.read(index) for index in range(4)), b"\x12\x34\x56\x78")
 
+    def test_the_two_spare_registers_come_back_and_read_as_written(self) -> None:
+        # Arrange
+        registers = bytearray(_registers())
+        registers[0x08:0x0A] = b"\x5a\xa5"
+        copying = bytes((0xE4, 0xF8, 0xC4, 0xF6, 0xE4, 0xF9, 0xC4, 0xF7, *SPIN))
+
+        # Act
+        unit = _restored_and_run(copying, bytes(registers))
+
+        # Assert
+        self.assertEqual((unit.read(2), unit.read(3)), (0x5A, 0xA5))
+
+    def test_the_three_timer_counters_come_back_from_the_image(self) -> None:
+        # Arrange
+        registers = bytearray(_registers())
+        registers[0x0D:0x10] = b"\x01\x02\x03"
+        copying = bytes(
+            (0xE4, 0xFD, 0xC4, 0xF5, 0xE4, 0xFE, 0xC4, 0xF6, 0xE4, 0xFF, 0xC4, 0xF7, *SPIN)
+        )
+
+        # Act
+        unit = _restored_and_run(copying, bytes(registers))
+
+        # Assert
+        self.assertEqual((unit.read(1), unit.read(2), unit.read(3)), (1, 2, 3))
+
     def test_the_generator_comes_back(self) -> None:
         # Arrange
         reading = bytes((0x8F, 0x0C, 0xF2, 0xE4, 0xF3, 0xC4, 0xF5, *SPIN))
