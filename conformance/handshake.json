@@ -1,0 +1,40 @@
+{
+  "what": "The boot program's upload protocol as the 240p Test Suite drives it at power on: the ready signature it waits for, the destination and start command it writes, and the byte count it sends, each read out of the image you hold at run time. A payload of the same length is sent instead of the cartridge's own sound driver, which is not this project's to carry, and it marks port 3 when it runs.",
+  "why": "The suite checks nothing but the echoes: each of its loops spins until port 0 gives back what it wrote, so a unit that drops one hangs the boot. Every echo matching and the payload running at the destination is the pass.",
+  "carried": false,
+  "producedBy": "conformance/handshake.py; python3 -m conformance.handshake --write rewrote this record from the run.",
+  "images": [
+    {
+      "id": "240p-test-suite-1-061-ntsc",
+      "title": "240p Test Suite 1.061, NTSC",
+      "sha256": "fe88b5db3f5612e36f1c8f662839d5d3d32c8959ee7f766ca2d5bb3318d42900",
+      "offsets": {
+        "ready": "0x1927e",
+        "destination": "0x19286",
+        "start": "0x1928c",
+        "count": "0x192b6"
+      },
+      "measured": {
+        "echoes": 5562,
+        "of": 5562,
+        "landed": true
+      }
+    },
+    {
+      "id": "240p-test-suite-1-061-pal",
+      "title": "240p Test Suite 1.061, PAL",
+      "sha256": "16068420d905a4cc7710770428dcd7cb526c30bb47e201dcb0a6bd85a099b6aa",
+      "offsets": {
+        "ready": "0x1927e",
+        "destination": "0x19286",
+        "start": "0x1928c",
+        "count": "0x192b6"
+      },
+      "measured": {
+        "echoes": 5562,
+        "of": 5562,
+        "landed": true
+      }
+    }
+  ]
+}

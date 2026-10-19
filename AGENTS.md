@@ -146,12 +146,43 @@ and CI turns that into a notice. `--write` rewrites the record from the run.
 `initial_in_ports.spc` and `full_ram.spc`, through
 `conformance/against_checks.py`, as above.
 
-**The rest wait on `snes-machine`**, a whole-machine member no plan names yet:
-the burn-in test, the SNES Test Program, the NTF 2.5 test and both 240p Test
-Suite builds, whose sound tests are judged by ear; lidnariq's clock speed
-measurement, which needs the two real crystals; and fourteen of byuu's 2010
-probes of the test register and the timers, which print measurements rather
-than a verdict and show nothing on the cut-down console.
+**Four factory and service cartridges test this unit with a program of their
+own, and it runs here.** Burn-in revision D, SNSP Aging 1.02, the Control Deck
+Tester and Aging Program 1.00 each upload an SPC700 self-test through the boot
+program, send `$07` and then `$80` on port 0, and wait for port 1 to answer
+`$55` and then a result byte whose bits are six sub-tests: audio RAM patterns,
+the echo region, the envelope against a table, the echo writer's timing, and
+timers 1 and 2 against timer 0. Ports 2 and 3 carry the memory error count.
+[`conformance/selftest.py`](conformance/selftest.py) reads the block list out of
+the image you hold, uploads it, writes the port values the cartridge writes
+first and runs the unit until port 1 leaves `$55`; the run is kept in
+[`conformance/selftest.json`](conformance/selftest.json). All four pass every
+sub-test, after about 9,841,000 unit cycles. Each cartridge masks the envelope
+bit with `AND #$FB`; MAME sets it, this unit clears it, and no console value is
+known, so it is recorded as this model's own measurement and enforces nothing.
+The cartridges' frame windows are not judged: a frame is the console's crystal.
+
+**The 240p Test Suite's boot-time upload runs here too.**
+[`conformance/handshake.py`](conformance/handshake.py) reads the ready signature,
+destination, start command and byte count out of the image, sends a payload of
+the same 5,561 bytes in the suite's own write order, and requires every echo and
+the payload running at `$0400`. Both builds pass, as
+[`conformance/handshake.json`](conformance/handshake.json) records.
+
+```bash
+SSMP_CARTRIDGE_DIR=/path/to/cartridges python3 -m conformance.selftest
+SSMP_CARTRIDGE_DIR=/path/to/cartridges python3 -m conformance.handshake
+```
+
+Both find an image by its SHA-256 under any name, in the same folders as the
+cartridge runner, and exit 2 with a notice in CI when none is there.
+
+**The rest wait on a planned member.** lidnariq's clock speed measurement times
+this unit against the 5A22, so it waits on `snes-cpu-io`. Fourteen of byuu's
+2010 probes of the test register and the timers draw measurements with the
+S-PPU rather than report a verdict, so they wait on `snes-ppu`. The NTF 2.5 test,
+the Test Program that overdumps it and the controller test cassette upload a
+sound driver and check nothing on the unit, so they are not listed.
 
 ## Every gate, in the order to run them
 
@@ -182,6 +213,8 @@ of them is twenty seconds of the unit's own time:
 ```bash
 python3 -m conformance.against_checks
 python3 -m conformance.cartridges
+python3 -m conformance.selftest
+python3 -m conformance.handshake
 ```
 
 And the runs that report what they could not check rather than passing quietly:
@@ -292,6 +325,8 @@ conformance/loader.py     an audio unit written down, and the order to restore i
 conformance/against_checks.py  Shay Green's checks, run against the model
 conformance/host.py       the least of a console a test cartridge needs
 conformance/cartridges.py test cartridges, run on that console with a 65816 from mos65xx-python
+conformance/selftest.py   the self-test four factory cartridges upload, run on the unit
+conformance/handshake.py  the 240p Test Suite's boot-time upload, replayed at the unit
 conformance/quotes.py     every quoted sentence, found in the document it cites
 ```
 
@@ -366,7 +401,8 @@ conformance/quotes.py     every quoted sentence, found in the document it cites
 
 Every gate above, then `conformance/boot.test.py` with a real boot program
 present, `python3 -m conformance.against_checks` with Shay Green's files
-present, and `python3 -m conformance.cartridges` with the cartridges present. A change that keeps the unit tests green and stops the handshake
+present, and `python3 -m conformance.cartridges`, `conformance.selftest` and
+`conformance.handshake` with the cartridges present. A change that keeps the unit tests green and stops the handshake
 appearing, or makes one of those checks disagree, has broken the part.
 
 ## What a change is expected to leave behind

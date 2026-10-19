@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-本体とのインターフェースは**4**つのポートがすべてです。実機で採取した値を持つチェックが**3**つ、不一致は**0**件、チェックを集めたカートリッジによる判定**18**件のすべてが一致、テストは**900**件、ステートメントとブランチのカバレッジは**100%**、依存関係はありません。
+本体とのインターフェースは**4**つのポートがすべてです。実機で採取した値を持つチェックが**3**つ、不一致は**0**件、チェックを集めたカートリッジによる判定**18**件のすべてが一致、テストは**937**件、ステートメントとブランチのカバレッジは**100%**、依存関係はありません。
 
 ```python
 import ssmp
@@ -292,6 +292,8 @@ S-SMPに関するSonyの文書は、存在が知られていません。Nintendo
 3つとも一致します。[`conformance/hardware.json`](conformance/hardware.json)に各実行が記録されています。
 
 **簡略化した本体で動かす、チェックを集めたカートリッジ。** `python3 -m conformance.cartridges`は`SSMP_CARTRIDGE_DIR`または`cartridges/`にあるテストカートリッジをすべてその本体で動かし、それぞれを記録した[`conformance/cartridge.json`](conformance/cartridge.json)と実行結果を比較します。Shay Greenの`spc_smp`は18件の判定に到達して18件すべてが一致し、`CPU/verify IPL ROM`、`CPU/smp reg read-write behavior`、3つのランダムタイマーのチェック、`CPU Timing/mem access times`が含まれます。`spc_dsp6`は音源について104件の判定に到達して104件すべてが一致し、`spc_mem_access_times`は2件中2件、`spc_timer`は1件中1件が一致します。`SLEEP`と`STOP`を除くすべてのSPC700オペコードを試すgilyonの`spctest`は`Success`を報告します。Peter LemonのSPC700カートリッジ7本は、いずれも最初のチェックで`FAIL`を報告し、期待値との違いは1ビットです。割り込みフラグで、ここではリセット後にセットされたままになり、[sony-spc700-python](https://github.com/gufranco/sony-spc700-python)が未解決の問題として記録しています。Shay Greenのチェックの背後にあるタイマーとレジスタの修正は[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)に記録しています。カートリッジがなければ2で終了し、何も実行しなかったと伝えます。[`conformance/testroms.json`](conformance/testroms.json)は、本体全体を待つものも含め、このユニット向けのすべてのテストカートリッジを列挙しています。
+
+**独自のプログラムでユニットを試す工場用カートリッジ。** Burn-in Rev D、SNSP Aging 1.02、Control Deck Tester、Aging Program 1.00は、それぞれSPC700のセルフテストをアップロードし、6つのサブテストをビットに持つ結果バイトを読み戻します。オーディオRAMのパターン、エコー領域、表と比べるエンベロープ、エコー書き込みのタイミング、そして3つ目に対する2つのタイマーです。`python3 -m conformance.selftest`は、お手元のイメージからそのプログラムを読み出し、アップロードして実行します。4本ともすべてのサブテストに合格し、[`conformance/selftest.json`](conformance/selftest.json)に記録しています。カートリッジはエンベロープのビットを無視します。MAMEはこれをセットし、このユニットはクリアするため、このモデル自身の測定値として残しています。`python3 -m conformance.handshake`は240p Test Suiteの起動時アップロードを同じ長さのペイロードで再生し、どちらのビルドでもすべてのエコーとペイロードの実行を確認できます。[`conformance/handshake.json`](conformance/handshake.json)に記録しています。
 
 `.spc`ファイルはShay Greenのものであり、ここには含まれていません。[`conformance/checks.manifest.json`](conformance/checks.manifest.json)がサイズと4つのダイジェストでそれらを識別します。お持ちのコピーを`spc/`に置くか、`SSMP_SPC_DIR`でディレクトリを指定してください。ない場合、`python3 -m conformance.against_checks`は終了コード2で終了し、何もチェックされなかったことを示します。
 

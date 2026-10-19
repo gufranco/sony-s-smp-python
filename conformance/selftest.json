@@ -1,0 +1,98 @@
+{
+  "what": "The audio unit self-test that four factory and service test cartridges upload: the cartridge's own SPC700 program, read out of the image you hold at run time, uploaded through the four ports with the boot program's protocol, then asked to test the unit. What is kept here is what this unit answered, never the program.",
+  "why": "The cartridges were built to pass on a console, and the program on the unit decides each sub-test itself: memory patterns, the echo region, the envelope against a table, the echo writer's timing and two timers against a third. Port 1 answers $55 when the command arrives and the result byte when the tests finish; ports 2 and 3 carry the memory error count.",
+  "carried": false,
+  "producedBy": "conformance/selftest.py, which reads the block list from the image, uploads it through conformance/console.py, writes any port values the cartridge writes first, then $07 and $80 to port 0, and runs the unit until port 1 leaves $55. python3 -m conformance.selftest --write rewrote this record from that run.",
+  "envelope": "Every one of these cartridges masks bit 2 of the result, the envelope sub-test, with AND #$FB before deciding. MAME 0.289 sets that bit; this unit clears it. No console value for the bit is known, so it is recorded as this model's own measurement and enforced by nothing.",
+  "timing": "The cartridges wait a fixed number of frames between the command and the read: Burn-in 256 frames for $55 and 120 more for the result, SNSP and Aging 1.00 one frame in which $55 must not yet show and 180 frames for the result. A frame is the console's crystal and the unit runs from its own, so the cycle counts here are this model's and are not judged against a frame count.",
+  "images": [
+    {
+      "id": "burn-in-rev-d-apu",
+      "title": "Burn-in test cartridge, revision D",
+      "sha256": "092e80eab0d3a5300a30f7d41cf4e454cdb79cc0fac66f052567d37322cb891f",
+      "blockList": "0x18000",
+      "before": [0, 255, 255, 255],
+      "measured": {
+        "handshake": true,
+        "cyclesToHandshake": 60003,
+        "cyclesToResult": 9841247,
+        "result": 0,
+        "ports": "00 00",
+        "subTests": {
+          "aram": true,
+          "echoRegion": true,
+          "envelope": true,
+          "echoTiming": true,
+          "timer1": true,
+          "timer2": true
+        }
+      }
+    },
+    {
+      "id": "snsp-aging-1-02-apu",
+      "title": "SNSP Aging 1.02",
+      "sha256": "6c84f60b7a48b279ca4c1801947f843d79841cd92227c82d8c250edc25be2a9b",
+      "blockList": "0x18000",
+      "before": [],
+      "measured": {
+        "handshake": true,
+        "cyclesToHandshake": 60003,
+        "cyclesToResult": 9841243,
+        "result": 0,
+        "ports": "00 00",
+        "subTests": {
+          "aram": true,
+          "echoRegion": true,
+          "envelope": true,
+          "echoTiming": true,
+          "timer1": true,
+          "timer2": true
+        }
+      }
+    },
+    {
+      "id": "control-deck-tester-rev-1-apu",
+      "title": "Super NES Control Deck Tester, revision 1",
+      "sha256": "77c03d014c6e94a378d2acb7c2e92cdb14347d675eac1127e11164b1104fcd83",
+      "blockList": "0x78000",
+      "before": [],
+      "measured": {
+        "handshake": true,
+        "cyclesToHandshake": 60003,
+        "cyclesToResult": 9841247,
+        "result": 0,
+        "ports": "00 00",
+        "subTests": {
+          "aram": true,
+          "echoRegion": true,
+          "envelope": true,
+          "echoTiming": true,
+          "timer1": true,
+          "timer2": true
+        }
+      }
+    },
+    {
+      "id": "aging-1-00-apu",
+      "title": "Super Famicom Aging Program 1.00",
+      "sha256": "f58837be3cf307edf550ec971993672d8d00e4fba99a2c5dee58383202d08c54",
+      "blockList": "0x18000",
+      "before": [],
+      "measured": {
+        "handshake": true,
+        "cyclesToHandshake": 60003,
+        "cyclesToResult": 9841243,
+        "result": 0,
+        "ports": "00 00",
+        "subTests": {
+          "aram": true,
+          "echoRegion": true,
+          "envelope": true,
+          "echoTiming": true,
+          "timer1": true,
+          "timer2": true
+        }
+      }
+    }
+  ]
+}

@@ -1,6 +1,84 @@
 {
   "cartridges": [
     {
+      "id": "burn-in-rev-d-apu",
+      "title": "Burn-in test cartridge, revision D",
+      "sha256": "092e80eab0d3a5300a30f7d41cf4e454cdb79cc0fac66f052567d37322cb891f",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "Burn-in - Test Cartridge (USA) (Rev D).sfc",
+      "exercises": "the audio RAM patterns, the echo region, the envelope table, the echo writer's timing and timers 1 and 2 against timer 0, decided by the program on the unit",
+      "outcome": "run",
+      "runs": "its audio self-test program, read out of the image, uploaded and run by conformance/selftest.py",
+      "heldBy": [
+        "conformance/selftest.test.py::TheRecordedSelfTestsTest.test_the_burn_in_self_test_passes_every_sub_test_but_the_envelope"
+      ]
+    },
+    {
+      "id": "snsp-aging-1-02-apu",
+      "title": "SNSP Aging 1.02",
+      "sha256": "6c84f60b7a48b279ca4c1801947f843d79841cd92227c82d8c250edc25be2a9b",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "SNSP Aging Ver 1.02 (Japan) (En).sfc",
+      "exercises": "the audio RAM patterns, the echo region, the envelope table, the echo writer's timing and timers 1 and 2 against timer 0, decided by the program on the unit",
+      "outcome": "run",
+      "runs": "its audio self-test program, read out of the image, uploaded and run by conformance/selftest.py",
+      "heldBy": [
+        "conformance/selftest.test.py::TheRecordedSelfTestsTest.test_the_snsp_aging_self_test_passes_every_sub_test"
+      ]
+    },
+    {
+      "id": "control-deck-tester-rev-1-apu",
+      "title": "Super NES Control Deck Tester, revision 1",
+      "sha256": "77c03d014c6e94a378d2acb7c2e92cdb14347d675eac1127e11164b1104fcd83",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "Super NES Control Deck Tester (Japan) (En) (Rev 1).sfc",
+      "exercises": "the audio RAM patterns, the echo region, the envelope table, the echo writer's timing and timers 1 and 2 against timer 0, decided by the program on the unit",
+      "outcome": "run",
+      "runs": "its audio self-test program, read out of the image, uploaded and run by conformance/selftest.py",
+      "heldBy": [
+        "conformance/selftest.test.py::TheRecordedSelfTestsTest.test_the_control_deck_tester_self_test_passes_every_sub_test"
+      ]
+    },
+    {
+      "id": "aging-1-00-apu",
+      "title": "Super Famicom Aging Program 1.00",
+      "sha256": "f58837be3cf307edf550ec971993672d8d00e4fba99a2c5dee58383202d08c54",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "Super Famicom Aging Program Ver. 1.00 (Japan) (En).sfc",
+      "exercises": "the audio RAM patterns, the echo region, the envelope table, the echo writer's timing and timers 1 and 2 against timer 0, decided by the program on the unit",
+      "outcome": "run",
+      "runs": "its audio self-test program, read out of the image, uploaded and run by conformance/selftest.py",
+      "heldBy": [
+        "conformance/selftest.test.py::TheRecordedSelfTestsTest.test_the_aging_1_00_self_test_passes_all_six_of_its_sub_tests"
+      ]
+    },
+    {
+      "id": "240p-test-suite-1-061-ntsc",
+      "title": "240p Test Suite 1.061, NTSC",
+      "sha256": "fe88b5db3f5612e36f1c8f662839d5d3d32c8959ee7f766ca2d5bb3318d42900",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "240p Test Suite (World) (v1.061) (NTSC) (Program) (Aftermarket) (Unl).sfc",
+      "exercises": "the boot program's upload protocol, echo by echo, and the jump into what was uploaded",
+      "outcome": "run",
+      "runs": "its boot-time upload, replayed by conformance/handshake.py with a payload of the same length",
+      "heldBy": [
+        "conformance/handshake.test.py::TheRecordedHandshakesTest.test_the_ntsc_240p_suite_upload_is_echoed_byte_for_byte_and_runs"
+      ]
+    },
+    {
+      "id": "240p-test-suite-1-061-pal",
+      "title": "240p Test Suite 1.061, PAL",
+      "sha256": "16068420d905a4cc7710770428dcd7cb526c30bb47e201dcb0a6bd85a099b6aa",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "240p Test Suite (World) (v1.061) (PAL) (Program) (Aftermarket) (Unl).sfc",
+      "exercises": "the boot program's upload protocol, echo by echo, and the jump into what was uploaded",
+      "outcome": "run",
+      "runs": "its boot-time upload, replayed by conformance/handshake.py with a payload of the same length",
+      "heldBy": [
+        "conformance/handshake.test.py::TheRecordedHandshakesTest.test_the_pal_240p_suite_upload_is_echoed_byte_for_byte_and_runs"
+      ]
+    },
+    {
       "id": "blargg-spc-smp",
       "title": "Shay Green's spc_smp",
       "sha256": "2ed302c5b989675d4ab6b40001fd5166ac4c6e0188a6b1b6df878e4608999c03",
@@ -201,9 +279,9 @@
       "sha256": "61aaa41c76940178e0b2980fc7a4ee37ef33a2deb0aa362a48369a83427977ef",
       "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "file": "jonasquinn-test-roms/blargg_2010-03-14/exec_io_tests/1-test_exec_from_io.smc",
-      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "exercises": "the test register, timer speeds and execution from the registers, drawn as measurements with the S-PPU rather than reported as a verdict; nothing shows on the cut-down console",
       "outcome": "hosted",
-      "needs": "snes-machine"
+      "needs": "snes-ppu"
     },
     {
       "id": "byuu-2010-2-test-single-instr",
@@ -211,9 +289,9 @@
       "sha256": "9e20cfd50987a8c21d180f29525f96bfc0cedb684e637e3adc0eabdf765c7829",
       "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "file": "jonasquinn-test-roms/blargg_2010-03-14/exec_io_tests/2-test_single_instr.smc",
-      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "exercises": "the test register, timer speeds and execution from the registers, drawn as measurements with the S-PPU rather than reported as a verdict; nothing shows on the cut-down console",
       "outcome": "hosted",
-      "needs": "snes-machine"
+      "needs": "snes-ppu"
     },
     {
       "id": "byuu-2010-3-test-write-disable",
@@ -221,9 +299,9 @@
       "sha256": "24c19157646826ab1a6cd656049613a854b94faec868d5eefe9a2a99215c6719",
       "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "file": "jonasquinn-test-roms/blargg_2010-03-14/exec_io_tests/3-test_write_disable.smc",
-      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "exercises": "the test register, timer speeds and execution from the registers, drawn as measurements with the S-PPU rather than reported as a verdict; nothing shows on the cut-down console",
       "outcome": "hosted",
-      "needs": "snes-machine"
+      "needs": "snes-ppu"
     },
     {
       "id": "byuu-2010-4-test-ram-disable",
@@ -231,9 +309,9 @@
       "sha256": "268af19da6637dd1fe033034bc75be99ebfe6718d1144682b659d7f92ea40d74",
       "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "file": "jonasquinn-test-roms/blargg_2010-03-14/exec_io_tests/4-test_ram_disable.smc",
-      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "exercises": "the test register, timer speeds and execution from the registers, drawn as measurements with the S-PPU rather than reported as a verdict; nothing shows on the cut-down console",
       "outcome": "hosted",
-      "needs": "snes-machine"
+      "needs": "snes-ppu"
     },
     {
       "id": "byuu-2010-test-ram-disable-ipl",
@@ -241,9 +319,9 @@
       "sha256": "4e7189e94a412962f22a640bac837c497f584691486cbfb92d880f4a10037108",
       "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "file": "jonasquinn-test-roms/blargg_2010-03-14/test_ram_disable_ipl.smc",
-      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "exercises": "the test register, timer speeds and execution from the registers, drawn as measurements with the S-PPU rather than reported as a verdict; nothing shows on the cut-down console",
       "outcome": "hosted",
-      "needs": "snes-machine"
+      "needs": "snes-ppu"
     },
     {
       "id": "byuu-2010-test-speed",
@@ -251,9 +329,9 @@
       "sha256": "19613668744d9f79ecf47222bf6a89dc4aa47bedaf469241e12d973792fa9cbd",
       "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "file": "jonasquinn-test-roms/blargg_2010-03-14/test_speed.smc",
-      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "exercises": "the test register, timer speeds and execution from the registers, drawn as measurements with the S-PPU rather than reported as a verdict; nothing shows on the cut-down console",
       "outcome": "hosted",
-      "needs": "snes-machine"
+      "needs": "snes-ppu"
     },
     {
       "id": "byuu-2010-speed-2-freezes2",
@@ -261,9 +339,9 @@
       "sha256": "11d1367bda49a3953af73ae5ff5f6e81243d92d700f9c03162098f78f58e08d2",
       "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "file": "jonasquinn-test-roms/blargg_2010-03-14/speed_2_freezes2.smc",
-      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "exercises": "the test register, timer speeds and execution from the registers, drawn as measurements with the S-PPU rather than reported as a verdict; nothing shows on the cut-down console",
       "outcome": "hosted",
-      "needs": "snes-machine"
+      "needs": "snes-ppu"
     },
     {
       "id": "byuu-2010-test-timer-speed",
@@ -271,9 +349,9 @@
       "sha256": "02fea30020515dc6f63d2fe9ab12d3be48a33868eb64241185a1c20d350627ba",
       "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "file": "jonasquinn-test-roms/blargg_2010-03-14/test_timer_speed.smc",
-      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "exercises": "the test register, timer speeds and execution from the registers, drawn as measurements with the S-PPU rather than reported as a verdict; nothing shows on the cut-down console",
       "outcome": "hosted",
-      "needs": "snes-machine"
+      "needs": "snes-ppu"
     },
     {
       "id": "byuu-2010-test-timer-speed2",
@@ -281,9 +359,9 @@
       "sha256": "a753b76c6326160c550bde55668163f6f69a04bd44ac62ddd00d984dcdcf923a",
       "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "file": "jonasquinn-test-roms/blargg_2010-03-14/test_timer_speed2.smc",
-      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "exercises": "the test register, timer speeds and execution from the registers, drawn as measurements with the S-PPU rather than reported as a verdict; nothing shows on the cut-down console",
       "outcome": "hosted",
-      "needs": "snes-machine"
+      "needs": "snes-ppu"
     },
     {
       "id": "byuu-2010-test-timer-speed3",
@@ -291,9 +369,9 @@
       "sha256": "ebe67dda3379eb930957211ca304a435a9e9aec95d8a9d361036015cd8f01312",
       "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "file": "jonasquinn-test-roms/blargg_2010-03-14/test_timer_speed3.smc",
-      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "exercises": "the test register, timer speeds and execution from the registers, drawn as measurements with the S-PPU rather than reported as a verdict; nothing shows on the cut-down console",
       "outcome": "hosted",
-      "needs": "snes-machine"
+      "needs": "snes-ppu"
     },
     {
       "id": "byuu-2010-test-timer-speed-2",
@@ -301,9 +379,9 @@
       "sha256": "4f61098378ceeec70c12db6016b869ea92bb2a4fb4bc07c4051a8f4d57555ae1",
       "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "file": "jonasquinn-test-roms/blargg_2010-03-14/test_timer_speed_2.smc",
-      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "exercises": "the test register, timer speeds and execution from the registers, drawn as measurements with the S-PPU rather than reported as a verdict; nothing shows on the cut-down console",
       "outcome": "hosted",
-      "needs": "snes-machine"
+      "needs": "snes-ppu"
     },
     {
       "id": "byuu-2010-test-timer-stop",
@@ -311,9 +389,9 @@
       "sha256": "2801ab17a870d9c682f112b494b8652d26cb930f581a576530979cd456f1c850",
       "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "file": "jonasquinn-test-roms/blargg_2010-03-14/test_timer_stop.smc",
-      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "exercises": "the test register, timer speeds and execution from the registers, drawn as measurements with the S-PPU rather than reported as a verdict; nothing shows on the cut-down console",
       "outcome": "hosted",
-      "needs": "snes-machine"
+      "needs": "snes-ppu"
     },
     {
       "id": "byuu-2010-test-timer-stop2",
@@ -321,9 +399,9 @@
       "sha256": "1d90ccd65ef43f442f90f99be5c9f42eed5848932587dea005f76913862cdebf",
       "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "file": "jonasquinn-test-roms/blargg_2010-03-14/test_timer_stop2.smc",
-      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "exercises": "the test register, timer speeds and execution from the registers, drawn as measurements with the S-PPU rather than reported as a verdict; nothing shows on the cut-down console",
       "outcome": "hosted",
-      "needs": "snes-machine"
+      "needs": "snes-ppu"
     },
     {
       "id": "byuu-2010-timer-at-power-reset",
@@ -331,9 +409,9 @@
       "sha256": "49941c852bec0137f8c9924db29546961058b4d2a7fb4fd262e8b2f9b42bc241",
       "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "file": "jonasquinn-test-roms/blargg_2010-03-14/timer_at_power_reset.smc",
-      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "exercises": "the test register, timer speeds and execution from the registers, drawn as measurements with the S-PPU rather than reported as a verdict; nothing shows on the cut-down console",
       "outcome": "hosted",
-      "needs": "snes-machine"
+      "needs": "snes-ppu"
     },
     {
       "id": "lidnariq-smpspeed",
@@ -341,59 +419,9 @@
       "sha256": "78c7ca086f717ec3ea87eb935c68761492a059ad2457467c07591a28a94dd56e",
       "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "file": "lidnariq-smp-clock-speed-measurement/smpspeed.sfc",
-      "exercises": "the audio unit's clock against the console's crystal; a ratio this unit does not model",
+      "exercises": "this unit's clock timed against the 5A22's, a ratio of two crystals this unit does not model",
       "outcome": "hosted",
-      "needs": "snes-machine"
-    },
-    {
-      "id": "burn-in-rev-d",
-      "title": "Burn-in test cartridge, revision D",
-      "sha256": "092e80eab0d3a5300a30f7d41cf4e454cdb79cc0fac66f052567d37322cb891f",
-      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
-      "file": "Burn-in - Test Cartridge (USA) (Rev D).sfc",
-      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
-      "outcome": "hosted",
-      "needs": "snes-machine"
-    },
-    {
-      "id": "snes-test-program",
-      "title": "SNES Test Program",
-      "sha256": "f732685db2bfc93e995128e015657165fbaaa2dd8723e7655507fda4ddc2a3a9",
-      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
-      "file": "SNES Test Program (U).sfc",
-      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
-      "outcome": "hosted",
-      "needs": "snes-machine"
-    },
-    {
-      "id": "ntf-2-5-rev-a",
-      "title": "NTF 2.5 test cartridge, revision A",
-      "sha256": "3a3ba7500728920093ff48caf5baac0c1ec9b19aacda4fe4dce8afbdd69e859e",
-      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
-      "file": "NTF 2.5 Test Cartridge (USA) (Rev A).sfc",
-      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
-      "outcome": "hosted",
-      "needs": "snes-machine"
-    },
-    {
-      "id": "240p-test-suite-1-061-ntsc",
-      "title": "240p Test Suite 1.061, NTSC",
-      "sha256": "fe88b5db3f5612e36f1c8f662839d5d3d32c8959ee7f766ca2d5bb3318d42900",
-      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
-      "file": "240p Test Suite (World) (v1.061) (NTSC) (Program) (Aftermarket) (Unl).sfc",
-      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
-      "outcome": "hosted",
-      "needs": "snes-machine"
-    },
-    {
-      "id": "240p-test-suite-1-061-pal",
-      "title": "240p Test Suite 1.061, PAL",
-      "sha256": "16068420d905a4cc7710770428dcd7cb526c30bb47e201dcb0a6bd85a099b6aa",
-      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
-      "file": "240p Test Suite (World) (v1.061) (PAL) (Program) (Aftermarket) (Unl).sfc",
-      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
-      "outcome": "hosted",
-      "needs": "snes-machine"
+      "needs": "snes-cpu-io"
     }
   ]
 }

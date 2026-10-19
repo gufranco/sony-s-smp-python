@@ -247,6 +247,58 @@ jobs:
           exit "${status}"
         shell: bash
 
+  selftest:
+    name: The self-test factory cartridges upload, run on the unit
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Run every image that is on this machine, where exit two means none ran
+        run: |
+          set +e
+          python3 -m conformance.selftest > said.txt
+          status=$?
+          set -e
+          cat said.txt
+          if [ "${status}" -eq 2 ]; then
+            echo "::notice title=No image ran::$(tail -1 said.txt)"
+            exit 0
+          fi
+          exit "${status}"
+        shell: bash
+
+  handshake:
+    name: The 240p Test Suite's upload, replayed at the unit
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Run every image that is on this machine, where exit two means none ran
+        run: |
+          set +e
+          python3 -m conformance.handshake > said.txt
+          status=$?
+          set -e
+          cat said.txt
+          if [ "${status}" -eq 2 ]; then
+            echo "::notice title=No image ran::$(tail -1 said.txt)"
+            exit 0
+          fi
+          exit "${status}"
+        shell: bash
+
   quotes:
     name: Every quoted sentence, against the document it came from
     runs-on: ubuntu-26.04
