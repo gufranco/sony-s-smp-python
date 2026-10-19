@@ -62,11 +62,11 @@
       "id": "what-the-reset-line-sets-in-the-unit",
       "parts": ["ssmp"],
       "severity": "medium",
-      "status": "open",
-      "documentSays": "Nothing. No Sony document for this unit is known.",
+      "status": "narrowed",
+      "documentSays": "Book I of Nintendo's development manual, page 3-5-2: at the time of reset, ST0 of the control register is 0, and the timer's counter and divider are indeterminate. Figure 3-4-3 gives the control register's reset value as --00-000. Nothing about memory, the ports or the other registers.",
       "referenceDoes": "Not compared: no implementation was read for what it does to these registers at a reset.",
       "packageFollows": "neither",
-      "reasoning": "reset() shows the boot window, resets the generator and resets the processor, and leaves memory, the timers, the ports, the test register and the generator's address register holding what they held. The boot window has a source in the boot program: it never writes 0xF1 and the processor leaves reset through the vector at 0xFFFE, which only the boot program supplies. Nothing settles the rest, and the family standard leaves what a reset does not define holding what it held.",
+      "reasoning": "reset() shows the boot window, stops all three timers, resets the generator and resets the processor, and leaves memory, the timers' dividers, stages and counters, the ports, the test register and the generator's address register holding what they held. The boot window has a source in the boot program: it never writes 0xF1 and the processor leaves reset through the vector at 0xFFFE, which only the boot program supplies. The timer starts have a source in the manual. Nothing settles the rest, and the family standard leaves what a reset does not define holding what it held.",
       "wouldSettleIt": "A capture of a real unit's registers and memory either side of a console reset, with the timers running and the ports written before it."
     },
     {

@@ -68,8 +68,10 @@ class Space:
         self.dsp_address = 0
 
     def reset(self) -> None:
-        self.control |= CONTROL_BOOT_VISIBLE
+        self.control = CONTROL_BOOT_VISIBLE
         self.boot_visible = True
+        for one in self.timers:
+            one.enable(False)
 
     def read8(self, address: int) -> int:
         address &= SPACE - 1

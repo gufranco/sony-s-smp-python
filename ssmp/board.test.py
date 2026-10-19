@@ -308,7 +308,7 @@ class StartTest(unittest.TestCase):
         # Assert
         self.assertEqual(monitor.peek(unit, PADDING), 0x00)
 
-    def test_a_reset_leaves_a_running_timer_running(self) -> None:
+    def test_a_reset_stops_a_running_timer(self) -> None:
         # Arrange
         unit = a_unit()
         monitor.poke(unit, 0xFA, 1)
@@ -318,7 +318,8 @@ class StartTest(unittest.TestCase):
         unit.reset()
 
         # Assert
-        self.assertGreater(monitor.tally(unit, 0xFD, reads=4, gap=300)[1], 0)
+        monitor.peek(unit, 0xFD)
+        self.assertEqual(monitor.tally(unit, 0xFD, reads=4, gap=300)[1], 0)
 
     def test_a_reset_leaves_the_ports_holding_what_they_held(self) -> None:
         # Arrange

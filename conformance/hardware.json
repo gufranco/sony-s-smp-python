@@ -87,14 +87,15 @@
     "sets": {
       "generator": "what resetLine in the sound generator's own record lists, applied by its reset()",
       "processor": "what the processor's own record says its reset sets, with the program counter taken from the vector at 0xFFFE",
-      "bootWindow": "visible, with control bit 0x80 set; the other control bits are left as they were"
+      "bootWindow": "visible, with control bit 0x80 set",
+      "timerStarts": "cleared, so all three timers stop, as Book I of Nintendo's development manual prints on page 3-5-2 and in Figure 3-4-3"
     },
     "keeps": [
       "every byte of memory",
-      "the three timers: enables, dividers, stages and counters",
       "the four ports, in both directions",
       "the test register",
-      "the sound generator's address register"
+      "the sound generator's address register",
+      "the three timers' dividers, stages and counters, which Book I calls indeterminate after a reset"
     ],
     "verified": false,
     "evidence": "The boot window is settled by the boot program. It never writes 0xF1, and the processor leaves reset by reading its vector at 0xFFFE, which only the boot program supplies as 0xFFC0, so the window is visible whenever the processor comes out of reset. The generator and the processor are each held to their own records. Everything kept is kept because no source here says the reset line touches it, and the family standard leaves anything a reset does not define holding what it held.",
@@ -103,7 +104,7 @@
   "notStated": [
     "Any ratio between this unit's clock and the console's. They are separate crystals and neither divides the other, so no figure is published.",
     "What the unit holds at power on, beyond what its two halves record for themselves.",
-    "What the console's reset line sets in the timers, the ports, the test register, the sound generator's address register and the control bits other than the boot window. Each is left holding what it held; see reset.",
+    "What the console's reset line sets in the ports, the test register and the sound generator's address register. Each is left holding what it held; see reset. The timer starts are printed and are cleared.",
     "Whether memory survives a console reset on a real unit. It is kept here; see reset."
   ],
   "documentsNote": "Empty rather than absent. No Sony document for the S-SMP is known to exist, and saying so with a key a reader can find beats leaving them to infer it.",

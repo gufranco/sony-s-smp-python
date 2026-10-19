@@ -202,20 +202,23 @@ reaches it.
 
 ### What the reset line sets in the unit's own registers, and whether memory survives it.
 
-**The document says.** Nothing. No Sony document for this unit is known, and
-none of Shay Green's results records a state taken across a reset.
+**The document says.** Book I of Nintendo's development manual, page 3-5-2,
+says that at the time of reset `ST0` of the control register is 0 and the
+timer's counter and divider are indeterminate, and Figure 3-4-3 gives the control
+register's reset value as `--00-000`. It says nothing about memory, the ports or
+the other registers.
 
-**What this project does.** `reset()` shows the boot window, resets the
-generator and resets the processor, and nothing else. Memory keeps every byte.
-The timers keep their enables, dividers, stages and counters, the ports keep
-both directions, and the test register and the generator's address register
+**What this project does.** `reset()` shows the boot window, stops all three
+timers, resets the generator and resets the processor, and nothing else. Memory
+keeps every byte. The timers keep their dividers, stages and counters, the ports
+keep both directions, and the test register and the generator's address register
 keep what was last written.
 
-**Why.** The boot window is the one register setting with a source: the boot
-program never writes `$f1`, and the processor leaves reset through the vector at
-`$fffe`, which only the boot program supplies, so the window has to be visible
-then. Nothing settles the rest, and a reset leaves what it does not define
-holding what it held.
+**Why.** The boot window has a source in the boot program: it never writes
+`$f1`, and the processor leaves reset through the vector at `$fffe`, which only
+the boot program supplies, so the window has to be visible then. The timer starts
+have a source in the manual. Nothing settles the rest, and a reset leaves what it
+does not define holding what it held.
 
 **What would settle or reopen it.** A capture of a real unit's registers and
 memory either side of a console reset, with the timers running and the ports
