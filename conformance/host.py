@@ -39,6 +39,8 @@ PRINTABLE = range(32, 127)
 
 ROWS = 28
 
+PASS = "PASS"
+
 COLUMNS = 32
 
 BYTE = 0xFF
@@ -71,6 +73,8 @@ class Host:
         self.quotient = 0
         self.channels = [[0] * 16 for _ in range(CHANNELS)]
         self.last_text = 0
+        self.tail = ""
+        self.passes = 0
 
     def read8(self, address: int) -> int:
         bank, offset = address >> 16, address & WORD
@@ -176,6 +180,9 @@ class Host:
         self.video[at] = (word & BYTE) | (value << 8) if high else (word & 0xFF00) | value
         if not high and value in PRINTABLE:
             self.last_text = at
+        if not high:
+            self.tail = (self.tail + (chr(value) if value in PRINTABLE else " "))[-len(PASS) :]
+            self.passes += self.tail == PASS
         if high == bool(self.increment & BLANKING):
             self.address = (self.address + STEPS[self.increment & 3]) & WORD
 

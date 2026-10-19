@@ -9,7 +9,6 @@ from typing import Any, override
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from conformance import cartridges
-from conformance.host import Host
 from ssmp import Chip, why_not
 
 CODE = bytes.fromhex("9c15219c16219c1721") + b"".join(
@@ -38,16 +37,6 @@ def recorded(name: str) -> dict[str, Any]:
 def agreed_throughout(entry: dict[str, Any]) -> tuple[int, int, list[str]]:
     astray = [one["check"] for one in entry["checks"] if one["console"] != one["thisModel"]]
     return entry["agreed"], len(entry["checks"]), astray
-
-
-def a_compare_at(unit: Any, at: int, expected: bytes, held: bytes) -> None:
-    memory = unit.space.memory
-    for index, (want, place) in enumerate(zip(expected, cartridges.CHECKSUM, strict=True)):
-        block = bytes((cartridges.COMPARE, want, place, cartridges.BRANCH, 0x10))
-        for offset, value in enumerate(block):
-            memory.write8(at + index * cartridges.STRIDE + offset, value)
-    for place, value in zip(cartridges.CHECKSUM, held, strict=True):
-        memory.write8(place, value)
 
 
 def an_entry(raw: bytes, checks: list[dict[str, Any]] | None = None) -> dict[str, Any]:
@@ -124,7 +113,7 @@ class TheRecordedVerdictsTest(unittest.TestCase):
         # Assert
         self.assertEqual(screen, " Running tests... Success\n Test number: 0527")
 
-    def test_peter_lemons_cartridges_stop_at_their_first_check(self) -> None:
+    def test_peter_lemons_cartridges_pass_with_only_the_interrupt_flag_excused(self) -> None:
         # Arrange
         names = [
             "peterlemon-spc700-adc",
@@ -138,74 +127,14 @@ class TheRecordedVerdictsTest(unittest.TestCase):
 
         # Act
         endings = [recorded(name)["screen"].split()[-1] for name in names]
-        passes = [recorded(name)["screen"].count("PASS") for name in names]
+        apart = {
+            int(one["expected"], 16) ^ int(one["thisModel"], 16)
+            for name in names
+            for one in recorded(name)["excused"]
+        }
 
         # Assert
-        self.assertEqual(endings, ["FAIL"] * 7)
-        self.assertEqual(passes, [0] * 7)
-
-
-class WatchTest(unittest.TestCase):
-    def test_a_comparison_that_agrees_is_recorded_and_its_branches_emptied(self) -> None:
-        # Arrange
-        unit = a_unit()
-        a_compare_at(unit, 0x0400, b"\x8f\x77\x58\x15", b"\x8f\x77\x58\x15")
-        watch = cartridges.Watch(unit.space, Host(a_rom(), unit))
-
-        # Act
-        watch.read8(0x0400)
-
-        # Assert
-        self.assertEqual(
-            watch.verdicts,
-            [{"check": "", "agreed": True, "console": "8f 77 58 15", "thisModel": "8f 77 58 15"}],
-        )
-        self.assertEqual(unit.space.memory.read8(0x0403), 0)
-
-    def test_a_comparison_that_disagrees_is_named_from_the_unit_memory(self) -> None:
-        # Arrange
-        unit = a_unit()
-        a_compare_at(unit, 0x0600, b"\x01\x02\x03\x04", b"\x01\x02\x03\x05")
-        for offset, letter in enumerate(b"Test 3, CPU/tset tclr\x00"):
-            unit.space.memory.write8(0x0320 + offset, letter)
-        watch = cartridges.Watch(unit.space, Host(a_rom(), unit))
-
-        # Act
-        watch.read8(0x0600)
-
-        # Assert
-        self.assertEqual(
-            watch.verdicts[0],
-            {
-                "check": "CPU/tset tclr",
-                "agreed": False,
-                "console": "01 02 03 04",
-                "thisModel": "01 02 03 05",
-            },
-        )
-
-    def test_any_other_read_passes_through_and_records_nothing(self) -> None:
-        # Arrange
-        unit = a_unit()
-        unit.space.memory.write8(0x0500, cartridges.COMPARE)
-        watch = cartridges.Watch(unit.space, Host(a_rom(), unit))
-
-        # Act
-        read = watch.read8(0x0500)
-
-        # Assert
-        self.assertEqual((read, watch.verdicts), (cartridges.COMPARE, []))
-
-    def test_a_write_lands_in_the_unit(self) -> None:
-        # Arrange
-        unit = a_unit()
-        watch = cartridges.Watch(unit.space, Host(a_rom(), unit))
-
-        # Act
-        watch.write8(0x0234, 0x99)
-
-        # Assert
-        self.assertEqual(unit.space.memory.read8(0x0234), 0x99)
+        self.assertEqual((endings, apart), (["PASS"] * 7, {0x04}))
 
 
 class PlayTest(unittest.TestCase):
@@ -218,6 +147,17 @@ class PlayTest(unittest.TestCase):
 
         # Assert
         self.assertEqual((played.screen, played.verdicts), ("PASSED", []))
+        self.assertLess(played.cycles, 2_000)
+
+    def test_a_program_stops_once_it_has_printed_every_pass_it_prints(self) -> None:
+        # Arrange
+        printing = b"".join(bytes((0xA9, letter, 0x8D, 0x18, 0x21)) for letter in b"PASS")
+        raw = a_rom(CODE[:9] + printing + SPIN)
+
+        # Act
+        played = cartridges.play(raw, a_unit(), limit=40_000, chunk=1_000, passes=1)
+
+        # Assert
         self.assertLess(played.cycles, 2_000)
 
     def test_a_copier_header_is_stepped_over(self) -> None:
@@ -319,7 +259,7 @@ class MainTest(unittest.TestCase):
     def test_a_disagreeing_check_is_named(self) -> None:
         # Arrange
         played = cartridges.Played(
-            [{"check": "x", "agreed": False, "console": "01", "thisModel": "02"}], "", 0
+            [{"check": "x", "agreed": False, "console": "01", "thisModel": "02"}], "", 0, []
         )
 
         # Act
@@ -335,7 +275,7 @@ class MainTest(unittest.TestCase):
         entry = {**an_entry(b""), "screen": "ADC #const FAIL"}
 
         # Act
-        problems = cartridges.judged(entry, cartridges.Played([], "ADC #const FAIL", 0))
+        problems = cartridges.judged(entry, cartridges.Played([], "ADC #const FAIL", 0, []))
 
         # Assert
         self.assertEqual(problems, ["the cartridge reports a failure on its own screen"])

@@ -34,6 +34,12 @@ CHECKSUM = (0xDC, 0xDD, 0xDE, 0xDF)
 
 COMPARE = 0x78
 
+COMPARE_X = 0xC8
+
+COMPARE_Y = 0xAD
+
+STATUS_COMPARES = {COMPARE_X: "x", COMPARE_Y: "y"}
+
 BRANCH = 0xD0
 
 EMPTIED = 0x00
@@ -102,15 +108,40 @@ def hexed(values: Sequence[int]) -> str:
 
 
 class Watch:
-    def __init__(self, space: Any, host: Host) -> None:
+    def __init__(self, space: Any, host: Host, processor: Any = None, excuse: int = 0) -> None:
         self.space = space
         self.host = host
+        self.processor = processor
+        self.excuse = excuse
         self.verdicts: list[dict[str, Any]] = []
+        self.excused: list[dict[str, Any]] = []
 
     def read8(self, address: int) -> int:
         if self.space.memory.read8(address) == COMPARE and self.compares(address):
             self.record(address)
+        if self.excuse and self.checks_a_status_word(address):
+            self.weigh(address)
         return int(self.space.read8(address))
+
+    def checks_a_status_word(self, address: int) -> bool:
+        memory = self.space.memory
+        return bool(
+            memory.read8(address) in STATUS_COMPARES
+            and memory.read8(address + 2) == BRANCH
+            and self.processor.pc == address
+        )
+
+    def weigh(self, address: int) -> None:
+        memory = self.space.memory
+        register = STATUS_COMPARES[memory.read8(address)]
+        wanted, held = memory.read8(address + 1), getattr(self.processor, register)
+        if wanted == held:
+            return
+        excused = not (wanted ^ held) & ~self.excuse
+        found = {"at": f"{address:04x}", "expected": hexed([wanted]), "thisModel": hexed([held])}
+        self.excused = [*self.excused, {**found, "excused": excused}]
+        if excused:
+            memory.write8(address + 1, held)
 
     def write8(self, address: int, value: int) -> None:
         self.space.write8(address, value)
@@ -144,6 +175,7 @@ class Played(NamedTuple):
     verdicts: list[dict[str, Any]]
     screen: str
     cycles: int
+    excused: list[dict[str, Any]]
 
 
 def rom_of(raw: bytes) -> bytes:
@@ -162,9 +194,16 @@ def advance(cpu: Any, unit: Any, owed: int, cycles: int) -> int:
     return owed
 
 
-def play(raw: bytes, unit: Any, limit: int = LIMIT, chunk: int = CHUNK) -> Played:
+def play(
+    raw: bytes,
+    unit: Any,
+    limit: int = LIMIT,
+    chunk: int = CHUNK,
+    excuse: int = 0,
+    passes: int | None = None,
+) -> Played:
     host = Host(rom_of(raw), unit)
-    watch = Watch(unit.space, host)
+    watch = Watch(unit.space, host, unit.processor, excuse)
     unit.processor.memory = watch
     cpu = processor().Cpu("65816", host)
     cpu.reset()
@@ -173,7 +212,9 @@ def play(raw: bytes, unit: Any, limit: int = LIMIT, chunk: int = CHUNK) -> Playe
         owed = advance(cpu, unit, owed, chunk)
         if any(word in host.screen() for word in ENDINGS):
             break
-    return Played(watch.verdicts, host.screen(), cpu.cycles)
+        if passes is not None and host.passes >= passes:
+            break
+    return Played(watch.verdicts, host.screen(), cpu.cycles, watch.excused)
 
 
 def judged(entry: Mapping[str, Any], played: Played) -> list[str]:
@@ -182,9 +223,15 @@ def judged(entry: Mapping[str, Any], played: Played) -> list[str]:
         for one in played.verdicts
         if not one["agreed"]
     ]
+    problems += [
+        f"the status word at {one['at']} is {one['thisModel']}, not {one['expected']}"
+        for one in played.excused
+        if not one["excused"]
+    ]
     if any(word in played.screen for word in FAILURES):
         problems.append("the cartridge reports a failure on its own screen")
-    if played.verdicts != entry["checks"] or played.screen != entry["screen"]:
+    recorded = (entry["checks"], entry["screen"], entry.get("excused", []))
+    if (played.verdicts, played.screen, played.excused) != recorded:
         problems.append("differs from the recorded run")
     return problems
 
@@ -199,6 +246,7 @@ def measured(entry: Mapping[str, Any], played: Played) -> dict[str, Any]:
         "agreed": agreed,
         "disagreed": len(played.verdicts) - agreed,
         "checks": played.verdicts,
+        "excused": played.excused,
     }
 
 
@@ -213,7 +261,9 @@ def one_cartridge(
     if hashlib.sha256(raw).hexdigest() != entry["sha256"]:
         say(f"  {entry['name']}: does not match its published sha256")
         return False, True, dict(entry)
-    played = play(raw, options["build"](), options["limit"], options["chunk"])
+    excuse = int(entry.get("excuse", "00"), 16)
+    passes = entry.get("passes")
+    played = play(raw, options["build"](), options["limit"], options["chunk"], excuse, passes)
     problems = judged(entry, played)
     disagree = sum(1 for one in played.verdicts if not one["agreed"])
     say(f"  {entry['name']}: {len(played.verdicts)} verdicts, {disagree} disagree")

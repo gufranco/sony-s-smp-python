@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定全部一致，**937** 个测试，**100%** 语句和分支覆盖率，无依赖
+**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定全部一致，**943** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 import ssmp
@@ -291,7 +291,7 @@ ssmp
 
 三个全部一致。[`conformance/hardware.json`](conformance/hardware.json) 记录了每次运行。
 
-**检查卡带，由精简的主机驱动。** `python3 -m conformance.cartridges` 在该主机上运行它在 `SSMP_CARTRIDGE_DIR` 或 `cartridges/` 中找到的每盘测试卡带，并把结果与逐一记录它们的 [`conformance/cartridge.json`](conformance/cartridge.json) 比较。Shay Green 的 `spc_smp` 得出 18 个判定，全部 18 个一致，其中包括 `CPU/verify IPL ROM`、`CPU/smp reg read-write behavior`、三个随机定时器检查和 `CPU Timing/mem access times`。他的 `spc_dsp6` 关于声音发生器得出 104 个判定，全部 104 个一致；`spc_mem_access_times` 2 个中 2 个一致，`spc_timer` 1 个中 1 个一致。gilyon 的 `spctest` 测试除 `SLEEP` 和 `STOP` 以外的每个 SPC700 操作码，报告 `Success`。Peter Lemon 的七盘 SPC700 卡带都在第一个检查报告 `FAIL`，与期望只差一个位：中断标志。这里复位后它保持置位，[sony-spc700-python](https://github.com/gufranco/sony-spc700-python) 把它记录为未解决的问题。Shay Green 那些检查背后的定时器和寄存器修正记录在 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) 中。没有卡带时它以 2 退出，并说明什么也没有运行；[`conformance/testroms.json`](conformance/testroms.json) 列出这个单元的每盘测试卡带，包括等待完整主机的那些。
+**检查卡带，由精简的主机驱动。** `python3 -m conformance.cartridges` 在该主机上运行它在 `SSMP_CARTRIDGE_DIR` 或 `cartridges/` 中找到的每盘测试卡带，并把结果与逐一记录它们的 [`conformance/cartridge.json`](conformance/cartridge.json) 比较。Shay Green 的 `spc_smp` 得出 18 个判定，全部 18 个一致，其中包括 `CPU/verify IPL ROM`、`CPU/smp reg read-write behavior`、三个随机定时器检查和 `CPU Timing/mem access times`。他的 `spc_dsp6` 关于声音发生器得出 104 个判定，全部 104 个一致；`spc_mem_access_times` 2 个中 2 个一致，`spc_timer` 1 个中 1 个一致。gilyon 的 `spctest` 测试除 `SLEEP` 和 `STOP` 以外的每个 SPC700 操作码，报告 `Success`。Peter Lemon 的七盘 SPC700 卡带显示其源代码显示的每一个 PASS，只豁免一个字段：它们都期望中断标志已清除，这里复位后它保持置位，而他的期望值没有注明取自实机，因此运行器放行只在该标志上不同的状态字，其余一切照常比较；复位问题由 [sony-spc700-python](https://github.com/gufranco/sony-spc700-python) 保留为未解决。Shay Green 那些检查背后的定时器和寄存器修正记录在 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) 中。没有卡带时它以 2 退出，并说明什么也没有运行；[`conformance/testroms.json`](conformance/testroms.json) 列出这个单元的每盘测试卡带，包括等待完整主机的那些。
 
 **用自身程序测试单元的工厂卡带。** Burn-in Rev D、SNSP Aging 1.02、Control Deck Tester 和 Aging Program 1.00 各自上传一个 SPC700 自检程序，并读回一个结果字节，其各位是六个子测试：音频 RAM 图样、回声区域、与表格比较的包络、回声写入的时序，以及两个定时器对第三个定时器。`python3 -m conformance.selftest` 从你持有的映像读出该程序、上传并运行；四盘全部通过每个子测试，记录在 [`conformance/selftest.json`](conformance/selftest.json) 中。卡带忽略包络位，MAME 会置位而这个单元会清除，因此保留为这个模型自己的测量。`python3 -m conformance.handshake` 用相同长度的负载重放 240p Test Suite 开机时的上传，两个版本都看到每次回应和负载的运行，记录在 [`conformance/handshake.json`](conformance/handshake.json) 中。
 

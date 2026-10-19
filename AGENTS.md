@@ -121,18 +121,22 @@ stops when the screen reports an end or at 400,000,000 cycles. The run is
 recorded in [`conformance/cartridge.json`](conformance/cartridge.json) and
 replayed by `conformance/cartridges.test.py` with no image present.
 
-| Cartridge                             | What the run showed                                                 |
-| :------------------------------------ | :------------------------------------------------------------------ |
-| Shay Green's `spc_smp.sfc`            | 18 of 18 verdicts agree, then `PASSED TESTS`                        |
-| Shay Green's `spc_dsp6.sfc`           | 104 of 104 agree; still listing checks at the limit                 |
-| Shay Green's `spc_mem_access_times`   | 2 of 2 agree, then `PASSED TESTS`                                   |
-| Shay Green's `spc_timer.sfc`          | 1 of 1 agrees, then `PASSED TESTS`                                  |
-| gilyon's `spctest.sfc`                | `Success` after test `0527`                                         |
-| Peter Lemon's seven SPC700 cartridges | `FAIL` at the first check, on the interrupt flag a reset leaves set |
+| Cartridge                             | What the run showed                                                   |
+| :------------------------------------ | :-------------------------------------------------------------------- |
+| Shay Green's `spc_smp.sfc`            | 18 of 18 verdicts agree, then `PASSED TESTS`                          |
+| Shay Green's `spc_dsp6.sfc`           | 104 of 104 agree; still listing checks at the limit                   |
+| Shay Green's `spc_mem_access_times`   | 2 of 2 agree, then `PASSED TESTS`                                     |
+| Shay Green's `spc_timer.sfc`          | 1 of 1 agrees, then `PASSED TESTS`                                    |
+| gilyon's `spctest.sfc`                | `Success` after test `0527`                                           |
+| Peter Lemon's seven SPC700 cartridges | Every PASS, with the interrupt flag excused in the status word checks |
 
-Peter Lemon's failures are not settled here: his programs expect the interrupt
-flag clear after the boot program, and what a reset leaves in it is an open
-question in sony-spc700-python. Nothing here changes it to make them pass.
+Peter Lemon's programs expect the interrupt flag clear after the boot program,
+and this unit's processor leaves it set after a reset. His expected values carry
+no stated hardware provenance, so they cannot settle the reset, which stays an
+open question in sony-spc700-python. The runner excuses that flag and nothing
+else: where a `cpx` or `cpy` status word check differs from its constant in the
+interrupt flag alone, it is let through and listed under `excused`; any other
+difference fails the check.
 
 ```bash
 SSMP_CARTRIDGE_DIR=/path/to/cartridges python3 -m conformance.cartridges

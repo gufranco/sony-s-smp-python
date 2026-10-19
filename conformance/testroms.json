@@ -192,7 +192,7 @@
       "outcome": "run",
       "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
       "heldBy": [
-        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_pass_with_only_the_interrupt_flag_excused"
       ]
     },
     {
@@ -205,7 +205,7 @@
       "outcome": "run",
       "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
       "heldBy": [
-        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_pass_with_only_the_interrupt_flag_excused"
       ]
     },
     {
@@ -218,7 +218,7 @@
       "outcome": "run",
       "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
       "heldBy": [
-        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_pass_with_only_the_interrupt_flag_excused"
       ]
     },
     {
@@ -231,7 +231,7 @@
       "outcome": "run",
       "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
       "heldBy": [
-        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_pass_with_only_the_interrupt_flag_excused"
       ]
     },
     {
@@ -244,7 +244,7 @@
       "outcome": "run",
       "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
       "heldBy": [
-        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_pass_with_only_the_interrupt_flag_excused"
       ]
     },
     {
@@ -257,7 +257,7 @@
       "outcome": "run",
       "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
       "heldBy": [
-        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_pass_with_only_the_interrupt_flag_excused"
       ]
     },
     {
@@ -270,7 +270,7 @@
       "outcome": "run",
       "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
       "heldBy": [
-        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_pass_with_only_the_interrupt_flag_excused"
       ]
     },
     {
