@@ -25,7 +25,7 @@ WHY_NOT_BOOT_STARTS = "no boot program was found"
 
 
 def a_unit(fill: int = 0x00) -> Any:
-    return ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=fill).reset()
+    return monitor.listening(ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=fill))
 
 
 def without(module: str) -> Any:
@@ -200,6 +200,7 @@ class ConstructionTest(unittest.TestCase):
     def test_a_unit_prints_its_name_its_cycles_and_which_window_is_showing(self) -> None:
         # Arrange
         unit = ssmp.Chip("ssmp", boot=monitor.MONITOR)
+        unit.space.write8(CONTROL, BOOT_VISIBLE)
 
         # Act
         printed = repr(unit)
@@ -251,7 +252,7 @@ class StartTest(unittest.TestCase):
         program = (SPIN + monitor.PROGRAM).ljust(62, b"\x00") + b"\xc2\xff"
 
         # Act
-        unit = ssmp.Chip("ssmp", boot=program, fill=0x00).reset()
+        unit = monitor.listening(ssmp.Chip("ssmp", boot=program, fill=0x00))
 
         # Assert
         self.assertEqual(monitor.peek(unit, 0xFFC2), monitor.PROGRAM[0])

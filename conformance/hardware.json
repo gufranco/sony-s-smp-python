@@ -190,14 +190,18 @@
       "generator": "what resetLine in the sound generator's own record lists, applied by its reset()",
       "processor": "what the processor's own record says its reset sets, with the program counter taken from the vector at 0xFFFE",
       "bootWindow": "visible, with control bit 0x80 set",
-      "timerStarts": "cleared, so all three timers stop, as Book I of Nintendo's development manual prints on page 3-5-2 and in Figure 3-4-3"
+      "timerStarts": "cleared, so all three timers stop, as Book I of Nintendo's development manual prints on page 3-5-2 and in Figure 3-4-3",
+      "portClears": "cleared, as Figure 3-4-1 prints, where a zero in those bits reads No Clear, so a reset clears no port"
     },
     "keeps": [
       "every byte of memory",
       "the four ports, in both directions",
       "the test register",
       "the sound generator's address register",
-      "the three timers' dividers, stages and counters, which Book I calls indeterminate after a reset"
+      "the three timers' dividers, stages and counters, which Book I calls indeterminate after a reset",
+      "the prescaler's phase",
+      "control bits 3 and 6, which Figure 3-4-3 prints as dashes",
+      "the two spare registers"
     ],
     "verified": false,
     "evidence": "The boot window is settled by the boot program. It never writes 0xF1, and the processor leaves reset by reading its vector at 0xFFFE, which only the boot program supplies as 0xFFC0, so the window is visible whenever the processor comes out of reset. Book I prints the control register's reset value and that a reset stops timer 0, so the three timer starts clear. The generator and the processor are each held to their own records. Everything kept is kept because no source here says the reset line touches it, and the family standard leaves anything a reset does not define holding what it held.",
@@ -205,7 +209,9 @@
   },
   "notStated": [
     "Any ratio between this unit's clock and the console's. They are separate crystals and neither divides the other, so no figure is published.",
-    "What the unit holds at power on, beyond what its two halves record for themselves.",
+    "What the unit holds at power on, beyond what its two halves record for themselves. Book I prints no power-on value for any register, port, timer or the prescaler, so every one of them is scrambled from the seed at construction and none is cleared. Unverified: a capture of a real unit's registers at power on, repeated across power cycles, would settle it.",
+    "Control bits 3 and 6 at a reset. Figure 3-4-3 prints them as dashes, so a reset leaves them holding what they held. Unverified, and unobservable: the register reads zero and neither bit drives anything this model knows of.",
+    "Where the prescaler stands at a reset. Pages 3-4-1 to 3-5-3 of Book I name ST0, CN0 and TM0 at a reset and say nothing of the prescaler, so it keeps running from its power-on phase here. Unverified: a capture of the first timer tick after a console reset, against the reset edge, would settle it.",
     "What the console's reset line sets in the ports, the test register and the sound generator's address register. Each is left holding what it held; see reset. The timer starts are printed and are cleared.",
     "Whether memory survives a console reset on a real unit. It is kept here; see reset."
   ],

@@ -1,14 +1,19 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:  # pragma: no cover
+    import random
+
 COUNT = 4
 
 
 class Ports:
     __slots__ = ("from_console", "from_unit")
 
-    def __init__(self, fill: int = 0) -> None:
-        self.from_console = bytearray([fill & 0xFF]) * COUNT
-        self.from_unit = bytearray([fill & 0xFF]) * COUNT
+    def __init__(self, scrambled: random.Random) -> None:
+        self.from_console = bytearray(scrambled.randbytes(COUNT))
+        self.from_unit = bytearray(scrambled.randbytes(COUNT))
 
     def unit_reads(self, index: int) -> int:
         return self.from_console[index & (COUNT - 1)]

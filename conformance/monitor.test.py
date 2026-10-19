@@ -14,7 +14,7 @@ MOV_X_IMMEDIATE = 0xCD
 
 
 def a_unit(program: bytes = monitor.MONITOR) -> Any:
-    return ssmp.Chip("ssmp", boot=program, fill=0x00).reset()
+    return monitor.listening(ssmp.Chip("ssmp", boot=program, fill=0x00))
 
 
 class BootTest(unittest.TestCase):

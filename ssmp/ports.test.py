@@ -18,7 +18,7 @@ CLEAR_PORTS_23 = 0x20
 
 
 def a_unit() -> Any:
-    return ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=0x00).reset()
+    return monitor.listening(ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=0x00))
 
 
 def clearing_then_copying(control: int) -> bytes:
@@ -195,7 +195,7 @@ class ClearTest(unittest.TestCase):
     def test_what_the_unit_left_for_the_console_survives_a_clear(self) -> None:
         # Arrange
         program = monitor.boot(bytes((0x8F, 0xAB, 0xF4, 0x8F, 0xB0, 0xF1, 0x2F, 0xFE)))
-        unit = ssmp.Chip("ssmp", boot=program, fill=0x00).reset()
+        unit = monitor.listening(ssmp.Chip("ssmp", boot=program, fill=0x00))
 
         # Act
         unit.run_for(100)

@@ -47,12 +47,13 @@ class HandshakeTest(unittest.TestCase):
     def test_it_says_nothing_on_the_other_two_ports(self) -> None:
         # Arrange
         unit = a_unit()
+        before = (unit.read(2), unit.read(3))
 
         # Act
         console.wait_for_ready(unit)
 
         # Assert
-        self.assertEqual((unit.read(2), unit.read(3)), (0x00, 0x00))
+        self.assertEqual((unit.read(2), unit.read(3)), before)
 
     def test_it_then_waits_for_the_start_byte_and_echoes_it(self) -> None:
         # Arrange

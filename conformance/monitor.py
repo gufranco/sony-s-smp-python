@@ -70,6 +70,8 @@ WRITE_LEAD = 8
 
 READ_LAG = 28
 
+IDLE = 0x00
+
 PROGRAM = bytes(
     (
         *(0xCD, 0x00),
@@ -105,6 +107,25 @@ def boot(code: bytes) -> bytes:
 
 
 MONITOR = boot(PROGRAM)
+
+
+def listening(unit: Any) -> Any:
+    unit.write(0, IDLE)
+    return unit.reset()
+
+
+def first_tick(twin: Any, timer: int, period: int) -> int:
+    space = twin.space
+    space.write8(FIRST_DIVIDER + timer, 1)
+    space.write8(CONTROL, BOOT_VISIBLE)
+    space.write8(CONTROL, BOOT_VISIBLE | 1 << timer)
+    return next(spent for spent in range(1, period + 1) if _ticked(space, timer))
+
+
+def _ticked(space: Any, timer: int) -> bool:
+    space.spend(1)
+    counted: int = space.read8(FIRST_COUNTER + timer)
+    return counted > 0
 
 
 def say(unit: Any, op: int, argument: int | None = None) -> int:

@@ -32,9 +32,29 @@ MAIN_VOLUME_LEFT = 0x0C
 
 WRITE_ONLY = (TEST, CONTROL, FIRST_DIVIDER, FIRST_DIVIDER + 1, FIRST_DIVIDER + 2)
 
+SLOW = 128
+
+ONE_SEED = 1
+
+ANOTHER_SEED = 2
+
 
 def a_unit(fill: int = 0x00) -> Any:
-    return ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=fill).reset()
+    return monitor.listening(ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=fill))
+
+
+def powered_on(seed: int) -> Any:
+    return ssmp.Chip("ssmp", boot=monitor.MONITOR, seed=seed)
+
+
+def what_power_on_left(seed: int) -> tuple[list[int], list[int], int, int]:
+    space = powered_on(seed).space
+    return (
+        [powered_on(seed).read(index) for index in range(4)],
+        [space.read8(FIRST_COUNTER + timer) for timer in range(3)],
+        space.read8(BOOT_AT),
+        monitor.first_tick(powered_on(seed), 0, SLOW),
+    )
 
 
 def counting(unit: Any) -> list[bool]:
@@ -210,7 +230,13 @@ class TimerRegisterTest(unittest.TestCase):
         ]
 
         # Assert
-        self.assertEqual([round(spanned / counted) for spanned, counted in found], [128, 256, 64])
+        self.assertEqual(
+            [
+                abs(spanned / period - counted) < 1
+                for (spanned, counted), period in zip(found, (128, 256, 64), strict=True)
+            ],
+            [True, True, True],
+        )
 
 
 class GeneratorTest(unittest.TestCase):
@@ -283,6 +309,43 @@ class WriteOnlyTest(unittest.TestCase):
 
         # Assert
         self.assertEqual(found, [0x00] * 5)
+
+
+class PowerOnTest(unittest.TestCase):
+    def test_one_seed_powers_on_the_same_unit_every_time(self) -> None:
+        # Arrange
+        first = what_power_on_left(ONE_SEED)
+
+        # Act
+        second = what_power_on_left(ONE_SEED)
+
+        # Assert
+        self.assertEqual(first, second)
+
+    def test_another_seed_leaves_other_ports_counters_window_and_prescaler(self) -> None:
+        # Arrange
+        one = what_power_on_left(ONE_SEED)
+
+        # Act
+        another = what_power_on_left(ANOTHER_SEED)
+
+        # Assert
+        self.assertEqual([a != b for a, b in zip(one, another, strict=True)], [True] * 4)
+
+    def test_a_reset_leaves_the_counters_power_on_left_while_it_stops_the_timers(self) -> None:
+        # Arrange
+        before = what_power_on_left(ONE_SEED)[1]
+        unit = powered_on(ONE_SEED)
+
+        # Act
+        unit.reset()
+        unit.space.spend(SLOW * 0x100 * 2)
+
+        # Assert
+        self.assertEqual(
+            ([unit.space.read8(FIRST_COUNTER + timer) for timer in range(3)], before == [0] * 3),
+            (before, False),
+        )
 
 
 if __name__ == "__main__":

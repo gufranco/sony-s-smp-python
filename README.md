@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **18** of **18** verdicts from a cartridge of checks agree, **814** tests, **100%** statement and branch coverage, no dependencies
+**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **18** of **18** verdicts from a cartridge of checks agree, **817** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 import ssmp
@@ -59,25 +59,26 @@ Releases follow [Semantic Versioning](https://semver.org/) and are cut from the 
 
 ## The interface
 
-`ssmp.Chip(model, boot=None, identity=None, images=None, fill=None)` builds one unit as power on leaves it: the processor, the sound generator and memory scrambled, and nothing running until `reset()`. `model` is required.
+`ssmp.Chip(model, boot=None, identity=None, images=None, fill=None, seed=None)` builds one unit as power on leaves it: the processor, the sound generator, memory, the sixteen registers, the ports, the timers and the prescaler that feeds them all scrambled from one seed, nothing cleared, and nothing running until `reset()`. `model` is required.
 
-| Argument   | Meaning                                                                                                                   |
-| :--------- | :------------------------------------------------------------------------------------------------------------------------ |
-| `model`    | The model name. Case and the separators `-`, `_`, `.` and space are ignored, so `"S-SMP"` and `"s_smp"` both build `ssmp` |
-| `boot`     | The 64 bytes of a boot program. Left out, the unit searches the boot directories and identifies what it finds by SHA-256  |
-| `identity` | The record for a supplied `boot`. Left out, it is recorded as `supplied`                                                  |
-| `images`   | A catalogue to search in place of the boot directories, keyed by model name                                               |
-| `fill`     | The byte the processor's memory is filled with at power on. Left out, it is scrambled                                     |
+| Argument   | Meaning                                                                                                                                            |
+| :--------- | :------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `model`    | The model name. Case and the separators `-`, `_`, `.` and space are ignored, so `"S-SMP"` and `"s_smp"` both build `ssmp`                          |
+| `boot`     | The 64 bytes of a boot program. Left out, the unit searches the boot directories and identifies what it finds by SHA-256                           |
+| `identity` | The record for a supplied `boot`. Left out, it is recorded as `supplied`                                                                           |
+| `images`   | A catalogue to search in place of the boot directories, keyed by model name                                                                        |
+| `fill`     | The byte the processor's memory is filled with at power on. Left out, it is scrambled                                                              |
+| `seed`     | The seed every scrambled store is drawn from. Left out, it is `0x5A5A5A5A`, the processor's `UNSET_SEED`. One seed builds the same unit every time |
 
 ### Calls
 
-| Call                  | Effect                                                                                                                                                                                                                                                                                                        |
-| :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `reset()`             | The console's reset line. Shows the boot window, then resets the sound generator and the processor, which starts the boot program. It stops all three timers, as Nintendo's Book I prints. Memory, the timers' dividers and counters, the ports and the other registers keep what they held. Returns the unit |
-| `step()`              | One processor instruction. Returns the cycles it took                                                                                                                                                                                                                                                         |
-| `run_for(cycles)`     | Instructions until at least `cycles` cycles have passed. Returns the cycles spent                                                                                                                                                                                                                             |
-| `read(index)`         | What the console reads at port `index`, 0 to 3: the byte the unit last wrote there                                                                                                                                                                                                                            |
-| `write(index, value)` | What the console writes to port `index`: the byte the unit reads there                                                                                                                                                                                                                                        |
+| Call                  | Effect                                                                                                                                                                                                                                                                                                                               |
+| :-------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `reset()`             | The console's reset line. Shows the boot window, then resets the sound generator and the processor, which starts the boot program. It stops all three timers, as Nintendo's Book I prints. Memory, the timers' dividers, stages and counters, the prescaler, the ports and the other registers keep what they held. Returns the unit |
+| `step()`              | One processor instruction. Returns the cycles it took                                                                                                                                                                                                                                                                                |
+| `run_for(cycles)`     | Instructions until at least `cycles` cycles have passed. Returns the cycles spent                                                                                                                                                                                                                                                    |
+| `read(index)`         | What the console reads at port `index`, 0 to 3: the byte the unit last wrote there                                                                                                                                                                                                                                                   |
+| `write(index, value)` | What the console writes to port `index`: the byte the unit reads there                                                                                                                                                                                                                                                               |
 
 ### State
 
@@ -153,10 +154,10 @@ print(unit.read(2), unit.space.read8(0xF6))
 ```
 
 ```
-0 85
+200 85
 ```
 
-Each port holds one byte from the console to the unit and one from the unit to the console. The console wrote `0x55` to port 2 and reads back 0, the byte the unit last wrote there, while the unit reads 85 at `$F6`. A model that keeps one byte per port passes until two writes cross, and then hands both sides a value neither side sent.
+Each port holds one byte from the console to the unit and one from the unit to the console. The console wrote `0x55` to port 2 and reads back 200, which power on left there because the boot program never writes port 2, while the unit reads 85 at `$F6`. A model that keeps one byte per port passes until two writes cross, and then hands both sides a value neither side sent.
 
 ### Timers
 

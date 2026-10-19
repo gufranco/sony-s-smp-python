@@ -14,7 +14,7 @@ SAMPLE_HZ = 24_576_000 // 768
 
 
 def a_unit() -> Any:
-    return ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=0x00).reset()
+    return monitor.listening(ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=0x00))
 
 
 class TimerCostTest(unittest.TestCase):

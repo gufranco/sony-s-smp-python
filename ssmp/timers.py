@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:  # pragma: no cover
+    import random
+
 COUNTER_MASK = 0x0F
 
 STAGE_MASK = 0xFF
@@ -8,13 +13,15 @@ STAGE_MASK = 0xFF
 class Timer:
     __slots__ = ("counter", "divider", "enabled", "stage", "ticks_every", "waited")
 
-    def __init__(self, ticks_every: int, fill: int = 0) -> None:
+    def __init__(
+        self, ticks_every: int, scrambled: random.Random, waited: int, enabled: bool
+    ) -> None:
         self.ticks_every = ticks_every
-        self.divider = fill & 0xFF
-        self.stage = 0
-        self.counter = 0
-        self.enabled = False
-        self.waited = 0
+        self.divider = scrambled.randrange(STAGE_MASK + 1)
+        self.stage = scrambled.randrange(STAGE_MASK + 1)
+        self.counter = scrambled.randrange(COUNTER_MASK + 1)
+        self.enabled = enabled
+        self.waited = waited % ticks_every
 
     def enable(self, wanted: bool) -> None:
         if wanted and not self.enabled:

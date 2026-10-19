@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from typing import TYPE_CHECKING, Any
 
 from ssmp import rates
@@ -36,8 +37,14 @@ CONTROL_TIMER_2 = 0x04
 CONTROL_CLEAR_PORTS_01 = 0x10
 CONTROL_CLEAR_PORTS_23 = 0x20
 CONTROL_BOOT_VISIBLE = 0x80
+CONTROL_CLEARED_BY_RESET = 0x37
+CONTROL_TIMERS = (CONTROL_TIMER_0, CONTROL_TIMER_1, CONTROL_TIMER_2)
 
 TIMER_COUNT = 3
+
+BYTE = 0x100
+
+STREAM = "ssmp.space"
 
 
 class Space:
@@ -54,24 +61,21 @@ class Space:
         "timers",
     )
 
-    def __init__(self, boot: Sequence[int], memory: Any, dsp: Any) -> None:
+    def __init__(self, boot: Sequence[int], memory: Any, dsp: Any, seed: int) -> None:
         self.boot = bytes(boot)
         self.memory = memory
         self.dsp = dsp
-        self.ports = Ports()
-        self.timers = [
-            Timer(rates.SLOW_TIMER_CYCLES),
-            Timer(rates.SLOW_TIMER_CYCLES),
-            Timer(rates.FAST_TIMER_CYCLES),
-        ]
-        self.test = 0
-        self.control = CONTROL_BOOT_VISIBLE
-        self.boot_visible = True
-        self.dsp_address = 0
-        self.auxiliary = bytearray(memory.read8(SPARE_0 + one) for one in range(SPARE_COUNT))
+        scrambled = random.Random(f"{STREAM}:{seed}")
+        self.control = scrambled.randrange(BYTE)
+        self.boot_visible = bool(self.control & CONTROL_BOOT_VISIBLE)
+        self.test = scrambled.randrange(BYTE)
+        self.dsp_address = scrambled.randrange(BYTE)
+        self.auxiliary = bytearray(scrambled.randbytes(SPARE_COUNT))
+        self.ports = Ports(scrambled)
+        self.timers = _power_on_timers(scrambled, self.control)
 
     def reset(self) -> None:
-        self.control = CONTROL_BOOT_VISIBLE
+        self.control = (self.control & ~CONTROL_CLEARED_BY_RESET) | CONTROL_BOOT_VISIBLE
         self.boot_visible = True
         for one in self.timers:
             one.enable(False)
@@ -153,3 +157,12 @@ class Space:
     def spend(self, cycles: int) -> None:
         for one in self.timers:
             one.spend(cycles)
+
+
+def _power_on_timers(scrambled: random.Random, control: int) -> list[Timer]:
+    prescaler = scrambled.randrange(rates.SLOW_TIMER_CYCLES)
+    every = (rates.SLOW_TIMER_CYCLES, rates.SLOW_TIMER_CYCLES, rates.FAST_TIMER_CYCLES)
+    return [
+        Timer(ticks, scrambled, prescaler, bool(control & bit))
+        for ticks, bit in zip(every, CONTROL_TIMERS, strict=True)
+    ]

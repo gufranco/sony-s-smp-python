@@ -21,7 +21,7 @@ def declared() -> dict[str, Any]:
 
 
 def a_unit(fill: int = 0x00) -> Any:
-    return ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=fill).reset()
+    return monitor.listening(ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=fill))
 
 
 def named(entry: str) -> list[int]:
@@ -253,7 +253,7 @@ class RegisterTest(unittest.TestCase):
     def test_the_addresses_it_names_for_the_ports_reach_the_console_in_order(self) -> None:
         # Arrange
         program = writing_to(ports())
-        unit = ssmp.Chip("ssmp", boot=program, fill=0x00).reset()
+        unit = monitor.listening(ssmp.Chip("ssmp", boot=program, fill=0x00))
         unit.run_for(100)
 
         # Act
@@ -360,8 +360,7 @@ class TimerTest(unittest.TestCase):
         tick = self.held["slowCyclesPerTick"]
         ticks = (1 << self.held["counterBits"]) + 4
         unit = a_unit()
-        written = monitor.start(unit, 0, divider=1)
-        started = written - written % tick
+        started = on_the_prescaler(monitor.start(unit, 0, divider=1), tick)
 
         # Act
         found = monitor.counter_at(unit, 0, started + ticks * tick + tick // 2)
@@ -404,7 +403,8 @@ def printed() -> dict[str, Any]:
 
 
 def on_the_prescaler(cycle: int, period: int) -> int:
-    return cycle - cycle % period
+    first = monitor.first_tick(ssmp.Chip("ssmp", boot=monitor.MONITOR), 0, period)
+    return cycle - (cycle - first) % period
 
 
 class PrintedTimerTest(unittest.TestCase):

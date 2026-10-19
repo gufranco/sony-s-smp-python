@@ -19,19 +19,27 @@ STAGE_STEPS_BEFORE_THE_WRAP = 5 + 250.5
 STAGE_STEPS_AFTER_THE_WRAP = 5 + 254.5
 
 
-def on_the_prescaler(cycle: int, period: int) -> int:
-    return cycle - cycle % period
+def a_unit() -> Any:
+    return ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=0x00)
+
+
+def on_the_prescaler(cycle: int, first: int, period: int) -> int:
+    return cycle - (cycle - first) % period
 
 
 class Running:
     def __init__(self, timer: int, divider: int) -> None:
         self.timer = timer
         self.period = FAST if timer == FAST_TIMER else SLOW
-        self.unit: Any = ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=0x00).reset()
-        self.started = on_the_prescaler(monitor.start(self.unit, timer, divider), self.period)
+        self.first = monitor.first_tick(a_unit(), timer, self.period)
+        self.unit: Any = monitor.listening(a_unit())
+        self.started = self.on_the_prescaler(monitor.start(self.unit, timer, divider))
+
+    def on_the_prescaler(self, cycle: int) -> int:
+        return on_the_prescaler(cycle, self.first, self.period)
 
     def switch(self, on: bool) -> int:
-        return on_the_prescaler(monitor.switch(self.unit, self.timer, on), self.period)
+        return self.on_the_prescaler(monitor.switch(self.unit, self.timer, on))
 
     def divide_by(self, divider: int, at: int) -> None:
         monitor.aim(self.unit, monitor.FIRST_DIVIDER + self.timer)
@@ -90,8 +98,9 @@ class DividerTest(unittest.TestCase):
 class EnableTest(unittest.TestCase):
     def test_a_timer_nobody_turned_on_counts_nothing(self) -> None:
         # Arrange
-        unit = ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=0x00).reset()
+        unit = monitor.listening(a_unit())
         monitor.poke(unit, monitor.FIRST_DIVIDER, 1)
+        monitor.peek(unit, monitor.FIRST_COUNTER)
         unit.run_for(20 * SLOW)
 
         # Act

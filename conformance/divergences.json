@@ -44,7 +44,7 @@
       "documentSays": "Nothing.",
       "referenceDoes": "Clears everything, which is the one answer that is certainly wrong.",
       "packageFollows": "neither",
-      "reasoning": "What the processor holds coming out of reset is that member's question and its record answers it, including the one flag the boot program settles. What the sound generator holds is the other member's. This one adds memory, and memory holds whatever it held: nothing here is cleared at construction unless a caller asks for a fill, and building a unit resets neither half. The unit's reset() is the console's reset line and resets both.",
+      "reasoning": "What the processor holds coming out of reset is that member's question and its record answers it, including the one flag the boot program settles. What the sound generator holds is the other member's. This one adds memory, the sixteen registers, both bytes of each port, the three timers and the prescaler that feeds them, and scrambles every one of them from the seed: nothing is cleared at construction, a fill replaces the scramble in memory only, and building a unit resets neither half. The unit's reset() is the console's reset line and resets both.",
       "wouldSettleIt": "A capture of a real unit at power on. The two halves record it separately."
     },
     {
@@ -66,7 +66,7 @@
       "documentSays": "Book I of Nintendo's development manual, page 3-5-2: at the time of reset, ST0 of the control register is 0, and the timer's counter and divider are indeterminate. Figure 3-4-3 gives the control register's reset value as --00-000. Nothing about memory, the ports or the other registers.",
       "referenceDoes": "Not compared: no implementation was read for what it does to these registers at a reset.",
       "packageFollows": "neither",
-      "reasoning": "reset() shows the boot window, stops all three timers, resets the generator and resets the processor, and leaves memory, the timers' dividers, stages and counters, the ports, the test register and the generator's address register holding what they held. The boot window has a source in the boot program: it never writes 0xF1 and the processor leaves reset through the vector at 0xFFFE, which only the boot program supplies. The timer starts have a source in the manual. Nothing settles the rest, and the family standard leaves what a reset does not define holding what it held.",
+      "reasoning": "reset() shows the boot window, clears the five control bits Figure 3-4-3 prints as zero, which stops all three timers, resets the generator and resets the processor, and leaves memory, the timers' dividers, stages and counters, the prescaler's phase, control bits 3 and 6, the ports, the test register and the generator's address register holding what they held. The boot window has a source in the boot program: it never writes 0xF1 and the processor leaves reset through the vector at 0xFFFE, which only the boot program supplies. The timer starts have a source in the manual. Nothing settles the rest, and the family standard leaves what a reset does not define holding what it held.",
       "wouldSettleIt": "A capture of a real unit's registers and memory either side of a console reset, with the timers running and the ports written before it."
     },
     {

@@ -39,7 +39,7 @@ def declared() -> dict[str, Any]:
 
 
 def a_unit(fill: int = 0x00) -> Any:
-    return ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=fill).reset()
+    return monitor.listening(ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=fill))
 
 
 def echoed_into(unit: Any, page: int) -> list[int]:

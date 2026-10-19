@@ -76,6 +76,7 @@ class Chip:
         "_fill",
         "_generator",
         "_processor",
+        "_seed",
         "cycles",
         "dsp",
         "identity",
@@ -92,6 +93,7 @@ class Chip:
         identity: Any | None = None,
         images: dict[str, tuple[Any, Path]] | None = None,
         fill: int | None = None,
+        seed: int | None = None,
     ) -> None:
         found = _members()
         if found is None:
@@ -114,16 +116,18 @@ class Chip:
         self.identity = identity
         self._boot = bytes(boot)
         self._fill = fill
+        self._seed = processor.UNSET_SEED if seed is None else seed
         self._processor = processor
         self._generator = generator
         self.cycles = 0
         self._start()
 
     def _start(self) -> None:
-        store = self._processor.Memory(fill=self._fill)
-        self.dsp = self._generator.Chip(GENERATOR_MODEL, memory=store)
-        self.space = Space(boot=self._boot, memory=store, dsp=self.dsp)
-        self.processor = self._processor.Cpu(PROCESSOR_MODEL, memory=self.space)
+        seed = self._seed
+        store = self._processor.Memory(seed=seed, fill=self._fill)
+        self.dsp = self._generator.Chip(GENERATOR_MODEL, memory=store, seed=seed)
+        self.space = Space(boot=self._boot, memory=store, dsp=self.dsp, seed=seed)
+        self.processor = self._processor.Cpu(PROCESSOR_MODEL, memory=self.space, seed=seed)
         self.processor.on_cycle = self._spent
 
     def _spent(self) -> None:

@@ -258,11 +258,13 @@ conformance/quotes.py     every quoted sentence, found in the document it cites
 - The boot program clears `$01` through `$ef` and never touches `$00`, because
   its loop stops when the index reaches zero.
 - A timer divider of zero means 256, not nothing.
-- The three timers share one prescaler that runs from construction and never
-  restarts. Switching a timer on clears that timer's stage and counter and
-  nothing else, so its first tick lands wherever the prescaler is. A test that
-  times a tick from the enable rather than from the prescaler is off by up to a
-  whole period.
+- The three timers share one prescaler that starts at a scrambled phase at
+  construction, runs from then on and never restarts, not even at a reset.
+  Switching a timer on clears that timer's stage and counter and nothing else,
+  so its first tick lands wherever the prescaler is. A test that times a tick
+  from the enable rather than from the prescaler is off by up to a whole
+  period. `monitor.first_tick` reads the phase off a twin built with the same
+  seed, through `space`, and the timer tests measure from it.
 - A timer's stage is compared to its divider for equality. A divider lowered
   below the stage is reached only after the stage counts round through 255.
 - Every write to the sixteen registers also lands in the memory beneath them,
@@ -280,14 +282,23 @@ conformance/quotes.py     every quoted sentence, found in the document it cites
   own, and it is clocked once per processor cycle. Both are easy to leave out
   and nothing fails loudly when you do: the unit runs, the handshake works, and
   no sound is ever produced.
-- Building a unit resets nothing: the generator and the processor both come up
-  scrambled. `reset()` is the console's reset line, which reaches both halves,
+- Building a unit resets nothing: the generator, the processor, memory, the
+  sixteen registers, both bytes of each port, each timer's divider, stage,
+  counter and enable, and the prescaler's phase all come up scrambled from the
+  `seed`, which defaults to the processor's `UNSET_SEED`. `fill` replaces the
+  scramble in memory only. The space draws from its own stream of that seed,
+  so its registers do not repeat the first bytes of memory. A test that needs
+  port 0 quiet for the monitor writes it first, which is what
+  `monitor.listening` does before it resets. `reset()` is the console's reset
+  line, which reaches both halves,
   so it resets the generator to what `resetLine` in its record lists and then
   the processor. A check, a runner or an example that wants the boot program
   running calls `reset()` itself.
 - `reset()` never rebuilds anything. It shows the boot window, which the boot
-  program needs to leave reset at all, and resets the two halves. Memory, the
-  timers, the ports and the other registers hold what they held.
+  program needs to leave reset at all, clears the five control bits Figure
+  3-4-3 prints as zero, which stops the three timers, and resets the two
+  halves. Memory, each timer's divider, stage and counter, the prescaler, the
+  ports, control bits 3 and 6 and the other registers hold what they held.
 - A generator nobody reset is clocked like any other, and when its scrambled
   flag register leaves echo writes on it writes wherever its scrambled echo
   registers point. That is what power on does here, and it is modelled rather

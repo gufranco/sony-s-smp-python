@@ -149,11 +149,16 @@ timer's counter and divider are indeterminate, and Figure 3-4-3 gives the contro
 register's reset value as `--00-000`. It says nothing about memory, the ports or
 the other registers.
 
-**What this project does.** `reset()` shows the boot window, stops all three
-timers, resets the generator and resets the processor, and nothing else. Memory
-keeps every byte. The timers keep their dividers, stages and counters, the ports
-keep both directions, and the test register and the generator's address register
-keep what was last written.
+**What this project does.** Builds every one of those registers, both bytes of
+each port, each timer's divider, stage and counter, and the prescaler's phase
+scrambled from the seed, because Book I prints no power-on value for any of
+them. `reset()` shows the boot window, clears the five control bits Figure 3-4-3
+prints as zero, which stops all three timers, resets the generator and resets
+the processor, and nothing else. Memory keeps every byte. The timers keep their
+dividers, stages and counters, the prescaler keeps running from where power on
+put it, the ports keep both directions, control bits 3 and 6 keep what they
+held, and the test register and the generator's address register keep what was
+last written.
 
 **Why.** The boot window has a source in the boot program: it never writes
 `$f1`, and the processor leaves reset through the vector at `$fffe`, which only
