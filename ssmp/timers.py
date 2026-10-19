@@ -4,8 +4,6 @@ COUNTER_MASK = 0x0F
 
 STAGE_MASK = 0xFF
 
-DIVIDER_WHEN_ZERO = 256
-
 
 class Timer:
     __slots__ = ("counter", "divider", "enabled", "stage", "ticks_every", "waited")
