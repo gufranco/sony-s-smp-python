@@ -356,7 +356,8 @@ class TimerTest(unittest.TestCase):
         tick = self.held["slowCyclesPerTick"]
         ticks = (1 << self.held["counterBits"]) + 4
         unit = a_unit()
-        started = monitor.start(unit, 0, divider=1)
+        written = monitor.start(unit, 0, divider=1)
+        started = written - written % tick
 
         # Act
         found = monitor.counter_at(unit, 0, started + ticks * tick + tick // 2)

@@ -12,15 +12,26 @@ SLOW = 128
 
 FAST = 16
 
+FAST_TIMER = 2
+
+STAGE_STEPS_BEFORE_THE_WRAP = 5 + 250.5
+
+STAGE_STEPS_AFTER_THE_WRAP = 5 + 254.5
+
+
+def on_the_prescaler(cycle: int, period: int) -> int:
+    return cycle - cycle % period
+
 
 class Running:
     def __init__(self, timer: int, divider: int) -> None:
         self.timer = timer
+        self.period = FAST if timer == FAST_TIMER else SLOW
         self.unit: Any = ssmp.Chip("ssmp", boot=monitor.MONITOR, fill=0x00).reset()
-        self.started = monitor.start(self.unit, timer, divider)
+        self.started = on_the_prescaler(monitor.start(self.unit, timer, divider), self.period)
 
     def switch(self, on: bool) -> int:
-        return monitor.switch(self.unit, self.timer, on)
+        return on_the_prescaler(monitor.switch(self.unit, self.timer, on), self.period)
 
     def divide_by(self, divider: int, at: int) -> None:
         monitor.aim(self.unit, monitor.FIRST_DIVIDER + self.timer)
@@ -99,6 +110,16 @@ class EnableTest(unittest.TestCase):
         # Assert
         self.assertEqual(found, 0)
 
+    def test_switching_one_on_leaves_the_shared_prescaler_where_it_was(self) -> None:
+        # Arrange
+        timer = Running(0, divider=1)
+
+        # Act
+        found = timer.counter_at(int(1.2 * SLOW))
+
+        # Assert
+        self.assertEqual(found, 1)
+
     def test_turning_one_off_and_on_again_empties_the_counter(self) -> None:
         # Arrange
         timer = Running(0, divider=1)
@@ -107,10 +128,10 @@ class EnableTest(unittest.TestCase):
         timer.started = timer.switch(on=True)
 
         # Act
-        found = timer.counter_at(int(0.5 * SLOW))
+        found = timer.counter_at(int(1.5 * SLOW))
 
         # Assert
-        self.assertEqual(found, 0)
+        self.assertEqual(found, 1)
 
     def test_and_starts_its_divider_over(self) -> None:
         # Arrange
@@ -185,13 +206,25 @@ class CountTest(unittest.TestCase):
 
 
 class MidCountTest(unittest.TestCase):
-    def test_lowering_a_divider_below_the_stage_counts_on_the_very_next_tick(self) -> None:
+    def test_lowering_a_divider_below_the_stage_does_not_count_on_the_next_tick(self) -> None:
         # Arrange
         timer = Running(0, divider=8)
         timer.divide_by(3, at=int(5.5 * SLOW))
 
         # Act
         found = timer.counter_at(int(6.6 * SLOW))
+
+        # Assert
+        self.assertEqual(found, 0)
+
+    def test_but_once_the_eight_bit_stage_wraps_round_to_it(self) -> None:
+        # Arrange
+        timer = Running(0, divider=8)
+        timer.divide_by(3, at=int(5.5 * SLOW))
+        timer.wait_until(int(STAGE_STEPS_BEFORE_THE_WRAP * SLOW))
+
+        # Act
+        found = timer.counter_at(int(STAGE_STEPS_AFTER_THE_WRAP * SLOW))
 
         # Assert
         self.assertEqual(found, 1)
