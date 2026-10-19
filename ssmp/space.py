@@ -22,6 +22,7 @@ DSP_ADDRESS = 0xF2
 DSP_DATA = 0xF3
 PORT_0 = 0xF4
 SPARE_0 = 0xF8
+SPARE_COUNT = 2
 TIMER_0_DIVIDER = 0xFA
 COUNTER_0 = 0xFD
 
@@ -41,6 +42,7 @@ TIMER_COUNT = 3
 
 class Space:
     __slots__ = (
+        "auxiliary",
         "boot",
         "boot_visible",
         "control",
@@ -66,6 +68,7 @@ class Space:
         self.control = CONTROL_BOOT_VISIBLE
         self.boot_visible = True
         self.dsp_address = 0
+        self.auxiliary = bytearray(memory.read8(SPARE_0 + one) for one in range(SPARE_COUNT))
 
     def reset(self) -> None:
         self.control = CONTROL_BOOT_VISIBLE
@@ -85,10 +88,9 @@ class Space:
     def write8(self, address: int, value: int) -> None:
         address &= SPACE - 1
         value &= 0xFF
+        self.memory.write8(address, value)
         if REGISTERS_AT <= address < REGISTERS_AT + REGISTER_COUNT:
             self._write_register(address, value)
-            return
-        self.memory.write8(address, value)
 
     def _read_register(self, address: int) -> int:
         if PORT_0 <= address < PORT_0 + PORT_COUNT:
@@ -99,9 +101,8 @@ class Space:
             return self._read_dsp()
         if address == DSP_ADDRESS:
             return self.dsp_address
-        if address in (SPARE_0, SPARE_0 + 1):
-            held: int = self.memory.read8(address)
-            return held
+        if SPARE_0 <= address < SPARE_0 + SPARE_COUNT:
+            return self.auxiliary[address - SPARE_0]
         return self._read_write_only(address)
 
     def _read_write_only(self, address: int) -> int:
@@ -131,7 +132,8 @@ class Space:
         if address == TEST:
             self.test = value
             return
-        self.memory.write8(address, value)
+        if SPARE_0 <= address < SPARE_0 + SPARE_COUNT:
+            self.auxiliary[address - SPARE_0] = value
 
     def _write_control(self, value: int) -> None:
         self.control = value

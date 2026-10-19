@@ -42,8 +42,8 @@
       "0xF5": "port 1",
       "0xF6": "port 2",
       "0xF7": "port 3",
-      "0xF8": "ordinary memory",
-      "0xF9": "ordinary memory",
+      "0xF8": "spare 0, which reads back the last byte written to it whatever the memory beneath holds",
+      "0xF9": "spare 1, which reads back the last byte written to it whatever the memory beneath holds",
       "0xFA": "timer 0 divider, written and never read; a read answers zero",
       "0xFB": "timer 1 divider, written and never read; a read answers zero",
       "0xFC": "timer 2 divider, written and never read; a read answers zero",
@@ -53,7 +53,8 @@
     },
     "verified": true,
     "evidence": "The boot program reaches 0xF1 through 0xF5, which confirms the control register, the boot window bit and the first two ports from the part's own code. All sixteen are settled at once by initial_regs.spc, which reads every one of them in order and compares a checksum of the result against a value taken on a console. Of every arrangement of the five that cannot be read, exactly one reproduces that checksum: all five answer zero. The SNESdev wiki says the same in words. The model answered with the memory underneath before this, and that check is what caught it.",
-    "howToSettleIt": "Settled. A Sony document would add a rung; nothing else would change the answer."
+    "howToSettleIt": "Settled. A Sony document would add a rung; nothing else would change the answer.",
+    "writesReachMemory": "Every write to the sixteen registers also lands in the memory beneath them, which the sound generator reads directly. Shay Green's spc_dsp6 check Misc/$F0-$FF are not ram reproduces its console value only with both this and the two spare registers holding what was written."
   },
   "control": {
     "timer0": "0x01",

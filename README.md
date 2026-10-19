@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** verdicts from a cartridge of checks agree, **695** tests, **100%** statement and branch coverage, no dependencies
+**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** verdicts from a cartridge of checks agree, **698** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 import ssmp
@@ -187,7 +187,7 @@ print([space.read8(address) for address in (0xF0, 0xF1, 0xFA, 0xFB, 0xFC)])
 
 The example builds a unit from 64 zero bytes, so it runs on a machine with no boot program, and drives the register space directly. Timers 0 and 1 tick every 128 processor cycles and timer 2 every 16. Each divides its ticks by the value written to its divider at `$FA` to `$FC`, and a divider of 0 divides by 256. Writing `0x85` to the control register at `$F1` enables timers 0 and 2 and keeps the boot window visible.
 
-Timer 0 counts 3 in 98,304 cycles, and the read clears its counter, so a second read gets 0. Timer 2 counts 20 and reads 4, because the counter is four bits. The test register, the control register and the three dividers are written and never read back: all five answer 0.
+Timer 0 counts 3 in 98,304 cycles, and the read clears its counter, so a second read gets 0. Timer 2 counts 20 and reads 4, because the counter is four bits. The test register, the control register and the three dividers are written and never read back: all five answer 0. Every write to the sixteen registers also lands in the memory beneath them, which the sound generator reads directly.
 
 | Address        | Register                                                                                                                         |
 | :------------- | :------------------------------------------------------------------------------------------------------------------------------- |
@@ -195,7 +195,7 @@ Timer 0 counts 3 in 98,304 cycles, and the read clears its counter, so a second 
 | `$F1`          | Control: timer enables in bits 0 to 2, clear ports 0 and 1 in bit 4, clear ports 2 and 3 in bit 5, boot window in bit 7. Reads 0 |
 | `$F2`, `$F3`   | The sound generator's address and data                                                                                           |
 | `$F4` to `$F7` | Ports 0 to 3                                                                                                                     |
-| `$F8`, `$F9`   | Ordinary memory                                                                                                                  |
+| `$F8`, `$F9`   | Spare registers. Each reads back the last byte written to it, whatever the memory beneath holds                                  |
 | `$FA` to `$FC` | Timer dividers. Read 0                                                                                                           |
 | `$FD` to `$FF` | Timer counters, cleared by the read                                                                                              |
 

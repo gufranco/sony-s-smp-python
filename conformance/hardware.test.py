@@ -258,10 +258,10 @@ class RegisterTest(unittest.TestCase):
         # Assert
         self.assertEqual(found, [0x11, 0x12, 0x13, 0x14])
 
-    def test_the_addresses_it_names_as_ordinary_memory_keep_what_is_written(self) -> None:
+    def test_the_addresses_it_names_as_spare_keep_what_is_written(self) -> None:
         # Arrange
         unit = a_unit()
-        spare = named("ordinary memory")
+        spare = named("spare")
         for address in spare:
             monitor.poke(unit, address, 0x66)
 

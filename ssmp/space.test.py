@@ -66,7 +66,7 @@ class MemoryTest(unittest.TestCase):
         # Assert
         self.assertEqual(found, 0x5A)
 
-    def test_the_two_spare_registers_are_ordinary_memory(self) -> None:
+    def test_the_two_spare_registers_read_back_what_was_written(self) -> None:
         # Arrange
         unit = a_unit()
         monitor.poke(unit, 0xF8, 0x11)
@@ -77,6 +77,38 @@ class MemoryTest(unittest.TestCase):
 
         # Assert
         self.assertEqual(found, (0x11, 0x22))
+
+    def test_even_after_the_memory_beneath_them_changes(self) -> None:
+        # Arrange
+        unit = a_unit()
+        monitor.poke(unit, 0xF8, 0x11)
+        unit.dsp.memory.write8(0xF8, 0x99)
+
+        # Act
+        found = monitor.peek(unit, 0xF8)
+
+        # Assert
+        self.assertEqual(found, 0x11)
+
+    def test_a_write_to_a_register_also_reaches_the_memory_beneath_it(self) -> None:
+        # Arrange
+        unit = a_unit()
+
+        # Act
+        monitor.poke(unit, FIRST_DIVIDER, 0x33)
+
+        # Assert
+        self.assertEqual(unit.dsp.memory.read8(FIRST_DIVIDER), 0x33)
+
+    def test_and_so_does_a_write_to_a_counter_nothing_else_takes(self) -> None:
+        # Arrange
+        unit = a_unit()
+
+        # Act
+        monitor.poke(unit, FIRST_COUNTER, 0x55)
+
+        # Assert
+        self.assertEqual(unit.dsp.memory.read8(FIRST_COUNTER), 0x55)
 
 
 class BootWindowTest(unittest.TestCase):
