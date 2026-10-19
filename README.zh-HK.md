@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** 個連接埠就是與主機之間的全部介面，**3** 項附有在主機上實測數值的檢查，**0** 項不符，一個檢查卡帶的 **18** 項判定中有 **14** 項相符，**698** 項測試，**100%** 語句與分支覆蓋率，無任何依賴
+**4** 個連接埠就是與主機之間的全部介面，**3** 項附有在主機上實測數值的檢查，**0** 項不符，一個檢查卡帶的 **18** 項判定中有 **14** 項相符，**814** 項測試，**100%** 語句與分支覆蓋率，無任何依賴
 
 ```python
 import ssmp
@@ -206,6 +206,7 @@ print([space.read8(address) for address in (0xF0, 0xF1, 0xFA, 0xFB, 0xFC)])
 | `python3 ssmp/doctor.py`                 | 報告機器和簽出內容，然後建立並重設單元        | 0 沒有需要報告的事項，1 有檢查結果未通過                     |
 | `python3 -m conformance.against_checks`  | 以 Shay Green 的三項檢查測試單元              | 0 全部相符，1 有一項不符或與其摘要不相符，2 沒有檢查任何東西 |
 | `python3 -m conformance.speed`           | 量度每秒處理器週期數，下限為 20,000           | 0 達到或高於下限，1 低於下限，2 沒有量度任何東西             |
+| `python3 -m conformance.quotes`          | 在記錄所引用的手冊中找出記錄引用的每一句      | 0 全部引文都找到，或本機沒有手冊；1 其他情況                 |
 | `python3 -m conformance.links`           | 探測本 README 中的每個位址，並輸出 JSON 報告  | 0 沒有失效，1 有位址回應 404 或 410                          |
 | `python3 -m conformance.package <wheel>` | 檢查已建置的 wheel 是否包含每個模組且不含測試 | 0 正常，1 有錯誤或檔案不存在，2 沒有指定 wheel               |
 
@@ -275,7 +276,7 @@ ssmp
 
 ## 它是否正確
 
-目前不知道有任何關於 S-SMP 的 Sony 文件。有三樣東西代替它，全部位於[本系列權威階梯](FAMILY.md)的第二級：晶片本身的程式碼、附有在主機上實測數值的檢查，以及一個檢查卡帶。
+目前不知道有任何關於 S-SMP 的 Sony 文件。Nintendo 的開發手冊 Book I 印出了控制暫存器和三個計時器，[`conformance/hardware.json`](conformance/hardware.json) 引用了這些頁面；`python3 -m conformance.quotes` 會在你放在 `docs/manufacturer/` 的副本中找到每條引文。其餘部分有三樣東西代替，全部位於[本系列權威階梯](FAMILY.md)的第二級：晶片本身的程式碼、附有在主機上實測數值的檢查，以及一個檢查卡帶。
 
 **晶片本身的程式碼。** 開機程式是 Sony 編寫的 64 個位元組，因此主機介面是從中讀出的。[`conformance/console.py`](conformance/console.py) 把該序列記錄下來，[`conformance/boot.test.py`](conformance/boot.test.py) 則對單元重演：握手 `0xaa` 和 `0xbb`、目的地、一個每個位元組都以其自身計數確認的區塊、緊接第一個區塊的第二個區塊，以及跳轉至已上載內容。
 
@@ -324,6 +325,7 @@ done
 
 ## 參考資料
 
+- _SNES Development Manual, Book I_，Nintendo of America Inc.，無日期。第 3 部分第 1、4、5 章。240 頁，21,022,582 個位元組，SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`。不可再分發，也不在本儲存庫內。
 - S-SMP 開機程式，64 個位元組，SHA-256 `c95f88b299030d5afa55b1031e2b5ef2dff650c4b4e6bb6f8b1359436521278f`。屬於 Sony，不可再分發，也不在本儲存庫內。
 - Shay Green，`initial_regs.spc`、`initial_in_ports.spc`、`full_ram.spc` 和 `spc_smp` 卡帶，提供在主機上實測的數值。不收錄於此。
 - [SNESdev wiki, S-SMP](https://snes.nesdev.org/wiki/S-SMP)，是後來的文件而非 Sony 文件，在使用之處引用。

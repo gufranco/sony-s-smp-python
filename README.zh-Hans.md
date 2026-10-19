@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定中 **14** 个一致，**698** 个测试，**100%** 语句和分支覆盖率，无依赖
+**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定中 **14** 个一致，**814** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 import ssmp
@@ -206,6 +206,7 @@ print([space.read8(address) for address in (0xF0, 0xF1, 0xFA, 0xFB, 0xFC)])
 | `python3 ssmp/doctor.py`                 | 报告机器和检出内容，然后构建并复位单元        | 0 无问题，1 有检查项未通过                                   |
 | `python3 -m conformance.against_checks`  | 对单元运行 Shay Green 的三个检查程序          | 0 全部一致，1 有一个不一致或与其摘要不匹配，2 未检查任何内容 |
 | `python3 -m conformance.speed`           | 测量每秒处理器周期数，下限为 20,000           | 0 达到或超过下限，1 低于下限，2 未测量任何内容               |
+| `python3 -m conformance.quotes`          | 在记录所引用的手册中找出记录引用的每一句话    | 0 全部引文都找到，或本机没有手册；1 其他情况                 |
 | `python3 -m conformance.links`           | 探测本 README 中的每个地址并输出 JSON 报告    | 0 没有失效，1 有一个返回 404 或 410                          |
 | `python3 -m conformance.package <wheel>` | 检查构建好的 wheel 是否包含每个模块且不含测试 | 0 正常，1 有问题或文件不存在，2 未指定 wheel                 |
 
@@ -275,7 +276,7 @@ ssmp
 
 ## 它是否正确
 
-目前不知道存在任何关于 S-SMP 的 Sony 文档。有三样东西代替它，都处于[本系列权威阶梯](FAMILY.md)的第二级：芯片自身的代码、带有在主机上取得的值的检查程序，以及一盘检查卡带。
+目前不知道存在任何关于 S-SMP 的 Sony 文档。Nintendo 的开发手册 Book I 印出了控制寄存器和三个定时器，[`conformance/hardware.json`](conformance/hardware.json) 引用了这些页面；`python3 -m conformance.quotes` 会在你放在 `docs/manufacturer/` 中的副本里找到每条引文。其余部分有三样东西代替，都处于[本系列权威阶梯](FAMILY.md)的第二级：芯片自身的代码、带有在主机上取得的值的检查程序，以及一盘检查卡带。
 
 **芯片自身的代码。** 引导程序是 Sony 编写的 64 个字节，因此主机接口直接从中读出。[`conformance/console.py`](conformance/console.py) 记下这一序列，[`conformance/boot.test.py`](conformance/boot.test.py) 对单元执行它：握手 `0xaa` 和 `0xbb`、目标地址、每个字节都用自身计数确认的一个数据块、第一个之后的第二个数据块，以及跳转到已上传的内容。
 
@@ -324,6 +325,7 @@ done
 
 ## 参考资料
 
+- _SNES Development Manual, Book I_，Nintendo of America Inc.，无日期。第 3 部分第 1、4、5 章。240 页，21,022,582 字节，SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`。不可再分发，不在本仓库中。
 - S-SMP 引导程序，64 字节，SHA-256 `c95f88b299030d5afa55b1031e2b5ef2dff650c4b4e6bb6f8b1359436521278f`。属于 Sony，不可再分发，不在本仓库中。
 - Shay Green，`initial_regs.spc`、`initial_in_ports.spc`、`full_ram.spc` 和 `spc_smp` 卡带，提供在主机上取得的值。不在这里携带。
 - [SNESdev wiki，S-SMP](https://snes.nesdev.org/wiki/S-SMP)，一份后来的文档，而非 Sony 文档，在用到之处引用。

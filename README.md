@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** verdicts from a cartridge of checks agree, **698** tests, **100%** statement and branch coverage, no dependencies
+**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **14** of **18** verdicts from a cartridge of checks agree, **814** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 import ssmp
@@ -206,6 +206,7 @@ Timer 0 counts 3 in 98,304 cycles, and the read clears its counter, so a second 
 | `python3 ssmp/doctor.py`                 | Reports the machine and the checkout, then builds and resets the unit | 0 nothing to report, 1 a finding did not pass                                     |
 | `python3 -m conformance.against_checks`  | Runs Shay Green's three checks against the unit                       | 0 all agree, 1 one disagrees or does not match its digests, 2 nothing was checked |
 | `python3 -m conformance.speed`           | Measures processor cycles per second against a floor of 20,000        | 0 at or above the floor, 1 below it, 2 nothing was measured                       |
+| `python3 -m conformance.quotes`          | Finds every sentence the record quotes in the manual it cites         | 0 every quote found, or no manual on this machine; 1 otherwise                    |
 | `python3 -m conformance.links`           | Probes every address in this README and prints a JSON report          | 0 none gone, 1 one answers 404 or 410                                             |
 | `python3 -m conformance.package <wheel>` | Checks a built wheel ships every module and no test                   | 0 clean, 1 a fault or no such file, 2 no wheel named                              |
 
@@ -275,7 +276,7 @@ There is one model, because Sony shipped one unit. The catalogue exists so that 
 
 ## Is it right
 
-No Sony document for the S-SMP is known to exist. Three things stand in for one, all on the second rung of [the family's authority ladder](FAMILY.md): the part's own code, checks carrying values taken on a console, and a cartridge of checks.
+No Sony document for the S-SMP is known to exist. Nintendo's development manual, Book I, prints the control register and the three timers, and [`conformance/hardware.json`](conformance/hardware.json) quotes those pages; `python3 -m conformance.quotes` finds each quote in a copy you hold in `docs/manufacturer/`. For the rest, three things stand in, all on the second rung of [the family's authority ladder](FAMILY.md): the part's own code, checks carrying values taken on a console, and a cartridge of checks.
 
 **The part's own code.** The boot program is 64 bytes Sony wrote, so the console interface is read off them. [`conformance/console.py`](conformance/console.py) writes that sequence down and [`conformance/boot.test.py`](conformance/boot.test.py) plays it at the unit: the handshake `0xaa` and `0xbb`, the destination, a block with every byte acknowledged by its own count, a second block after the first, and the jump into what was uploaded.
 
@@ -324,6 +325,7 @@ Each module has a test file beside it, named after it, and each runs on its own.
 
 ## References
 
+- _SNES Development Manual, Book I_, Nintendo of America Inc., undated. Section 3, chapters 1, 4 and 5. 240 pages, 21,022,582 bytes, SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`. Not redistributable and not in this repository.
 - The S-SMP boot program, 64 bytes, SHA-256 `c95f88b299030d5afa55b1031e2b5ef2dff650c4b4e6bb6f8b1359436521278f`. Sony's, not redistributable, and not in this repository.
 - Shay Green, `initial_regs.spc`, `initial_in_ports.spc`, `full_ram.spc` and the `spc_smp` cartridge, for values taken on a console. Not carried here.
 - [SNESdev wiki, S-SMP](https://snes.nesdev.org/wiki/S-SMP), a later document rather than a Sony one, cited where it is used.

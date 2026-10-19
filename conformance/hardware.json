@@ -2,21 +2,33 @@
   "note": "What this member claims about the audio unit, and where each claim came from. The unit has no published document, so almost everything here is either read off the part's own boot program or deferred to one of the two members this one is assembled from.",
   "authority": {
     "order": [
+      "Nintendo's SNES Development Manual, Book I, for the control register and the timers, which it prints",
       "the boot program, which is the part's own code and settles the console interface",
       "checksums Shay Green took on a console, carried by checks this model now runs",
       "the SNESdev wiki, for what those checksums settle without naming it",
-      "the two members this unit is assembled from, each with its own record",
-      "the arithmetic in ssmp/rates.py, for the one figure neither of those gives"
+      "the two members this unit is assembled from, each with its own record"
     ],
-    "why": "Sony published no document for the S-SMP. Two things stand in for one. The unit carries sixty four bytes of Sony's own code in its top page, so the console interface can be read off them rather than guessed at or copied. And Shay Green wrote checks that carry checksums he took on real hardware, which settle what the boot program never touches. Both are rung two, the artifact and a measurement of one, rather than agreement with another implementation.",
+    "why": "Sony published no document for the S-SMP, and Nintendo did: Book I of its development manual prints the control register, the three timers and the prescaler that feeds them. That is the top rung and it is used wherever it speaks. Below it, the unit carries sixty four bytes of Sony's own code in its top page, so the console interface can be read off them rather than guessed at or copied. And Shay Green wrote checks that carry checksums he took on real hardware, which settle what neither of those touches. Those two are rung two, the artifact and a measurement of one, rather than agreement with another implementation.",
     "comparedAgainst": {
       "what": "Three of Shay Green's checks, run as they are, each carrying a checksum he took on a console. Beside them, and running separately in conformance/boot.test.py, the part's own boot program played the way a console plays it. Neither this repository nor either half of it wrote any of them.",
       "runner": "conformance/against_checks.py",
       "why": "Both are outside this unit. A check that drove the processor and the generator against each other would prove they agree, which they do just as perfectly when both are wrong."
     },
-    "whatIsMissing": "Rung one. No Sony document for the S-SMP is known to exist, so nothing here is held to a printed page and the record says so rather than letting a reader infer it."
+    "whatIsMissing": "A Sony document. Nintendo's manual describes the unit for somebody programming it, so it prints the registers and the timer rates and says nothing about the memory bus, the clock between the processor and the generator, or what a reset leaves in memory."
   },
-  "documents": {},
+  "documents": {
+    "developmentManual": {
+      "publisher": "Nintendo of America Inc.",
+      "title": "SNES Development Manual, Book I",
+      "section": "Section 3, Super NES Sound: chapter 1 Outline, chapter 4 Control Register, chapter 5 Timers",
+      "readOn": "2026-10-19",
+      "retrievedFrom": "archive.org/details/SNESDevManual, book1_text.pdf",
+      "sha256": "f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791",
+      "pages": 240,
+      "note": "A scan with an OCR text layer. Pages 3-1-1 and 3-4-1 to 3-5-3, file pages 153 and 162 to 166, were read twice: off the text layer and off the page rendered at 150 dots per inch. The text layer prints T0 as TO and drops the figures, so the figure labels quoted here were read off the rendered page.",
+      "file": "book1_text.pdf"
+    }
+  },
   "bootProgram": {
     "bytes": 64,
     "at": "0xFFC0",
@@ -63,9 +75,20 @@
     "clearPorts01": "0x10",
     "clearPorts23": "0x20",
     "bootVisible": "0x80",
-    "verified": false,
-    "evidence": "The boot window bit is confirmed by the boot program, which runs out of the window and would not be reachable were the bit anywhere else. The other five are not exercised by it.",
-    "howToSettleIt": "A Sony document, or a capture of a real unit."
+    "verified": true,
+    "evidence": "Book I draws the register in Figure 3-4-1 and Figure 3-4-3 with the three timer starts in bits 0 to 2 and the two port clears in bits 4 and 5, which is where this model has them. The boot window bit is drawn as unused there and is confirmed by the boot program instead, which runs out of the window and would not be reachable were the bit anywhere else.",
+    "howToSettleIt": "Settled by the document for the five bits it draws and by the boot program for the sixth.",
+    "printed": {
+      "whenReset": {
+        "quote": "When Reset: “--00-000”",
+        "document": "developmentManual",
+        "section": "Section 3, Figure 3-4-3 Timer Control",
+        "page": "3-4-2",
+        "pdfPage": 163,
+        "meaning": "A reset clears the three timer starts and the two port clears.",
+        "heldBy": ["conformance/hardware.test.py::PrintedTimerTest.test_a_reset_stops_every_timer"]
+      }
+    }
   },
   "timers": {
     "count": 3,
@@ -73,9 +96,87 @@
     "dividerWhenZero": 256,
     "slowCyclesPerTick": 128,
     "fastCyclesPerTick": 16,
-    "verified": false,
-    "evidence": "Derived in ssmp/rates.py from one crystal and four divisions, every one of which is a whole number. What the model depends on is the ratio rather than the crystal, and the derivation is published so a reader can disagree with it rather than with a constant.",
-    "howToSettleIt": "A measurement of a timer against the processor on real hardware."
+    "verified": true,
+    "evidence": "Book I prints the prescaler's two rates, 8 kHz for timers 0 and 1 and 64 kHz for timer 2, and the shortest instruction time, 1.953 microseconds for an instruction the appendix gives as two cycles. A cycle is therefore 976.5 nanoseconds, and 125 and 15.6 microseconds are 128 and 16 of them. Shay Green's three random timer checks and his memory access check, taken on a console, agree with this model once the prescaler is shared and free running and the divider is matched by equality, as the manual draws and says.",
+    "howToSettleIt": "Settled by the document and by four checks taken on a console.",
+    "printed": {
+      "prescalerRates": {
+        "quote": "The clock input to timers T0 and T1 from the prescaler is 8KHz (125 µs) and the clock input to timer T2 from the prescaler is 64KHz (15.6 µs).",
+        "document": "developmentManual",
+        "section": "Section 3, 5.1 Function of Timers T0, T1, and T2",
+        "page": "3-5-1",
+        "pdfPage": 164,
+        "slowHz": 8000,
+        "fastHz": 64000,
+        "heldBy": [
+          "conformance/hardware.test.py::PrintedTimerTest.test_the_printed_rates_are_the_tick_costs_the_unit_spends"
+        ]
+      },
+      "instructionTime": {
+        "quote": "Minimum Command Execution Time : 1.953µs/2.48MHz when active",
+        "document": "developmentManual",
+        "section": "Section 3, 1.1 Outline, Characteristics",
+        "page": "3-1-1",
+        "pdfPage": 153,
+        "shortestNanoseconds": 1953,
+        "shortestCycles": 2,
+        "misprint": "The clock beside the time reads 2.48 MHz on the rendered page and in the text layer. 1.953 microseconds is four periods of the 2.048 MHz clock Figure 3-5-1 prints, so the 2.48 is taken as a dropped zero and nothing here rests on it.",
+        "heldBy": [
+          "conformance/hardware.test.py::PrintedTimerTest.test_the_printed_rates_are_the_tick_costs_the_unit_spends"
+        ],
+        "assembled": true
+      },
+      "onePrescaler": {
+        "quote": "Clock 2.048 MHz Prescaler 8 bits",
+        "document": "developmentManual",
+        "section": "Section 3, Figure 3-5-1 Timer Section",
+        "page": "3-5-1",
+        "pdfPage": 164,
+        "meaning": "One prescaler, on one 2.048 MHz clock, feeds all three timers. Switching a timer on clears that timer's own counters and leaves the prescaler running.",
+        "heldBy": [
+          "conformance/hardware.test.py::PrintedTimerTest.test_switching_a_timer_on_leaves_the_one_prescaler_running"
+        ]
+      },
+      "dividerMatch": {
+        "quote": "When its value corresponds to the contents of the timer register, it is cleared to 00H.",
+        "document": "developmentManual",
+        "section": "Section 3, 5.2 Timer Action",
+        "page": "3-5-2",
+        "pdfPage": 165,
+        "meaning": "The eight bit stage is compared for equality, so a divider lowered below the stage is reached only after the stage wraps through 255.",
+        "heldBy": [
+          "conformance/hardware.test.py::PrintedTimerTest.test_a_divider_lowered_below_the_stage_waits_for_the_stage_to_wrap"
+        ]
+      },
+      "enableClears": {
+        "quote": "Count up commences when both upper and lower level counters are cleared by “1”.",
+        "document": "developmentManual",
+        "section": "Section 3, 5.2 Timer Action",
+        "page": "3-5-2",
+        "pdfPage": 165,
+        "heldBy": [
+          "conformance/hardware.test.py::PrintedTimerTest.test_switching_a_timer_off_and_on_clears_both_of_its_counters"
+        ]
+      },
+      "readClears": {
+        "quote": "When the value of CN0 is read, only the 4-bit up counter section is cleared to “00”.",
+        "document": "developmentManual",
+        "section": "Section 3, 5.2 Timer Action",
+        "page": "3-5-2",
+        "pdfPage": 165,
+        "heldBy": [
+          "conformance/hardware.test.py::PrintedTimerTest.test_reading_a_counter_empties_it"
+        ]
+      },
+      "resetStops": {
+        "quote": "Action of timer T0 is stopped by means of the reset input (POR=”L”). At the time of reset, ST0 of the control register is “0” and; CN0 and TM0 of the timer register are indeterminate.",
+        "document": "developmentManual",
+        "section": "Section 3, 5.2 Timer Action",
+        "page": "3-5-2",
+        "pdfPage": 165,
+        "heldBy": ["conformance/hardware.test.py::PrintedTimerTest.test_a_reset_stops_every_timer"]
+      }
+    }
   },
   "ports": {
     "count": 4,
@@ -99,7 +200,7 @@
       "the three timers' dividers, stages and counters, which Book I calls indeterminate after a reset"
     ],
     "verified": false,
-    "evidence": "The boot window is settled by the boot program. It never writes 0xF1, and the processor leaves reset by reading its vector at 0xFFFE, which only the boot program supplies as 0xFFC0, so the window is visible whenever the processor comes out of reset. The generator and the processor are each held to their own records. Everything kept is kept because no source here says the reset line touches it, and the family standard leaves anything a reset does not define holding what it held.",
+    "evidence": "The boot window is settled by the boot program. It never writes 0xF1, and the processor leaves reset by reading its vector at 0xFFFE, which only the boot program supplies as 0xFFC0, so the window is visible whenever the processor comes out of reset. Book I prints the control register's reset value and that a reset stops timer 0, so the three timer starts clear. The generator and the processor are each held to their own records. Everything kept is kept because no source here says the reset line touches it, and the family standard leaves anything a reset does not define holding what it held.",
     "howToSettleIt": "A capture of a real unit's registers and memory either side of a console reset, with the timers running and the ports written before it."
   },
   "notStated": [
@@ -108,7 +209,6 @@
     "What the console's reset line sets in the ports, the test register and the sound generator's address register. Each is left holding what it held; see reset. The timer starts are printed and are cleared.",
     "Whether memory survives a console reset on a real unit. It is kept here; see reset."
   ],
-  "documentsNote": "Empty rather than absent. No Sony document for the S-SMP is known to exist, and saying so with a key a reader can find beats leaving them to infer it.",
   "checksFromHardware": {
     "what": "Checks by Shay Green, each carrying a value he took on a console.",
     "runner": "conformance/against_checks.py",

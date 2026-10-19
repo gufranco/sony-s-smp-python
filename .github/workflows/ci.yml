@@ -221,6 +221,19 @@ jobs:
           exit "${status}"
         shell: bash
 
+  quotes:
+    name: Every quoted sentence, against the document it came from
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Every quote against the manual, which says so when it is absent
+        run: python -m conformance.quotes
+
   package:
     name: package
     runs-on: ubuntu-26.04

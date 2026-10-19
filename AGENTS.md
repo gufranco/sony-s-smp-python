@@ -36,12 +36,15 @@ a check that does it is checking the model rather than the part.
 
 ## The authority ladder
 
-Rung one is empty: Sony published no document for this unit. Rung two holds two
-things, and between them they carry almost everything here. The boot program is
-the part's own code, and the upload protocol is read off it rather than copied
-from an implementation of either half. Beside it are three checks Shay Green
-wrote, each carrying a checksum he took on a console, which settle what those
-sixty four bytes never touch.
+Sony published no document for this unit. Nintendo did: Book I of its
+development manual prints the control register, the three timers and the
+prescaler that feeds them, and those facts are quoted in
+[`conformance/hardware.json`](conformance/hardware.json) with their pages and
+held by tests. Rung two holds two things, and between them they carry the rest.
+The boot program is the part's own code, and the upload protocol is read off it
+rather than copied from an implementation of either half. Beside it are checks
+Shay Green wrote, each carrying a checksum he took on a console, which settle
+what those sixty four bytes never touch.
 
 ## What is settled and what is not
 
@@ -125,8 +128,13 @@ And the runs that report what they could not check rather than passing quietly:
 
 ```bash
 python3 ssmp/doctor.py
+python3 -m conformance.quotes
 python3 -m conformance.links
 ```
+
+`conformance.quotes` finds every quoted sentence in a copy of the manual you
+already hold in `docs/manufacturer/`. Without one it says that nothing was
+checked and exits 0.
 
 Everything under `conformance/` runs as a module. Run as a script, its own
 directory goes on the import path and a file there shadows any standard library
@@ -220,6 +228,7 @@ conformance/boot.test.py  that half, played at the real unit
 conformance/monitor.py    a program that reads and writes the unit for a check, through the four ports
 conformance/loader.py     an audio unit written down, and the order to restore it in
 conformance/against_checks.py  Shay Green's checks, run against the model
+conformance/quotes.py     every quoted sentence, found in the document it cites
 ```
 
 ## Things that will bite you
@@ -243,6 +252,16 @@ conformance/against_checks.py  Shay Green's checks, run against the model
 - The boot program clears `$01` through `$ef` and never touches `$00`, because
   its loop stops when the index reaches zero.
 - A timer divider of zero means 256, not nothing.
+- The three timers share one prescaler that runs from construction and never
+  restarts. Switching a timer on clears that timer's stage and counter and
+  nothing else, so its first tick lands wherever the prescaler is. A test that
+  times a tick from the enable rather than from the prescaler is off by up to a
+  whole period.
+- A timer's stage is compared to its divider for equality. A divider lowered
+  below the stage is reached only after the stage counts round through 255.
+- Every write to the sixteen registers also lands in the memory beneath them,
+  which the sound generator reads directly. `$F8` and `$F9` read back what was
+  last written to them, not that memory.
 - The counter is four bits and clears on read, so two readers of one timer take
   each other's ticks.
 - Five registers cannot be read and answer zero: the test register, the control

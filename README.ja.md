@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-本体とのインターフェースは**4**つのポートがすべてです。実機で採取した値を持つチェックが**3**つ、不一致は**0**件、チェックを集めたカートリッジによる判定**18**件のうち**14**件が一致、テストは**698**件、ステートメントとブランチのカバレッジは**100%**、依存関係はありません。
+本体とのインターフェースは**4**つのポートがすべてです。実機で採取した値を持つチェックが**3**つ、不一致は**0**件、チェックを集めたカートリッジによる判定**18**件のうち**14**件が一致、テストは**814**件、ステートメントとブランチのカバレッジは**100%**、依存関係はありません。
 
 ```python
 import ssmp
@@ -206,6 +206,7 @@ print([space.read8(address) for address in (0xF0, 0xF1, 0xFA, 0xFB, 0xFC)])
 | `python3 ssmp/doctor.py`                 | マシンとチェックアウトを報告し、ユニットを構築してリセットします              | 0 報告事項なし、1 不合格の結果あり                                               |
 | `python3 -m conformance.against_checks`  | Shay Greenの3つのチェックをユニットに対して実行します                         | 0 すべて一致、1 不一致またはダイジェストの不一致あり、2 何もチェックされなかった |
 | `python3 -m conformance.speed`           | 毎秒のプロセッササイクル数を、下限20,000に対して測定します                    | 0 下限以上、1 下限未満、2 何も測定されなかった                                   |
+| `python3 -m conformance.quotes`          | 記録が引用するすべての文を、引用元のマニュアルの中で探します                  | 0 すべての引用が見つかった、またはこのマシンにマニュアルがない、1 それ以外       |
 | `python3 -m conformance.links`           | このREADMEのすべてのアドレスを調べ、JSONレポートを出力します                  | 0 消えたものなし、1 404または410を返すものあり                                   |
 | `python3 -m conformance.package <wheel>` | ビルドされたwheelがすべてのモジュールを含み、テストを含まないことを確認します | 0 問題なし、1 問題ありまたはファイルが存在しない、2 wheelが指定されていない      |
 
@@ -275,7 +276,7 @@ Sonyが出荷したユニットは1つなので、モデルも1つです。カ�
 
 ## 正しいのか
 
-S-SMPに関するSonyの文書は、存在が知られていません。その代わりとなるものが3つあり、いずれも[ファミリーの権威の階層](FAMILY.md)の2段目に位置します。チップ自身のコード、実機で採取した値を持つチェック、そしてチェックを集めたカートリッジです。
+S-SMPに関するSonyの文書は、存在が知られていません。Nintendoの開発マニュアルBook Iは制御レジスタと3つのタイマーを記載しており、[`conformance/hardware.json`](conformance/hardware.json)はそのページを引用しています。`python3 -m conformance.quotes`は、`docs/manufacturer/`に置いた手元の写しで各引用を見つけます。それ以外については、代わりとなるものが3つあり、いずれも[ファミリーの権威の階層](FAMILY.md)の2段目に位置します。チップ自身のコード、実機で採取した値を持つチェック、そしてチェックを集めたカートリッジです。
 
 **部品自身のコード。** ブートプログラムはSonyが書いた64バイトなので、本体とのインターフェースはそこから読み取れます。[`conformance/console.py`](conformance/console.py)がその手順を書き起こし、[`conformance/boot.test.py`](conformance/boot.test.py)がそれをユニットに対して再生します。ハンドシェイクの`0xaa`と`0xbb`、転送先、各バイトがそれ自身のカウントで確認応答されるブロック、最初のブロックに続く2つ目のブロック、そしてアップロードされたものへのジャンプです。
 
@@ -324,6 +325,7 @@ done
 
 ## 参考文献
 
+- _SNES Development Manual, Book I_、Nintendo of America Inc.、日付なし。セクション3の第1章、第4章、第5章。240ページ、21,022,582バイト、SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`。再配布できず、このリポジトリにはありません。
 - S-SMPのブートプログラム、64バイト、SHA-256 `c95f88b299030d5afa55b1031e2b5ef2dff650c4b4e6bb6f8b1359436521278f`。Sonyのものであり、再配布できず、このリポジトリにはありません。
 - Shay Green、`initial_regs.spc`、`initial_in_ports.spc`、`full_ram.spc`、および`spc_smp`カートリッジ。実機で採取した値のため。ここには含まれていません。
 - [SNESdev wiki, S-SMP](https://snes.nesdev.org/wiki/S-SMP)。Sonyの文書ではなく後年の文書で、使用箇所で引用しています。
