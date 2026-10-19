@@ -86,7 +86,9 @@
         "page": "3-4-2",
         "pdfPage": 163,
         "meaning": "A reset clears the three timer starts and the two port clears.",
-        "heldBy": ["conformance/hardware.test.py::PrintedTimerTest.test_a_reset_stops_every_timer"]
+        "heldBy": [
+          "conformance/hardware_timers.test.py::PrintedTimerTest.test_a_reset_stops_every_timer"
+        ]
       }
     }
   },
@@ -109,7 +111,7 @@
         "slowHz": 8000,
         "fastHz": 64000,
         "heldBy": [
-          "conformance/hardware.test.py::PrintedTimerTest.test_the_printed_rates_are_the_tick_costs_the_unit_spends"
+          "conformance/hardware_timers.test.py::PrintedTimerTest.test_the_printed_rates_are_the_tick_costs_the_unit_spends"
         ]
       },
       "instructionTime": {
@@ -122,7 +124,7 @@
         "shortestCycles": 2,
         "misprint": "The clock beside the time reads 2.48 MHz on the rendered page and in the text layer. 1.953 microseconds is four periods of the 2.048 MHz clock Figure 3-5-1 prints, so the 2.48 is taken as a dropped zero and nothing here rests on it.",
         "heldBy": [
-          "conformance/hardware.test.py::PrintedTimerTest.test_the_printed_rates_are_the_tick_costs_the_unit_spends"
+          "conformance/hardware_timers.test.py::PrintedTimerTest.test_the_printed_rates_are_the_tick_costs_the_unit_spends"
         ],
         "assembled": true
       },
@@ -134,7 +136,7 @@
         "pdfPage": 164,
         "meaning": "One prescaler, on one 2.048 MHz clock, feeds all three timers. Switching a timer on clears that timer's own counters and leaves the prescaler running.",
         "heldBy": [
-          "conformance/hardware.test.py::PrintedTimerTest.test_switching_a_timer_on_leaves_the_one_prescaler_running"
+          "conformance/hardware_timers.test.py::PrintedTimerTest.test_switching_a_timer_on_leaves_the_one_prescaler_running"
         ]
       },
       "dividerMatch": {
@@ -145,7 +147,7 @@
         "pdfPage": 165,
         "meaning": "The eight bit stage is compared for equality, so a divider lowered below the stage is reached only after the stage wraps through 255.",
         "heldBy": [
-          "conformance/hardware.test.py::PrintedTimerTest.test_a_divider_lowered_below_the_stage_waits_for_the_stage_to_wrap"
+          "conformance/hardware_timers.test.py::PrintedTimerTest.test_a_divider_lowered_below_the_stage_waits_for_the_stage_to_wrap"
         ]
       },
       "enableClears": {
@@ -155,7 +157,7 @@
         "page": "3-5-2",
         "pdfPage": 165,
         "heldBy": [
-          "conformance/hardware.test.py::PrintedTimerTest.test_switching_a_timer_off_and_on_clears_both_of_its_counters"
+          "conformance/hardware_timers.test.py::PrintedTimerTest.test_switching_a_timer_off_and_on_clears_both_of_its_counters"
         ]
       },
       "readClears": {
@@ -165,7 +167,7 @@
         "page": "3-5-2",
         "pdfPage": 165,
         "heldBy": [
-          "conformance/hardware.test.py::PrintedTimerTest.test_reading_a_counter_empties_it"
+          "conformance/hardware_timers.test.py::PrintedTimerTest.test_reading_a_counter_empties_it"
         ]
       },
       "resetStops": {
@@ -174,7 +176,9 @@
         "section": "Section 3, 5.2 Timer Action",
         "page": "3-5-2",
         "pdfPage": 165,
-        "heldBy": ["conformance/hardware.test.py::PrintedTimerTest.test_a_reset_stops_every_timer"]
+        "heldBy": [
+          "conformance/hardware_timers.test.py::PrintedTimerTest.test_a_reset_stops_every_timer"
+        ]
       }
     }
   },
