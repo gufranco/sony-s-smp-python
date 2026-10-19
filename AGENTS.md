@@ -189,6 +189,21 @@ their reasons live here, beside those of the other exclusions:
   `^def listing\(` in the coverage exclusions: this part only existed inside one
   machine, so the family sweep for machine names is skipped here.
 
+The formatter's ignores in [`.prettierignore`](.prettierignore) carry no
+comments either, so their reasons live here:
+
+- `pnpm-lock.yaml` and `package-lock.json`: the package manager writes them, in
+  its own layout, on every install.
+- `node_modules/`, `.venv/`, `venv/`, `build/`, `dist/` and `*.egg-info/`:
+  installed or built, never written by hand.
+- `.coverage`, `coverage.json`, `htmlcov/` and the tool caches: the output of a
+  run, never committed.
+- `docs/`, `specs/`, `.work/` and `.claude/`: local working material, never
+  committed.
+- `sony-spc700-python/` and `sony-s-dsp-python/`: submodules. Each is a member
+  that formats and checks itself, and the commit pinned here is not this
+  repository's to change.
+
 ## Layout
 
 ```
@@ -219,6 +234,7 @@ conformance/against_checks.py  Shay Green's checks, run against the model
   cut='/^def directories/,/^    return tuple(seen)/p'
   diff <(sed -n "$cut" mine/firmware.py) <(sed -n "$cut" theirs/firmware.py)
   ```
+
 - A port is two bytes at one address, not one. Modelling it as one makes both
   sides appear to work until two writes cross.
 - The boot window covers memory rather than replacing it. A program writes under

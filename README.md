@@ -31,11 +31,11 @@ The unit runs its boot program for 6,300 cycles and then answers `0xaa` on port 
 
 ## Install
 
-| Requirement | Version |
-|:--|:--|
-| Python | 3.12 or newer |
-| git | Any, to fetch the two submodules |
-| The boot program | A 64-byte copy you already own |
+| Requirement      | Version                          |
+| :--------------- | :------------------------------- |
+| Python           | 3.12 or newer                    |
+| git              | Any, to fetch the two submodules |
+| The boot program | A 64-byte copy you already own   |
 
 ```bash
 git clone --recurse-submodules https://github.com/gufranco/sony-s-smp-python.git
@@ -61,56 +61,56 @@ Releases follow [Semantic Versioning](https://semver.org/) and are cut from the 
 
 `ssmp.Chip(model, boot=None, identity=None, images=None, fill=None)` builds one unit as power on leaves it: the processor, the sound generator and memory scrambled, and nothing running until `reset()`. `model` is required.
 
-| Argument | Meaning |
-|:--|:--|
-| `model` | The model name. Case and the separators `-`, `_`, `.` and space are ignored, so `"S-SMP"` and `"s_smp"` both build `ssmp` |
-| `boot` | The 64 bytes of a boot program. Left out, the unit searches the boot directories and identifies what it finds by SHA-256 |
-| `identity` | The record for a supplied `boot`. Left out, it is recorded as `supplied` |
-| `images` | A catalogue to search in place of the boot directories, keyed by model name |
-| `fill` | The byte the processor's memory is filled with at power on. Left out, it is scrambled |
+| Argument   | Meaning                                                                                                                   |
+| :--------- | :------------------------------------------------------------------------------------------------------------------------ |
+| `model`    | The model name. Case and the separators `-`, `_`, `.` and space are ignored, so `"S-SMP"` and `"s_smp"` both build `ssmp` |
+| `boot`     | The 64 bytes of a boot program. Left out, the unit searches the boot directories and identifies what it finds by SHA-256  |
+| `identity` | The record for a supplied `boot`. Left out, it is recorded as `supplied`                                                  |
+| `images`   | A catalogue to search in place of the boot directories, keyed by model name                                               |
+| `fill`     | The byte the processor's memory is filled with at power on. Left out, it is scrambled                                     |
 
 ### Calls
 
-| Call | Effect |
-|:--|:--|
-| `reset()` | The console's reset line. Shows the boot window, then resets the sound generator and the processor, which starts the boot program. Memory, the timers, the ports and the other registers keep what they held. Returns the unit |
-| `step()` | One processor instruction. Returns the cycles it took |
-| `run_for(cycles)` | Instructions until at least `cycles` cycles have passed. Returns the cycles spent |
-| `read(index)` | What the console reads at port `index`, 0 to 3: the byte the unit last wrote there |
-| `write(index, value)` | What the console writes to port `index`: the byte the unit reads there |
+| Call                  | Effect                                                                                                                                                                                                                         |
+| :-------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `reset()`             | The console's reset line. Shows the boot window, then resets the sound generator and the processor, which starts the boot program. Memory, the timers, the ports and the other registers keep what they held. Returns the unit |
+| `step()`              | One processor instruction. Returns the cycles it took                                                                                                                                                                          |
+| `run_for(cycles)`     | Instructions until at least `cycles` cycles have passed. Returns the cycles spent                                                                                                                                              |
+| `read(index)`         | What the console reads at port `index`, 0 to 3: the byte the unit last wrote there                                                                                                                                             |
+| `write(index, value)` | What the console writes to port `index`: the byte the unit reads there                                                                                                                                                         |
 
 ### State
 
-| Attribute | Meaning |
-|:--|:--|
-| `model` | The canonical model name |
-| `part` | The same name, as the boot catalogue keys it |
-| `identity` | The boot program's record: `part`, `processor`, `revision`, `bytes_long` |
-| `cycles` | Processor cycles since the unit was built. A reset does not clear it |
-| `processor` | The SPC700 from the processor submodule |
-| `dsp` | The S-DSP from the sound generator submodule |
-| `space` | The 64 KB the processor sees, with the 16 registers at `$00F0` and the boot window at `$FFC0` |
+| Attribute   | Meaning                                                                                       |
+| :---------- | :-------------------------------------------------------------------------------------------- |
+| `model`     | The canonical model name                                                                      |
+| `part`      | The same name, as the boot catalogue keys it                                                  |
+| `identity`  | The boot program's record: `part`, `processor`, `revision`, `bytes_long`                      |
+| `cycles`    | Processor cycles since the unit was built. A reset does not clear it                          |
+| `processor` | The SPC700 from the processor submodule                                                       |
+| `dsp`       | The S-DSP from the sound generator submodule                                                  |
+| `space`     | The 64 KB the processor sees, with the 16 registers at `$00F0` and the boot window at `$FFC0` |
 
 `processor`, `dsp` and `space` reach past what a console can. A check that drives them is checking the model, not the part.
 
 ### Module contents
 
-| Name | Content |
-|:--|:--|
-| `ssmp.MODELS` | The one `Model` record, keyed by name |
-| `ssmp.Model` | A record with `name`, `summary`, `processor`, `memory` and `boot` |
-| `ssmp.why_not(held=None)` | `None` when a unit can be built here, or the sentence saying what is missing. `held` is a catalogue to judge in place of searching, in the shape `available()` returns |
+| Name                                        | Content                                                                                                                                                                                                                                                                               |
+| :------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ssmp.MODELS`                               | The one `Model` record, keyed by name                                                                                                                                                                                                                                                 |
+| `ssmp.Model`                                | A record with `name`, `summary`, `processor`, `memory` and `boot`                                                                                                                                                                                                                     |
+| `ssmp.why_not(held=None)`                   | `None` when a unit can be built here, or the sentence saying what is missing. `held` is a catalogue to judge in place of searching, in the shape `available()` returns                                                                                                                |
 | `ssmp.available(held=None, catalogue=None)` | The boot programs found here, keyed by model name. `held` is handed back as it is, in place of a search. `catalogue` is a manifest in the shape of [`ssmp/artifacts.manifest.json`](ssmp/artifacts.manifest.json) to identify files against, in place of the one this package carries |
-| `ssmp.identify(image, catalogue=None)` | The record of a boot program's bytes, with `part`, `processor`, `revision` and `bytes_long`. Raises `Unrecognised` or `Corrupt`, naming the repair when there is one. `catalogue` is as for `available()` |
-| `ssmp.VERSION`, `ssmp.__version__` | The installed version |
+| `ssmp.identify(image, catalogue=None)`      | The record of a boot program's bytes, with `part`, `processor`, `revision` and `bytes_long`. Raises `Unrecognised` or `Corrupt`, naming the repair when there is one. `catalogue` is as for `available()`                                                                             |
+| `ssmp.VERSION`, `ssmp.__version__`          | The installed version                                                                                                                                                                                                                                                                 |
 
-| Error | Raised when |
-|:--|:--|
+| Error                    | Raised when                                                                                          |
+| :----------------------- | :--------------------------------------------------------------------------------------------------- |
 | `ssmp.UnknownModelError` | No model is named, or the name is not one this package covers. The message lists the names there are |
-| `ssmp.NoBootRom` | A submodule is not checked out, or no boot program is found for the model |
-| `ssmp.WrongShape` | A boot program is not exactly 64 bytes |
-| `ssmp.Unrecognised` | A file's SHA-256 matches nothing in [`ssmp/artifacts.manifest.json`](ssmp/artifacts.manifest.json) |
-| `ssmp.Corrupt` | A file matches on SHA-256 and disagrees on another published digest, or matches a recorded bad dump |
+| `ssmp.NoBootRom`         | A submodule is not checked out, or no boot program is found for the model                            |
+| `ssmp.WrongShape`        | A boot program is not exactly 64 bytes                                                               |
+| `ssmp.Unrecognised`      | A file's SHA-256 matches nothing in [`ssmp/artifacts.manifest.json`](ssmp/artifacts.manifest.json)   |
+| `ssmp.Corrupt`           | A file matches on SHA-256 and disagrees on another published digest, or matches a recorded bad dump  |
 
 ```python
 import ssmp
@@ -189,25 +189,25 @@ The example builds a unit from 64 zero bytes, so it runs on a machine with no bo
 
 Timer 0 counts 3 in 98,304 cycles, and the read clears its counter, so a second read gets 0. Timer 2 counts 20 and reads 4, because the counter is four bits. The test register, the control register and the three dividers are written and never read back: all five answer 0.
 
-| Address | Register |
-|:--|:--|
-| `$F0` | Test. Reads 0 |
-| `$F1` | Control: timer enables in bits 0 to 2, clear ports 0 and 1 in bit 4, clear ports 2 and 3 in bit 5, boot window in bit 7. Reads 0 |
-| `$F2`, `$F3` | The sound generator's address and data |
-| `$F4` to `$F7` | Ports 0 to 3 |
-| `$F8`, `$F9` | Ordinary memory |
-| `$FA` to `$FC` | Timer dividers. Read 0 |
-| `$FD` to `$FF` | Timer counters, cleared by the read |
+| Address        | Register                                                                                                                         |
+| :------------- | :------------------------------------------------------------------------------------------------------------------------------- |
+| `$F0`          | Test. Reads 0                                                                                                                    |
+| `$F1`          | Control: timer enables in bits 0 to 2, clear ports 0 and 1 in bit 4, clear ports 2 and 3 in bit 5, boot window in bit 7. Reads 0 |
+| `$F2`, `$F3`   | The sound generator's address and data                                                                                           |
+| `$F4` to `$F7` | Ports 0 to 3                                                                                                                     |
+| `$F8`, `$F9`   | Ordinary memory                                                                                                                  |
+| `$FA` to `$FC` | Timer dividers. Read 0                                                                                                           |
+| `$FD` to `$FF` | Timer counters, cleared by the read                                                                                              |
 
 ### Command-line tools
 
-| Command | What it does | Exit codes |
-|:--|:--|:--|
-| `python3 ssmp/doctor.py` | Reports the machine and the checkout, then builds and resets the unit | 0 nothing to report, 1 a finding did not pass |
-| `python3 -m conformance.against_checks` | Runs Shay Green's three checks against the unit | 0 all agree, 1 one disagrees or does not match its digests, 2 nothing was checked |
-| `python3 -m conformance.speed` | Measures processor cycles per second against a floor of 20,000 | 0 at or above the floor, 1 below it, 2 nothing was measured |
-| `python3 -m conformance.links` | Probes every address in this README and prints a JSON report | 0 none gone, 1 one answers 404 or 410 |
-| `python3 -m conformance.package <wheel>` | Checks a built wheel ships every module and no test | 0 clean, 1 a fault or no such file, 2 no wheel named |
+| Command                                  | What it does                                                          | Exit codes                                                                        |
+| :--------------------------------------- | :-------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
+| `python3 ssmp/doctor.py`                 | Reports the machine and the checkout, then builds and resets the unit | 0 nothing to report, 1 a finding did not pass                                     |
+| `python3 -m conformance.against_checks`  | Runs Shay Green's three checks against the unit                       | 0 all agree, 1 one disagrees or does not match its digests, 2 nothing was checked |
+| `python3 -m conformance.speed`           | Measures processor cycles per second against a floor of 20,000        | 0 at or above the floor, 1 below it, 2 nothing was measured                       |
+| `python3 -m conformance.links`           | Probes every address in this README and prints a JSON report          | 0 none gone, 1 one answers 404 or 410                                             |
+| `python3 -m conformance.package <wheel>` | Checks a built wheel ships every module and no test                   | 0 clean, 1 a fault or no such file, 2 no wheel named                              |
 
 ## What composing the halves found
 
@@ -281,11 +281,11 @@ No Sony document for the S-SMP is known to exist. Three things stand in for one,
 
 **Checks carrying values taken on a console.** Shay Green, known as blargg, wrote three that hold an audio unit to real hardware. A `.spc` file is a whole unit written down, so they run here directly, with no console in the chain:
 
-| Check | What it settles | Sub-checks | Cycles |
-| --- | --- | ---: | ---: |
-| `initial_regs.spc` | The six processor registers, all sixteen addresses that are not memory, and the sound generator's whole register file | 4 | 744,661 |
-| `initial_in_ports.spc` | The four ports, read as the first thing the program does | 1 | 654,978 |
-| `full_ram.spc` | Every byte of memory, the stack page, the echo buffer, and the three bytes under the stack pointer | 6 | 19,793,439 |
+| Check                  | What it settles                                                                                                       | Sub-checks |     Cycles |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------- | ---------: | ---------: |
+| `initial_regs.spc`     | The six processor registers, all sixteen addresses that are not memory, and the sound generator's whole register file |          4 |    744,661 |
+| `initial_in_ports.spc` | The four ports, read as the first thing the program does                                                              |          1 |    654,978 |
+| `full_ram.spc`         | Every byte of memory, the stack page, the echo buffer, and the three bytes under the stack pointer                    |          6 | 19,793,439 |
 
 All three agree. [`conformance/hardware.json`](conformance/hardware.json) records each run.
 
@@ -297,14 +297,14 @@ Where the sources contradict the model, or each other, the entry is in [`conform
 
 ## Working on it
 
-| Need | Where |
-|:--|:--|
-| Every gate and the order to run them | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| The same material for a coding agent, and what will bite you | [AGENTS.md](AGENTS.md) |
-| The standard this repository shares with the rest of the family | [FAMILY.md](FAMILY.md) |
-| What is not known, and the measurement that would settle each | [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) |
-| Bug reports | [GitHub Issues](https://github.com/gufranco/sony-s-smp-python/issues) |
-| Security reports | [SECURITY.md](SECURITY.md) |
+| Need                                                            | Where                                                                 |
+| :-------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| Every gate and the order to run them                            | [CONTRIBUTING.md](CONTRIBUTING.md)                                    |
+| The same material for a coding agent, and what will bite you    | [AGENTS.md](AGENTS.md)                                                |
+| The standard this repository shares with the rest of the family | [FAMILY.md](FAMILY.md)                                                |
+| What is not known, and the measurement that would settle each   | [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)                                |
+| Bug reports                                                     | [GitHub Issues](https://github.com/gufranco/sony-s-smp-python/issues) |
+| Security reports                                                | [SECURITY.md](SECURITY.md)                                            |
 
 ```bash
 uvx ruff@0.16.3 format --check .

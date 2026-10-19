@@ -227,16 +227,16 @@ written before it.
 reached a verdict here and fourteen agree, including the two that bear directly
 on what this member models:
 
-| Check | |
-| --- | --- |
-| `CPU/verify IPL ROM` | agrees |
-| `CPU/smp reg read-write behavior` | agrees |
-| `CPU/addw and subw`, `psw is 8 independent bits`, `tset tclr` | agree |
-| `CPU/wrap-around mem`, `wrap-around pc`, `wrap-around sp` | agree |
-| `CPU Instructions/Edge arith`, `Full BRK`, `Full CMP`, `Full DAA DAS` | agree |
-| `Timers/timer read vs write`, `timer0 vs other timers` | agree |
-| `Timers/random timer0`, `random timer0 enable`, `random timer2` | **disagree** |
-| `CPU Timing/mem access times` | **disagrees** |
+| Check                                                                 |               |
+| --------------------------------------------------------------------- | ------------- |
+| `CPU/verify IPL ROM`                                                  | agrees        |
+| `CPU/smp reg read-write behavior`                                     | agrees        |
+| `CPU/addw and subw`, `psw is 8 independent bits`, `tset tclr`         | agree         |
+| `CPU/wrap-around mem`, `wrap-around pc`, `wrap-around sp`             | agree         |
+| `CPU Instructions/Edge arith`, `Full BRK`, `Full CMP`, `Full DAA DAS` | agree         |
+| `Timers/timer read vs write`, `timer0 vs other timers`                | agree         |
+| `Timers/random timer0`, `random timer0 enable`, `random timer2`       | **disagree**  |
+| `CPU Timing/mem access times`                                         | **disagrees** |
 
 The first of those is the boot program held to somebody else's checksum rather
 than to its own digest, and the second is the register file this session's fix
@@ -309,6 +309,7 @@ Absent rather than unknown, and absent on purpose:
   cycle shape and
   [sony-s-dsp-python](https://github.com/gufranco/sony-s-dsp-python) for the
   audio.
+
 - **The boot program.** Sixty four bytes of Sony's, not carried here, not
   downloaded, and not reconstructible from anything in this repository.
 - **The checks taken on hardware.** Shay Green's, not carried here either.
