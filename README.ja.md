@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-本体とのインターフェースは**4**つのポートがすべてです。実機で採取した値を持つチェックが**3**つ、不一致は**0**件、チェックを集めたカートリッジによる判定**18**件のすべてが一致、テストは**817**件、ステートメントとブランチのカバレッジは**100%**、依存関係はありません。
+本体とのインターフェースは**4**つのポートがすべてです。実機で採取した値を持つチェックが**3**つ、不一致は**0**件、チェックを集めたカートリッジによる判定**18**件のすべてが一致、テストは**873**件、ステートメントとブランチのカバレッジは**100%**、依存関係はありません。
 
 ```python
 import ssmp
@@ -249,7 +249,7 @@ print(rates.SLOW_TIMER_CYCLES, rates.FAST_TIMER_CYCLES)
 
 - **このユニットのクロックと本体のクロックの比率。** 両者は別々の水晶で動作し、どちらも他方を割り切らないため、比率は個々の基板の性質です。数値は公開しておらず、経過時間を本体のサイクル数で示すこともしていません。上記の比率は、1つの水晶上の2つの半分の間のものです。
 - **プロセッサと音源。** それぞれが独立したメンバーで、ここではサブモジュールとして利用しています。
-- **本体。** [`conformance/console.py`](conformance/console.py)はチェックの中で本体側のプロトコルを担うだけで、それ以外は何もモデル化していません。
+- **本体。** [`conformance/console.py`](conformance/console.py)はチェックの中で本体側のプロトコルを担います。[`conformance/host.py`](conformance/host.py)はテストカートリッジを動かすのに必要な最小限の本体です。ワークRAM、LoROMとして解釈したカートリッジ、4つのポート、垂直帰線フラグ、乗算器と除算器、DMA、そして画面を読むのに足りるビデオメモリだけを持ちます。そのプロセッサは[mos65xx-python](https://github.com/gufranco/mos65xx-python)の65816で、[`conformance/cartridges.py`](conformance/cartridges.py)だけがインポートするサブモジュールです。どちらもそれ以上の本体はモデル化していません。
 
 ## ブートプログラムはここにはありません
 
@@ -291,7 +291,7 @@ S-SMPに関するSonyの文書は、存在が知られていません。Nintendo
 
 3つとも一致します。[`conformance/hardware.json`](conformance/hardware.json)に各実行が記録されています。
 
-**簡略化した本体で動かす、チェックを集めたカートリッジ。** Shay Greenの`spc_smp`カートリッジは18件の判定に到達し、18件すべてが一致します。1件ずつ[`conformance/cartridge.json`](conformance/cartridge.json)に記録しており、`CPU/verify IPL ROM`、`CPU/smp reg read-write behavior`、3つのランダムタイマーのチェック、`CPU Timing/mem access times`が含まれます。同じ方法で動かした`spc_dsp6`カートリッジは音源について104件の判定に到達し、104件すべてが一致します。その背後にあるタイマーとレジスタの修正は[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)に記録しています。
+**簡略化した本体で動かす、チェックを集めたカートリッジ。** `python3 -m conformance.cartridges`は`SSMP_CARTRIDGE_DIR`または`cartridges/`にあるテストカートリッジをすべてその本体で動かし、それぞれを記録した[`conformance/cartridge.json`](conformance/cartridge.json)と実行結果を比較します。Shay Greenの`spc_smp`は18件の判定に到達して18件すべてが一致し、`CPU/verify IPL ROM`、`CPU/smp reg read-write behavior`、3つのランダムタイマーのチェック、`CPU Timing/mem access times`が含まれます。`spc_dsp6`は音源について104件の判定に到達して104件すべてが一致し、`spc_mem_access_times`は2件中2件、`spc_timer`は1件中1件が一致します。`SLEEP`と`STOP`を除くすべてのSPC700オペコードを試すgilyonの`spctest`は`Success`を報告します。Peter LemonのSPC700カートリッジ7本は、いずれも最初のチェックで`FAIL`を報告し、期待値との違いは1ビットです。割り込みフラグで、ここではリセット後にセットされたままになり、[sony-spc700-python](https://github.com/gufranco/sony-spc700-python)が未解決の問題として記録しています。Shay Greenのチェックの背後にあるタイマーとレジスタの修正は[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)に記録しています。カートリッジがなければ2で終了し、何も実行しなかったと伝えます。[`conformance/testroms.json`](conformance/testroms.json)は、本体全体を待つものも含め、このユニット向けのすべてのテストカートリッジを列挙しています。
 
 `.spc`ファイルはShay Greenのものであり、ここには含まれていません。[`conformance/checks.manifest.json`](conformance/checks.manifest.json)がサイズと4つのダイジェストでそれらを識別します。お持ちのコピーを`spc/`に置くか、`SSMP_SPC_DIR`でディレクトリを指定してください。ない場合、`python3 -m conformance.against_checks`は終了コード2で終了し、何もチェックされなかったことを示します。
 
@@ -328,7 +328,7 @@ done
 
 - _SNES Development Manual, Book I_、Nintendo of America Inc.、日付なし。セクション3の第1章、第4章、第5章。240ページ、21,022,582バイト、SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`。再配布できず、このリポジトリにはありません。
 - S-SMPのブートプログラム、64バイト、SHA-256 `c95f88b299030d5afa55b1031e2b5ef2dff650c4b4e6bb6f8b1359436521278f`。Sonyのものであり、再配布できず、このリポジトリにはありません。
-- Shay Green、`initial_regs.spc`、`initial_in_ports.spc`、`full_ram.spc`、および`spc_smp`カートリッジ。実機で採取した値のため。ここには含まれていません。
+- Shay Green、`initial_regs.spc`、`initial_in_ports.spc`、`full_ram.spc`、および`spc_smp`、`spc_dsp6`、`spc_mem_access_times`、`spc_timer`カートリッジ。実機で採取した値のため。gilyonの`spctest`とPeter LemonのSPC700テスト。いずれもここには含まれていません。
 - [SNESdev wiki, S-SMP](https://snes.nesdev.org/wiki/S-SMP)。Sonyの文書ではなく後年の文書で、使用箇所で引用しています。
 - プロセッサについては[sony-spc700-python](https://github.com/gufranco/sony-spc700-python)、音源については[sony-s-dsp-python](https://github.com/gufranco/sony-s-dsp-python)。それぞれに独自の参考文献があります。音源はNintendo自身の表に照らして検証しています。
 

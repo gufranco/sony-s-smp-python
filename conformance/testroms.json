@@ -1,0 +1,399 @@
+{
+  "cartridges": [
+    {
+      "id": "blargg-spc-smp",
+      "title": "Shay Green's spc_smp",
+      "sha256": "2ed302c5b989675d4ab6b40001fd5166ac4c6e0188a6b1b6df878e4608999c03",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "blargg-spc-6/spc_smp.sfc",
+      "exercises": "the processor's instructions, flags and wrap-around, the boot program, the register reads and writes, and the three timers",
+      "outcome": "run",
+      "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
+      "heldBy": [
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_every_check_spc_smp_reaches_agrees_with_a_console"
+      ]
+    },
+    {
+      "id": "blargg-spc-dsp6",
+      "title": "Shay Green's spc_dsp6",
+      "sha256": "b12038f865536a33003c9887e6f86fcbcb526b7f1766526ab30cb74b7380aa9a",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "blargg-spc-6/spc_dsp6.sfc",
+      "exercises": "the sound generator's echo, envelopes, registers and the timing of its thirty two step schedule beside the processor",
+      "outcome": "run",
+      "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
+      "heldBy": [
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_every_check_spc_dsp6_reaches_agrees_with_a_console"
+      ]
+    },
+    {
+      "id": "blargg-spc-mem-access-times",
+      "title": "Shay Green's spc_mem_access_times",
+      "sha256": "53dc8005959d54ccfc95b8d4222e1d51d21e3d9f3491058320f105edc1a4454a",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "blargg-spc-6/spc_mem_access_times.sfc",
+      "exercises": "which cycle of each of 172 opcodes touches memory, timed by the unit's timers",
+      "outcome": "run",
+      "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
+      "heldBy": [
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_every_check_spc_mem_access_times_reaches_agrees_with_a_console"
+      ]
+    },
+    {
+      "id": "blargg-spc-timer",
+      "title": "Shay Green's spc_timer",
+      "sha256": "f4799b994a91d78689073f4e31c3668ae46c100abd78177b9f4813506d6c9629",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "blargg-spc-6/spc_timer.sfc",
+      "exercises": "the timers read against writes to them",
+      "outcome": "run",
+      "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
+      "heldBy": [
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_every_check_spc_timer_reaches_agrees_with_a_console"
+      ]
+    },
+    {
+      "id": "blargg-initial-regs",
+      "title": "Shay Green's initial_regs",
+      "sha256": "0b90673004318892194ea7172996dbfbf3c7e3d44bb23067f7645d705e8d1762",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/spc_loader_tests/initial_regs.spc",
+      "exercises": "the six processor registers, the sixteen addresses that are not memory and the sound generator's register file",
+      "outcome": "run",
+      "runs": "restored and run by conformance/against_checks.py with no console",
+      "heldBy": [
+        "conformance/against_checks.test.py::TheRecordedRunsTest.test_initial_regs_agreed_on_all_four_sub_checks"
+      ]
+    },
+    {
+      "id": "blargg-initial-in-ports",
+      "title": "Shay Green's initial_in_ports",
+      "sha256": "271c7b640c00818f6b156f2efc05a48cb3621bdff0f4d657733871b6f72f4be5",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/spc_loader_tests/initial_in_ports.spc",
+      "exercises": "the four ports, read first",
+      "outcome": "run",
+      "runs": "restored and run by conformance/against_checks.py with no console",
+      "heldBy": [
+        "conformance/against_checks.test.py::TheRecordedRunsTest.test_initial_in_ports_agreed_on_its_one_sub_check"
+      ]
+    },
+    {
+      "id": "blargg-full-ram",
+      "title": "Shay Green's full_ram",
+      "sha256": "c961afce2ef88f6df73363e360fe0b963ce337c0570bafaead726e781e663630",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/spc_loader_tests/full_ram.spc",
+      "exercises": "every byte of memory, the stack page and the echo buffer",
+      "outcome": "run",
+      "runs": "restored and run by conformance/against_checks.py with no console",
+      "heldBy": [
+        "conformance/against_checks.test.py::TheRecordedRunsTest.test_full_ram_agreed_on_all_six_sub_checks"
+      ]
+    },
+    {
+      "id": "gilyon-spctest",
+      "title": "gilyon's SPC700 test",
+      "sha256": "ed6aa8fa247007cdf683f243454d1dff31a25e1977c25fc9d7e1a96e3d031e92",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "gilyon/spctest.sfc",
+      "exercises": "every SPC700 opcode but SLEEP and STOP, in every addressing mode, with and without the P flag",
+      "outcome": "run",
+      "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
+      "heldBy": [
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_gilyon_spctest_reports_success_on_its_own_screen"
+      ]
+    },
+    {
+      "id": "peterlemon-spc700-adc",
+      "title": "Peter Lemon's SPC700 ADC test",
+      "sha256": "4fa785418a109c0ef052cb9b71f55d37ee56834fca170fe1a0da784ee3df0e2e",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "PeterLemon/SNES-CPUTest-SPC700/ADC/SPC700ADC.sfc",
+      "exercises": "the SPC700 ADC instructions, each result and flag word checked by the processor itself",
+      "outcome": "run",
+      "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
+      "heldBy": [
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+      ]
+    },
+    {
+      "id": "peterlemon-spc700-and",
+      "title": "Peter Lemon's SPC700 AND test",
+      "sha256": "a4e7a9d6a926f5b575b2c3006b301bf837ed36072c9617776aab527706c3242d",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "PeterLemon/SNES-CPUTest-SPC700/AND/SPC700AND.sfc",
+      "exercises": "the SPC700 AND instructions, each result and flag word checked by the processor itself",
+      "outcome": "run",
+      "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
+      "heldBy": [
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+      ]
+    },
+    {
+      "id": "peterlemon-spc700-dec",
+      "title": "Peter Lemon's SPC700 DEC test",
+      "sha256": "fe9254720e62b2aa953a42f50827facc12f7549ad8ca3775c89a5b65f4b55fdf",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "PeterLemon/SNES-CPUTest-SPC700/DEC/SPC700DEC.sfc",
+      "exercises": "the SPC700 DEC instructions, each result and flag word checked by the processor itself",
+      "outcome": "run",
+      "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
+      "heldBy": [
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+      ]
+    },
+    {
+      "id": "peterlemon-spc700-eor",
+      "title": "Peter Lemon's SPC700 EOR test",
+      "sha256": "061572e2ba5599f78c3573be3b538ba2ab67703529f7518eee8e8ce3e41372f1",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "PeterLemon/SNES-CPUTest-SPC700/EOR/SPC700EOR.sfc",
+      "exercises": "the SPC700 EOR instructions, each result and flag word checked by the processor itself",
+      "outcome": "run",
+      "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
+      "heldBy": [
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+      ]
+    },
+    {
+      "id": "peterlemon-spc700-inc",
+      "title": "Peter Lemon's SPC700 INC test",
+      "sha256": "467376b5ab3cf83197553ec598f91645beef628dadbd43932b6e96d2fa17776b",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "PeterLemon/SNES-CPUTest-SPC700/INC/SPC700INC.sfc",
+      "exercises": "the SPC700 INC instructions, each result and flag word checked by the processor itself",
+      "outcome": "run",
+      "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
+      "heldBy": [
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+      ]
+    },
+    {
+      "id": "peterlemon-spc700-ora",
+      "title": "Peter Lemon's SPC700 ORA test",
+      "sha256": "aefb416d0f681eed0975cfbee70fd3048f59154cd5502f550e48e80f789a0ab2",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "PeterLemon/SNES-CPUTest-SPC700/ORA/SPC700ORA.sfc",
+      "exercises": "the SPC700 ORA instructions, each result and flag word checked by the processor itself",
+      "outcome": "run",
+      "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
+      "heldBy": [
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+      ]
+    },
+    {
+      "id": "peterlemon-spc700-sbc",
+      "title": "Peter Lemon's SPC700 SBC test",
+      "sha256": "fcc6017db0560ce12ae029fa97947eedbd8eaf35dd32200c445281ca94cbae9b",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "PeterLemon/SNES-CPUTest-SPC700/SBC/SPC700SBC.sfc",
+      "exercises": "the SPC700 SBC instructions, each result and flag word checked by the processor itself",
+      "outcome": "run",
+      "runs": "run by conformance/cartridges.py on a cut-down console whose 65816 is mos65xx-python's",
+      "heldBy": [
+        "conformance/cartridges.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+      ]
+    },
+    {
+      "id": "byuu-2010-1-test-exec-from-io",
+      "title": "byuu's 2010 probe 1-test_exec_from_io.smc",
+      "sha256": "61aaa41c76940178e0b2980fc7a4ee37ef33a2deb0aa362a48369a83427977ef",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/blargg_2010-03-14/exec_io_tests/1-test_exec_from_io.smc",
+      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "byuu-2010-2-test-single-instr",
+      "title": "byuu's 2010 probe 2-test_single_instr.smc",
+      "sha256": "9e20cfd50987a8c21d180f29525f96bfc0cedb684e637e3adc0eabdf765c7829",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/blargg_2010-03-14/exec_io_tests/2-test_single_instr.smc",
+      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "byuu-2010-3-test-write-disable",
+      "title": "byuu's 2010 probe 3-test_write_disable.smc",
+      "sha256": "24c19157646826ab1a6cd656049613a854b94faec868d5eefe9a2a99215c6719",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/blargg_2010-03-14/exec_io_tests/3-test_write_disable.smc",
+      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "byuu-2010-4-test-ram-disable",
+      "title": "byuu's 2010 probe 4-test_ram_disable.smc",
+      "sha256": "268af19da6637dd1fe033034bc75be99ebfe6718d1144682b659d7f92ea40d74",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/blargg_2010-03-14/exec_io_tests/4-test_ram_disable.smc",
+      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "byuu-2010-test-ram-disable-ipl",
+      "title": "byuu's 2010 probe test_ram_disable_ipl.smc",
+      "sha256": "4e7189e94a412962f22a640bac837c497f584691486cbfb92d880f4a10037108",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/blargg_2010-03-14/test_ram_disable_ipl.smc",
+      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "byuu-2010-test-speed",
+      "title": "byuu's 2010 probe test_speed.smc",
+      "sha256": "19613668744d9f79ecf47222bf6a89dc4aa47bedaf469241e12d973792fa9cbd",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/blargg_2010-03-14/test_speed.smc",
+      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "byuu-2010-speed-2-freezes2",
+      "title": "byuu's 2010 probe speed_2_freezes2.smc",
+      "sha256": "11d1367bda49a3953af73ae5ff5f6e81243d92d700f9c03162098f78f58e08d2",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/blargg_2010-03-14/speed_2_freezes2.smc",
+      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "byuu-2010-test-timer-speed",
+      "title": "byuu's 2010 probe test_timer_speed.smc",
+      "sha256": "02fea30020515dc6f63d2fe9ab12d3be48a33868eb64241185a1c20d350627ba",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/blargg_2010-03-14/test_timer_speed.smc",
+      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "byuu-2010-test-timer-speed2",
+      "title": "byuu's 2010 probe test_timer_speed2.smc",
+      "sha256": "a753b76c6326160c550bde55668163f6f69a04bd44ac62ddd00d984dcdcf923a",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/blargg_2010-03-14/test_timer_speed2.smc",
+      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "byuu-2010-test-timer-speed3",
+      "title": "byuu's 2010 probe test_timer_speed3.smc",
+      "sha256": "ebe67dda3379eb930957211ca304a435a9e9aec95d8a9d361036015cd8f01312",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/blargg_2010-03-14/test_timer_speed3.smc",
+      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "byuu-2010-test-timer-speed-2",
+      "title": "byuu's 2010 probe test_timer_speed_2.smc",
+      "sha256": "4f61098378ceeec70c12db6016b869ea92bb2a4fb4bc07c4051a8f4d57555ae1",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/blargg_2010-03-14/test_timer_speed_2.smc",
+      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "byuu-2010-test-timer-stop",
+      "title": "byuu's 2010 probe test_timer_stop.smc",
+      "sha256": "2801ab17a870d9c682f112b494b8652d26cb930f581a576530979cd456f1c850",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/blargg_2010-03-14/test_timer_stop.smc",
+      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "byuu-2010-test-timer-stop2",
+      "title": "byuu's 2010 probe test_timer_stop2.smc",
+      "sha256": "1d90ccd65ef43f442f90f99be5c9f42eed5848932587dea005f76913862cdebf",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/blargg_2010-03-14/test_timer_stop2.smc",
+      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "byuu-2010-timer-at-power-reset",
+      "title": "byuu's 2010 probe timer_at_power_reset.smc",
+      "sha256": "49941c852bec0137f8c9924db29546961058b4d2a7fb4fd262e8b2f9b42bc241",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "jonasquinn-test-roms/blargg_2010-03-14/timer_at_power_reset.smc",
+      "exercises": "the test register, timer speeds and execution from the registers, printed as measurements rather than a verdict",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "lidnariq-smpspeed",
+      "title": "lidnariq's SMP clock speed measurement",
+      "sha256": "78c7ca086f717ec3ea87eb935c68761492a059ad2457467c07591a28a94dd56e",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "lidnariq-smp-clock-speed-measurement/smpspeed.sfc",
+      "exercises": "the audio unit's clock against the console's crystal; a ratio this unit does not model",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "burn-in-rev-d",
+      "title": "Burn-in test cartridge, revision D",
+      "sha256": "092e80eab0d3a5300a30f7d41cf4e454cdb79cc0fac66f052567d37322cb891f",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "Burn-in - Test Cartridge (USA) (Rev D).sfc",
+      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "snes-test-program",
+      "title": "SNES Test Program",
+      "sha256": "f732685db2bfc93e995128e015657165fbaaa2dd8723e7655507fda4ddc2a3a9",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "SNES Test Program (U).sfc",
+      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "ntf-2-5-rev-a",
+      "title": "NTF 2.5 test cartridge, revision A",
+      "sha256": "3a3ba7500728920093ff48caf5baac0c1ec9b19aacda4fe4dce8afbdd69e859e",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "NTF 2.5 Test Cartridge (USA) (Rev A).sfc",
+      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "240p-test-suite-1-061-ntsc",
+      "title": "240p Test Suite 1.061, NTSC",
+      "sha256": "fe88b5db3f5612e36f1c8f662839d5d3d32c8959ee7f766ca2d5bb3318d42900",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "240p Test Suite (World) (v1.061) (NTSC) (Program) (Aftermarket) (Unl).sfc",
+      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "240p-test-suite-1-061-pal",
+      "title": "240p Test Suite 1.061, PAL",
+      "sha256": "16068420d905a4cc7710770428dcd7cb526c30bb47e201dcb0a6bd85a099b6aa",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "240p Test Suite (World) (v1.061) (PAL) (Program) (Aftermarket) (Unl).sfc",
+      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    }
+  ]
+}

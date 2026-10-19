@@ -5,6 +5,7 @@ ignore: |
   node_modules/
   sony-spc700-python/
   sony-s-dsp-python/
+  mos65xx-python/
 rules:
   truthy:
     check-keys: false

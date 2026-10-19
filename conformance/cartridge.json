@@ -1,129 +1,921 @@
 {
-  "what": "Every check in Shay Green's spc_smp cartridge that reached a verdict, and what each one said. The values a console produced are read out of his own uploaded programs; the values here are read out of this unit's memory.",
+  "what": "Every test cartridge for this unit that conformance/cartridges.py runs, what each showed on its own screen when the run stopped, and, for Shay Green's four, every check that reached a verdict and what it said. The values a console produced are read out of his own uploaded programs; the values here are read out of this unit's memory.",
   "why": "His harness reports only the first failure and then restarts, so one disagreement hides every check after it. The run records the verdict and then turns that check's four conditional branches into no-ops so it carries on. Nothing rewrites what a check expects: a verdict is ignored, never changed.",
   "carried": false,
-  "producedBy": "A cut-down console driving the cartridge into this unit: a 65816 from mos65xx-python, the cartridge decoded as LoROM, $2140-$2143 wired to the unit's four ports, and the four-byte comparison against $dc to $df every check ends with turned into no-ops after its verdict is recorded. It is not carried here, for the reason given under what is deliberately not modelled. What is carried is this record, so the verdicts can be disputed without rebuilding the harness.",
-  "verdicts": 18,
-  "agreed": 18,
-  "disagreed": 0,
-  "checks": [
+  "producedBy": "conformance/cartridges.py: a cut-down console driving each cartridge into this unit. A 65816 from mos65xx-python, consumed as a submodule, runs the cartridge decoded as LoROM; $2140-$2143 reach the unit's four ports; the console runs eight master clocks a cycle against the unit's twenty one; the screen is read from video memory as ASCII; and the four-byte comparison against $dc to $df every check ends with is turned into no-ops after its verdict is recorded. python3 -m conformance.cartridges --write rewrote this record from the run.",
+  "cartridges": [
     {
-      "check": "CPU Instructions/Edge arith",
-      "agreed": true,
-      "console": "ec 84 4c 6b",
-      "thisModel": "ec 84 4c 6b"
+      "id": "blargg-spc-smp",
+      "name": "spc_smp.sfc",
+      "sha256": "2ed302c5b989675d4ab6b40001fd5166ac4c6e0188a6b1b6df878e4608999c03",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": "CPU Instructions/Full DAA DAS\nCPU Timing/mem access times\nCPU Timing/time all opcodes\nCPU/addw and subw\nCPU/psw is 8 independent bits\nCPU/smp reg read-write behavior\nCPU/tset tclr\nCPU/verify IPL ROM\nCPU/wrap-around mem\nCPU/wrap-around pc\nCPU/wrap-around sp\nTimers/random timer0\nTimers/random timer0 enable\nTimers/random timer2\nTimers/timer read vs write\nTimers/timer0 vs other timers\nPASSED TESTS\nRunning tests:",
+      "verdicts": 18,
+      "agreed": 18,
+      "disagreed": 0,
+      "checks": [
+        {
+          "check": "CPU Instructions/Edge arith",
+          "agreed": true,
+          "console": "ec 84 4c 6b",
+          "thisModel": "ec 84 4c 6b"
+        },
+        {
+          "check": "CPU Instructions/Full BRK",
+          "agreed": true,
+          "console": "3e f7 4f 65",
+          "thisModel": "3e f7 4f 65"
+        },
+        {
+          "check": "CPU Instructions/Full CMP",
+          "agreed": true,
+          "console": "c2 84 1a 6d",
+          "thisModel": "c2 84 1a 6d"
+        },
+        {
+          "check": "CPU Instructions/Full DAA DAS",
+          "agreed": true,
+          "console": "f3 1d f2 72",
+          "thisModel": "f3 1d f2 72"
+        },
+        {
+          "check": "CPU Timing/mem access times",
+          "agreed": true,
+          "console": "8f 77 58 15",
+          "thisModel": "8f 77 58 15"
+        },
+        {
+          "check": "CPU/addw and subw",
+          "agreed": true,
+          "console": "83 71 eb 51",
+          "thisModel": "83 71 eb 51"
+        },
+        {
+          "check": "CPU/psw is 8 independent bits",
+          "agreed": true,
+          "console": "8c 73 fa d6",
+          "thisModel": "8c 73 fa d6"
+        },
+        {
+          "check": "CPU/smp reg read-write behavior",
+          "agreed": true,
+          "console": "af a7 e5 f8",
+          "thisModel": "af a7 e5 f8"
+        },
+        {
+          "check": "CPU/tset tclr",
+          "agreed": true,
+          "console": "cb 91 81 20",
+          "thisModel": "cb 91 81 20"
+        },
+        {
+          "check": "CPU/verify IPL ROM",
+          "agreed": true,
+          "console": "bf c5 44 bb",
+          "thisModel": "bf c5 44 bb"
+        },
+        {
+          "check": "CPU/wrap-around mem",
+          "agreed": true,
+          "console": "fa 50 ea b9",
+          "thisModel": "fa 50 ea b9"
+        },
+        {
+          "check": "CPU/wrap-around pc",
+          "agreed": true,
+          "console": "54 f3 26 6d",
+          "thisModel": "54 f3 26 6d"
+        },
+        {
+          "check": "CPU/wrap-around sp",
+          "agreed": true,
+          "console": "89 c2 80 e4",
+          "thisModel": "89 c2 80 e4"
+        },
+        {
+          "check": "Timers/random timer0",
+          "agreed": true,
+          "console": "31 0f 17 fd",
+          "thisModel": "31 0f 17 fd"
+        },
+        {
+          "check": "Timers/random timer0 enable",
+          "agreed": true,
+          "console": "86 f2 47 9f",
+          "thisModel": "86 f2 47 9f"
+        },
+        {
+          "check": "Timers/random timer2",
+          "agreed": true,
+          "console": "3e d6 7e c1",
+          "thisModel": "3e d6 7e c1"
+        },
+        {
+          "check": "Timers/timer read vs write",
+          "agreed": true,
+          "console": "d0 6c d0 a9",
+          "thisModel": "d0 6c d0 a9"
+        },
+        {
+          "check": "Timers/timer0 vs other timers",
+          "agreed": true,
+          "console": "fe 2f a1 ba",
+          "thisModel": "fe 2f a1 ba"
+        }
+      ]
     },
     {
-      "check": "CPU Instructions/Full BRK",
-      "agreed": true,
-      "console": "3e f7 4f 65",
-      "thisModel": "3e f7 4f 65"
+      "id": "blargg-spc-dsp6",
+      "name": "spc_dsp6.sfc",
+      "sha256": "b12038f865536a33003c9887e6f86fcbcb526b7f1766526ab30cb74b7380aa9a",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": "Timing/Misc/30 koff\nTiming/Misc/30 kon\nTiming/Voice/V1 srcn.loop\nTiming/Voice/V1 srcn.start\nTiming/Voice/V2 adsr0.0F\nTiming/Voice/V2 adsr0.70\nTiming/Voice/V2 adsr0.80\nTiming/Voice/V2 dir.loop.lsb\nTiming/Voice/V2 dir.loop.msb\nTiming/Voice/V2 dir.start.lsb\nTiming/Voice/V2 dir.start.msb\nTiming/Voice/V2 pitchl\nTiming/Voice/V3 adsr1.1F\nTiming/Voice/V3 adsr1.E0\nTiming/Voice/V3 BRR.header.03\nTiming/Voice/V3 BRR.sample.lsb\nTiming/Voice/V3 BRR.sample.msb\nTiming/Voice/V3 flg.80\nTiming/Voice/V3 gain.1F\nTiming/Voice/V3 gain.60\nTiming/Voice/V3 gain.7F\nTiming/Voice/V3 gain.80\nTiming/Voice/V3 pitchh\nTiming/Voice/V4-5 vvol\nTiming/Voice/V7 endx cleared\nTiming/Voice/V7 endx set\nTiming/Voice/V8 outx\nTiming/Voice/V9 envx",
+      "verdicts": 104,
+      "agreed": 104,
+      "disagreed": 0,
+      "checks": [
+        {
+          "check": "Echo/edl 0 quirk",
+          "agreed": true,
+          "console": "72 10 02 2d",
+          "thisModel": "72 10 02 2d"
+        },
+        {
+          "check": "Echo/edl lengths",
+          "agreed": true,
+          "console": "48 cb 9a 15",
+          "thisModel": "48 cb 9a 15"
+        },
+        {
+          "check": "Envelope/attack->decay during gain",
+          "agreed": true,
+          "console": "46 86 5d bd",
+          "thisModel": "46 86 5d bd"
+        },
+        {
+          "check": "Envelope/decay->sustain during gain",
+          "agreed": true,
+          "console": "90 c8 96 de",
+          "thisModel": "90 c8 96 de"
+        },
+        {
+          "check": "Envelope/envelope rates",
+          "agreed": true,
+          "console": "90 e0 49 9b",
+          "thisModel": "90 e0 49 9b"
+        },
+        {
+          "check": "Envelope/gain $E0 threshold",
+          "agreed": true,
+          "console": "35 9a 05 12",
+          "thisModel": "35 9a 05 12"
+        },
+        {
+          "check": "Envelope/hidden env 0 at kon",
+          "agreed": true,
+          "console": "41 c4 17 c9",
+          "thisModel": "41 c4 17 c9"
+        },
+        {
+          "check": "Envelope/hidden env after adsr",
+          "agreed": true,
+          "console": "5c b0 ea f3",
+          "thisModel": "5c b0 ea f3"
+        },
+        {
+          "check": "Envelope/hidden env after gain",
+          "agreed": true,
+          "console": "81 89 73 45",
+          "thisModel": "81 89 73 45"
+        },
+        {
+          "check": "KON/BRR header.03 read times",
+          "agreed": true,
+          "console": "6c 12 b8 67",
+          "thisModel": "6c 12 b8 67"
+        },
+        {
+          "check": "KON/envx during kon",
+          "agreed": true,
+          "console": "e5 af 01 16",
+          "thisModel": "e5 af 01 16"
+        },
+        {
+          "check": "KON/gain used on last kon sample",
+          "agreed": true,
+          "console": "c8 07 2a 25",
+          "thisModel": "c8 07 2a 25"
+        },
+        {
+          "check": "KON/hidden env flag during kon",
+          "agreed": true,
+          "console": "fb 67 2f 54",
+          "thisModel": "fb 67 2f 54"
+        },
+        {
+          "check": "KON/kon as prev sample ends",
+          "agreed": true,
+          "console": "f0 3e 9c 06",
+          "thisModel": "f0 3e 9c 06"
+        },
+        {
+          "check": "KON/kon clears independent",
+          "agreed": true,
+          "console": "49 cc cb a9",
+          "thisModel": "49 cc cb a9"
+        },
+        {
+          "check": "KON/kon decoding when another kon",
+          "agreed": true,
+          "console": "d8 ba 23 d0",
+          "thisModel": "d8 ba 23 d0"
+        },
+        {
+          "check": "KON/kon every other sample",
+          "agreed": true,
+          "console": "ea 4b 3d b1",
+          "thisModel": "ea 4b 3d b1"
+        },
+        {
+          "check": "KON/kon stops endx of prev sample",
+          "agreed": true,
+          "console": "12 0a d7 2e",
+          "thisModel": "12 0a d7 2e"
+        },
+        {
+          "check": "KON/kon then another kon",
+          "agreed": true,
+          "console": "c3 be 45 fc",
+          "thisModel": "c3 be 45 fc"
+        },
+        {
+          "check": "KON/kon then change pitch",
+          "agreed": true,
+          "console": "88 e9 cc ef",
+          "thisModel": "88 e9 cc ef"
+        },
+        {
+          "check": "KON/kon then flg.80",
+          "agreed": true,
+          "console": "4c b8 77 d5",
+          "thisModel": "4c b8 77 d5"
+        },
+        {
+          "check": "KON/kon then flg.80 then kon",
+          "agreed": true,
+          "console": "06 81 77 3f",
+          "thisModel": "06 81 77 3f"
+        },
+        {
+          "check": "KON/kon then koff",
+          "agreed": true,
+          "console": "fe 39 5f 74",
+          "thisModel": "fe 39 5f 74"
+        },
+        {
+          "check": "KON/kon then set sample's end flg",
+          "agreed": true,
+          "console": "85 9f 0f e9",
+          "thisModel": "85 9f 0f e9"
+        },
+        {
+          "check": "KON/kon unaffected by pitch",
+          "agreed": true,
+          "console": "67 49 cd 77",
+          "thisModel": "67 49 cd 77"
+        },
+        {
+          "check": "KON/kon when prev sample at end",
+          "agreed": true,
+          "console": "bf a8 cf 44",
+          "thisModel": "bf a8 cf 44"
+        },
+        {
+          "check": "KON/pitch at kon",
+          "agreed": true,
+          "console": "f8 d5 a4 3d",
+          "thisModel": "f8 d5 a4 3d"
+        },
+        {
+          "check": "Misc/$F0-$FF are not ram",
+          "agreed": true,
+          "console": "df 68 a6 6f",
+          "thisModel": "df 68 a6 6f"
+        },
+        {
+          "check": "Misc/brr addr wrap-around",
+          "agreed": true,
+          "console": "20 1d 50 59",
+          "thisModel": "20 1d 50 59"
+        },
+        {
+          "check": "Misc/brr early end at many pitches",
+          "agreed": true,
+          "console": "32 68 39 08",
+          "thisModel": "32 68 39 08"
+        },
+        {
+          "check": "Misc/brr not always decoding",
+          "agreed": true,
+          "console": "78 cf cb a0",
+          "thisModel": "78 cf cb a0"
+        },
+        {
+          "check": "Misc/counter rate synchronizations",
+          "agreed": true,
+          "console": "06 26 4f 80",
+          "thisModel": "06 26 4f 80"
+        },
+        {
+          "check": "Misc/endx write clears immediately",
+          "agreed": true,
+          "console": "b6 36 a0 2f",
+          "thisModel": "b6 36 a0 2f"
+        },
+        {
+          "check": "Misc/interp pos clamped at $7FFF",
+          "agreed": true,
+          "console": "38 49 01 af",
+          "thisModel": "38 49 01 af"
+        },
+        {
+          "check": "Misc/noise rates",
+          "agreed": true,
+          "console": "c7 16 43 16",
+          "thisModel": "c7 16 43 16"
+        },
+        {
+          "check": "Misc/voice sums clamped each time",
+          "agreed": true,
+          "console": "ed 92 a8 d1",
+          "thisModel": "ed 92 a8 d1"
+        },
+        {
+          "check": "Order/brr end uses curr header",
+          "agreed": true,
+          "console": "ae 40 9d f8",
+          "thisModel": "ae 40 9d f8"
+        },
+        {
+          "check": "Order/brr interp pos clamp time",
+          "agreed": true,
+          "console": "a7 c3 eb 87",
+          "thisModel": "a7 c3 eb 87"
+        },
+        {
+          "check": "Order/edl before inc offset",
+          "agreed": true,
+          "console": "f2 ed da 40",
+          "thisModel": "f2 ed da 40"
+        },
+        {
+          "check": "Order/endx after final brr decode",
+          "agreed": true,
+          "console": "9f af 23 7d",
+          "thisModel": "9f af 23 7d"
+        },
+        {
+          "check": "Order/env run after being used",
+          "agreed": true,
+          "console": "15 5e 59 19",
+          "thisModel": "15 5e 59 19"
+        },
+        {
+          "check": "Order/envx uses env before koff",
+          "agreed": true,
+          "console": "86 df 4f f6",
+          "thisModel": "86 df 4f f6"
+        },
+        {
+          "check": "Order/envx uses prev env",
+          "agreed": true,
+          "console": "f6 20 7c 5e",
+          "thisModel": "f6 20 7c 5e"
+        },
+        {
+          "check": "Order/esa applied after echo write",
+          "agreed": true,
+          "console": "2c ab 2e f3",
+          "thisModel": "2c ab 2e f3"
+        },
+        {
+          "check": "Order/flg.80 after env used",
+          "agreed": true,
+          "console": "d3 c0 c1 ca",
+          "thisModel": "d3 c0 c1 ca"
+        },
+        {
+          "check": "Order/flg.80 clears next envx",
+          "agreed": true,
+          "console": "5e 2f ab d7",
+          "thisModel": "5e 2f ab d7"
+        },
+        {
+          "check": "Order/koff before env runs",
+          "agreed": true,
+          "console": "30 c1 5d ff",
+          "thisModel": "30 c1 5d ff"
+        },
+        {
+          "check": "Order/kon env after used",
+          "agreed": true,
+          "console": "fa 5c f3 9e",
+          "thisModel": "fa 5c f3 9e"
+        },
+        {
+          "check": "Order/loop addr read in prev sample",
+          "agreed": true,
+          "console": "dc 0c 4e 63",
+          "thisModel": "dc 0c 4e 63"
+        },
+        {
+          "check": "Order/noise rate flg.1F",
+          "agreed": true,
+          "console": "0b 6a 60 71",
+          "thisModel": "0b 6a 60 71"
+        },
+        {
+          "check": "Order/pitch added before interp",
+          "agreed": true,
+          "console": "50 07 3a e4",
+          "thisModel": "50 07 3a e4"
+        },
+        {
+          "check": "Order/pitch after brr",
+          "agreed": true,
+          "console": "56 58 a0 57",
+          "thisModel": "56 58 a0 57"
+        },
+        {
+          "check": "Order/pitch mod uses prev sample",
+          "agreed": true,
+          "console": "be d3 ed e6",
+          "thisModel": "be d3 ed e6"
+        },
+        {
+          "check": "Order/voice 0 noise",
+          "agreed": true,
+          "console": "dc 62 b7 4a",
+          "thisModel": "dc 62 b7 4a"
+        },
+        {
+          "check": "Order/vol applied on final sample",
+          "agreed": true,
+          "console": "a4 07 53 e1",
+          "thisModel": "a4 07 53 e1"
+        },
+        {
+          "check": "Random/brr before playing",
+          "agreed": true,
+          "console": "1d 6d 2f 18",
+          "thisModel": "1d 6d 2f 18"
+        },
+        {
+          "check": "Random/brr while playing",
+          "agreed": true,
+          "console": "39 0a 3c 40",
+          "thisModel": "39 0a 3c 40"
+        },
+        {
+          "check": "Random/echo data",
+          "agreed": true,
+          "console": "cc 22 66 a0",
+          "thisModel": "cc 22 66 a0"
+        },
+        {
+          "check": "Random/echo fir",
+          "agreed": true,
+          "console": "be 9b e1 ec",
+          "thisModel": "be 9b e1 ec"
+        },
+        {
+          "check": "Random/envelope",
+          "agreed": true,
+          "console": "8e 30 98 c7",
+          "thisModel": "8e 30 98 c7"
+        },
+        {
+          "check": "Random/kon pitch",
+          "agreed": true,
+          "console": "3e a4 06 0a",
+          "thisModel": "3e a4 06 0a"
+        },
+        {
+          "check": "Random/pitch mod",
+          "agreed": true,
+          "console": "03 87 aa d3",
+          "thisModel": "03 87 aa d3"
+        },
+        {
+          "check": "Random/voice volumes",
+          "agreed": true,
+          "console": "53 a4 2b 9a",
+          "thisModel": "53 a4 2b 9a"
+        },
+        {
+          "check": "Timing/Echo/22-23 echo read",
+          "agreed": true,
+          "console": "25 a9 67 af",
+          "thisModel": "25 a9 67 af"
+        },
+        {
+          "check": "Timing/Echo/22-25 fir",
+          "agreed": true,
+          "console": "d6 e0 a4 72",
+          "thisModel": "d6 e0 a4 72"
+        },
+        {
+          "check": "Timing/Echo/26 efb",
+          "agreed": true,
+          "console": "c1 b9 ce f4",
+          "thisModel": "c1 b9 ce f4"
+        },
+        {
+          "check": "Timing/Echo/28-29 flg.20",
+          "agreed": true,
+          "console": "81 6d 8c 46",
+          "thisModel": "81 6d 8c 46"
+        },
+        {
+          "check": "Timing/Echo/29 edl",
+          "agreed": true,
+          "console": "9b bd ba b2",
+          "thisModel": "9b bd ba b2"
+        },
+        {
+          "check": "Timing/Echo/29 esa",
+          "agreed": true,
+          "console": "9f dd b6 2c",
+          "thisModel": "9f dd b6 2c"
+        },
+        {
+          "check": "Timing/Echo/29-30 echo write",
+          "agreed": true,
+          "console": "15 9c 5c 53",
+          "thisModel": "15 9c 5c 53"
+        },
+        {
+          "check": "Timing/Misc/27 pmon",
+          "agreed": true,
+          "console": "a5 96 28 ca",
+          "thisModel": "a5 96 28 ca"
+        },
+        {
+          "check": "Timing/Misc/28 dir",
+          "agreed": true,
+          "console": "50 bb 62 db",
+          "thisModel": "50 bb 62 db"
+        },
+        {
+          "check": "Timing/Misc/28 eon",
+          "agreed": true,
+          "console": "1f 5a 1c 81",
+          "thisModel": "1f 5a 1c 81"
+        },
+        {
+          "check": "Timing/Misc/28 non",
+          "agreed": true,
+          "console": "ae 15 5f 1d",
+          "thisModel": "ae 15 5f 1d"
+        },
+        {
+          "check": "Timing/Misc/29 kon cleared",
+          "agreed": true,
+          "console": "5c 80 e4 3b",
+          "thisModel": "5c 80 e4 3b"
+        },
+        {
+          "check": "Timing/Misc/30 flg.1F",
+          "agreed": true,
+          "console": "cf 5a 11 e1",
+          "thisModel": "cf 5a 11 e1"
+        },
+        {
+          "check": "Timing/Misc/30 koff",
+          "agreed": true,
+          "console": "dd 8d ec b4",
+          "thisModel": "dd 8d ec b4"
+        },
+        {
+          "check": "Timing/Misc/30 kon",
+          "agreed": true,
+          "console": "d2 59 65 60",
+          "thisModel": "d2 59 65 60"
+        },
+        {
+          "check": "Timing/Voice/V1 srcn.loop",
+          "agreed": true,
+          "console": "64 37 73 15",
+          "thisModel": "64 37 73 15"
+        },
+        {
+          "check": "Timing/Voice/V1 srcn.start",
+          "agreed": true,
+          "console": "64 37 73 15",
+          "thisModel": "64 37 73 15"
+        },
+        {
+          "check": "Timing/Voice/V2 adsr0.0F",
+          "agreed": true,
+          "console": "a2 dd 89 9b",
+          "thisModel": "a2 dd 89 9b"
+        },
+        {
+          "check": "Timing/Voice/V2 adsr0.70",
+          "agreed": true,
+          "console": "96 25 ce 04",
+          "thisModel": "96 25 ce 04"
+        },
+        {
+          "check": "Timing/Voice/V2 adsr0.80",
+          "agreed": true,
+          "console": "a2 dd 89 9b",
+          "thisModel": "a2 dd 89 9b"
+        },
+        {
+          "check": "Timing/Voice/V2 dir.loop.lsb",
+          "agreed": true,
+          "console": "96 25 ce 04",
+          "thisModel": "96 25 ce 04"
+        },
+        {
+          "check": "Timing/Voice/V2 dir.loop.msb",
+          "agreed": true,
+          "console": "96 25 ce 04",
+          "thisModel": "96 25 ce 04"
+        },
+        {
+          "check": "Timing/Voice/V2 dir.start.lsb",
+          "agreed": true,
+          "console": "96 25 ce 04",
+          "thisModel": "96 25 ce 04"
+        },
+        {
+          "check": "Timing/Voice/V2 dir.start.msb",
+          "agreed": true,
+          "console": "96 25 ce 04",
+          "thisModel": "96 25 ce 04"
+        },
+        {
+          "check": "Timing/Voice/V2 pitchl",
+          "agreed": true,
+          "console": "a2 dd 89 9b",
+          "thisModel": "a2 dd 89 9b"
+        },
+        {
+          "check": "Timing/Voice/V3 adsr1.1F",
+          "agreed": true,
+          "console": "3d cd 19 85",
+          "thisModel": "3d cd 19 85"
+        },
+        {
+          "check": "Timing/Voice/V3 adsr1.E0",
+          "agreed": true,
+          "console": "3d cd 19 85",
+          "thisModel": "3d cd 19 85"
+        },
+        {
+          "check": "Timing/Voice/V3 BRR.header.03",
+          "agreed": true,
+          "console": "8c 5f 07 db",
+          "thisModel": "8c 5f 07 db"
+        },
+        {
+          "check": "Timing/Voice/V3 BRR.sample.lsb",
+          "agreed": true,
+          "console": "0d 6f de 61",
+          "thisModel": "0d 6f de 61"
+        },
+        {
+          "check": "Timing/Voice/V3 BRR.sample.msb",
+          "agreed": true,
+          "console": "73 69 e4 73",
+          "thisModel": "73 69 e4 73"
+        },
+        {
+          "check": "Timing/Voice/V3 flg.80",
+          "agreed": true,
+          "console": "45 24 91 8d",
+          "thisModel": "45 24 91 8d"
+        },
+        {
+          "check": "Timing/Voice/V3 gain.1F",
+          "agreed": true,
+          "console": "3d cd 19 85",
+          "thisModel": "3d cd 19 85"
+        },
+        {
+          "check": "Timing/Voice/V3 gain.60",
+          "agreed": true,
+          "console": "3d cd 19 85",
+          "thisModel": "3d cd 19 85"
+        },
+        {
+          "check": "Timing/Voice/V3 gain.7F",
+          "agreed": true,
+          "console": "3d cd 19 85",
+          "thisModel": "3d cd 19 85"
+        },
+        {
+          "check": "Timing/Voice/V3 gain.80",
+          "agreed": true,
+          "console": "3d cd 19 85",
+          "thisModel": "3d cd 19 85"
+        },
+        {
+          "check": "Timing/Voice/V3 pitchh",
+          "agreed": true,
+          "console": "a2 dd 89 9b",
+          "thisModel": "a2 dd 89 9b"
+        },
+        {
+          "check": "Timing/Voice/V4-5 vvol",
+          "agreed": true,
+          "console": "37 75 a7 5d",
+          "thisModel": "37 75 a7 5d"
+        },
+        {
+          "check": "Timing/Voice/V7 endx cleared",
+          "agreed": true,
+          "console": "35 e8 a7 89",
+          "thisModel": "35 e8 a7 89"
+        },
+        {
+          "check": "Timing/Voice/V7 endx set",
+          "agreed": true,
+          "console": "a2 07 6d 93",
+          "thisModel": "a2 07 6d 93"
+        },
+        {
+          "check": "Timing/Voice/V8 outx",
+          "agreed": true,
+          "console": "a2 07 6d 93",
+          "thisModel": "a2 07 6d 93"
+        },
+        {
+          "check": "Timing/Voice/V9 envx",
+          "agreed": true,
+          "console": "a2 07 6d 93",
+          "thisModel": "a2 07 6d 93"
+        }
+      ]
     },
     {
-      "check": "CPU Instructions/Full CMP",
-      "agreed": true,
-      "console": "c2 84 1a 6d",
-      "thisModel": "c2 84 1a 6d"
+      "id": "blargg-spc-mem-access-times",
+      "name": "spc_mem_access_times.sfc",
+      "sha256": "53dc8005959d54ccfc95b8d4222e1d51d21e3d9f3491058320f105edc1a4454a",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": "PASSED TESTS\nRunning tests:",
+      "verdicts": 2,
+      "agreed": 2,
+      "disagreed": 0,
+      "checks": [
+        {
+          "check": "",
+          "agreed": true,
+          "console": "8f 77 58 15",
+          "thisModel": "8f 77 58 15"
+        },
+        {
+          "check": "",
+          "agreed": true,
+          "console": "d0 6c d0 a9",
+          "thisModel": "d0 6c d0 a9"
+        }
+      ]
     },
     {
-      "check": "CPU Instructions/Full DAA DAS",
-      "agreed": true,
-      "console": "f3 1d f2 72",
-      "thisModel": "f3 1d f2 72"
+      "id": "blargg-spc-timer",
+      "name": "spc_timer.sfc",
+      "sha256": "f4799b994a91d78689073f4e31c3668ae46c100abd78177b9f4813506d6c9629",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": "PASSED TESTS\nRunning tests:",
+      "verdicts": 1,
+      "agreed": 1,
+      "disagreed": 0,
+      "checks": [
+        {
+          "check": "",
+          "agreed": true,
+          "console": "d0 6c d0 a9",
+          "thisModel": "d0 6c d0 a9"
+        }
+      ]
     },
     {
-      "check": "CPU Timing/mem access times",
-      "agreed": true,
-      "console": "8f 77 58 15",
-      "thisModel": "8f 77 58 15"
+      "id": "gilyon-spctest",
+      "name": "spctest.sfc",
+      "sha256": "ed6aa8fa247007cdf683f243454d1dff31a25e1977c25fc9d7e1a96e3d031e92",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " Running tests... Success\n Test number: 0527",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
     },
     {
-      "check": "CPU/addw and subw",
-      "agreed": true,
-      "console": "83 71 eb 51",
-      "thisModel": "83 71 eb 51"
+      "id": "peterlemon-spc700-adc",
+      "name": "SPC700ADC.sfc",
+      "sha256": "4fa785418a109c0ef052cb9b71f55d37ee56834fca170fe1a0da784ee3df0e2e",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " SPC Test ADC (Add With Carry):\n ------------------------------\n ADC #const   (Opcode: $88)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00111   FAIL",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
     },
     {
-      "check": "CPU/psw is 8 independent bits",
-      "agreed": true,
-      "console": "8c 73 fa d6",
-      "thisModel": "8c 73 fa d6"
+      "id": "peterlemon-spc700-and",
+      "name": "SPC700AND.sfc",
+      "sha256": "a4e7a9d6a926f5b575b2c3006b301bf837ed36072c9617776aab527706c3242d",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " SPC Test AND (AND With Memory):\n ------------------------------\n AND #const   (Opcode: $28)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   FAIL",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
     },
     {
-      "check": "CPU/smp reg read-write behavior",
-      "agreed": true,
-      "console": "af a7 e5 f8",
-      "thisModel": "af a7 e5 f8"
+      "id": "peterlemon-spc700-dec",
+      "name": "SPC700DEC.sfc",
+      "sha256": "fe9254720e62b2aa953a42f50827facc12f7549ad8ca3775c89a5b65f4b55fdf",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " SPC Test DEC (Decrement):\n ------------------------------\n DEC A        (Opcode: $9C)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   FAIL",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
     },
     {
-      "check": "CPU/tset tclr",
-      "agreed": true,
-      "console": "cb 91 81 20",
-      "thisModel": "cb 91 81 20"
+      "id": "peterlemon-spc700-eor",
+      "name": "SPC700EOR.sfc",
+      "sha256": "061572e2ba5599f78c3573be3b538ba2ab67703529f7518eee8e8ce3e41372f1",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " SPC Test EOR (XOR With Memory):\n ------------------------------\n EOR #const   (Opcode: $48)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   FAIL",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
     },
     {
-      "check": "CPU/verify IPL ROM",
-      "agreed": true,
-      "console": "bf c5 44 bb",
-      "thisModel": "bf c5 44 bb"
+      "id": "peterlemon-spc700-inc",
+      "name": "SPC700INC.sfc",
+      "sha256": "467376b5ab3cf83197553ec598f91645beef628dadbd43932b6e96d2fa17776b",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " SPC Test INC (Increment):\n ------------------------------\n INC A        (Opcode: $BC)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   FAIL",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
     },
     {
-      "check": "CPU/wrap-around mem",
-      "agreed": true,
-      "console": "fa 50 ea b9",
-      "thisModel": "fa 50 ea b9"
+      "id": "peterlemon-spc700-ora",
+      "name": "SPC700ORA.sfc",
+      "sha256": "aefb416d0f681eed0975cfbee70fd3048f59154cd5502f550e48e80f789a0ab2",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " SPC Test ORA (OR With Memory):\n ------------------------------\n ORA #const   (Opcode: $08)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   FAIL",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
     },
     {
-      "check": "CPU/wrap-around pc",
-      "agreed": true,
-      "console": "54 f3 26 6d",
-      "thisModel": "54 f3 26 6d"
-    },
-    {
-      "check": "CPU/wrap-around sp",
-      "agreed": true,
-      "console": "89 c2 80 e4",
-      "thisModel": "89 c2 80 e4"
-    },
-    {
-      "check": "Timers/random timer0",
-      "agreed": true,
-      "console": "31 0f 17 fd",
-      "thisModel": "31 0f 17 fd"
-    },
-    {
-      "check": "Timers/random timer0 enable",
-      "agreed": true,
-      "console": "86 f2 47 9f",
-      "thisModel": "86 f2 47 9f"
-    },
-    {
-      "check": "Timers/random timer2",
-      "agreed": true,
-      "console": "3e d6 7e c1",
-      "thisModel": "3e d6 7e c1"
-    },
-    {
-      "check": "Timers/timer read vs write",
-      "agreed": true,
-      "console": "d0 6c d0 a9",
-      "thisModel": "d0 6c d0 a9"
-    },
-    {
-      "check": "Timers/timer0 vs other timers",
-      "agreed": true,
-      "console": "fe 2f a1 ba",
-      "thisModel": "fe 2f a1 ba"
+      "id": "peterlemon-spc700-sbc",
+      "name": "SPC700SBC.sfc",
+      "sha256": "fcc6017db0560ce12ae029fa97947eedbd8eaf35dd32200c445281ca94cbae9b",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " SPC Test SBC (Sub With Borrow):\n ------------------------------\n SBC #const   (Opcode: $A8)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00111   FAIL",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
     }
   ],
-  "verified": true,
-  "evidence": "All eighteen verdicts agree with values taken on a console, including the three random timer checks and the memory access check, which agree since the timers share one free-running prescaler and match the divider by equality.",
-  "howToSettleIt": "Settled for what the cartridge reaches. The nineteenth check, CPU Timing/time all opcodes, prints its name and reaches no comparison here.",
-  "cartridge": {
-    "name": "spc_smp.sfc",
-    "sha256": "2ed302c5b989675d4ab6b40001fd5166ac4c6e0188a6b1b6df878e4608999c03",
-    "from": "https://gitlab.com/higan/snes-test-roms",
-    "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
-    "runOn": "2026-10-19"
-  }
+  "verified": false,
+  "evidence": "All 125 verdicts Shay Green's four cartridges reach agree with values taken on a console: 18 in spc_smp, 104 in spc_dsp6, 2 in spc_mem_access_times and 1 in spc_timer. gilyon's spctest reports Success. Peter Lemon's seven SPC700 cartridges each report FAIL at their first check, one bit apart from what they expect: the interrupt flag, which this unit leaves set after a reset and which sony-spc700-python records as undefined.",
+  "howToSettleIt": "Settled for what Shay Green's cartridges and gilyon's reach. spc_smp's nineteenth check, CPU Timing/time all opcodes, prints its name and reaches no comparison here, and spc_dsp6 is still listing its checks when the run stops at its 400,000,000-cycle limit, after all 104. Peter Lemon's are open until a console says what the interrupt flag holds after a reset; sony-spc700-python's OPEN-QUESTIONS.md carries it."
 }

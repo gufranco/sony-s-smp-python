@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定全部一致，**817** 个测试，**100%** 语句和分支覆盖率，无依赖
+**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定全部一致，**873** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 import ssmp
@@ -249,7 +249,7 @@ print(rates.SLOW_TIMER_CYCLES, rates.FAST_TIMER_CYCLES)
 
 - **本单元时钟与主机时钟之间的任何比值。** 二者由各自的晶振驱动，彼此不能整除，因此比值只是某一块电路板的属性。这里不公布任何数值，也不提供以主机周期计的经过时间。上文的比值是同一晶振上两半之间的比值。
 - **处理器和声音发生器。** 它们各自是独立的成员，在这里以子模块形式使用。
-- **主机。** [`conformance/console.py`](conformance/console.py) 在检查中扮演主机一侧的协议，除此之外不建模任何内容。
+- **主机。** [`conformance/console.py`](conformance/console.py) 在检查中扮演主机一侧的协议。[`conformance/host.py`](conformance/host.py) 是测试卡带运行所需的最少主机部分：工作 RAM、按 LoROM 解码的卡带、四个端口、垂直消隐标志、乘法器和除法器、DMA，以及足以读出屏幕的视频内存。它的处理器是 [mos65xx-python](https://github.com/gufranco/mos65xx-python) 的 65816，这个子模块只有 [`conformance/cartridges.py`](conformance/cartridges.py) 会导入。两者都不建模除此之外的主机部分。
 
 ## 引导程序不在这里
 
@@ -291,7 +291,7 @@ ssmp
 
 三个全部一致。[`conformance/hardware.json`](conformance/hardware.json) 记录了每次运行。
 
-**一盘检查卡带，由精简的主机驱动。** Shay Green 的 `spc_smp` 卡带得出 18 个判定，全部 18 个一致，逐一记录在 [`conformance/cartridge.json`](conformance/cartridge.json) 中，其中包括 `CPU/verify IPL ROM`、`CPU/smp reg read-write behavior`、三个随机定时器检查和 `CPU Timing/mem access times`。他的 `spc_dsp6` 卡带以同样方式驱动，关于声音发生器得出 104 个判定，全部 104 个一致。其背后的定时器和寄存器修正记录在 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) 中。
+**检查卡带，由精简的主机驱动。** `python3 -m conformance.cartridges` 在该主机上运行它在 `SSMP_CARTRIDGE_DIR` 或 `cartridges/` 中找到的每盘测试卡带，并把结果与逐一记录它们的 [`conformance/cartridge.json`](conformance/cartridge.json) 比较。Shay Green 的 `spc_smp` 得出 18 个判定，全部 18 个一致，其中包括 `CPU/verify IPL ROM`、`CPU/smp reg read-write behavior`、三个随机定时器检查和 `CPU Timing/mem access times`。他的 `spc_dsp6` 关于声音发生器得出 104 个判定，全部 104 个一致；`spc_mem_access_times` 2 个中 2 个一致，`spc_timer` 1 个中 1 个一致。gilyon 的 `spctest` 测试除 `SLEEP` 和 `STOP` 以外的每个 SPC700 操作码，报告 `Success`。Peter Lemon 的七盘 SPC700 卡带都在第一个检查报告 `FAIL`，与期望只差一个位：中断标志。这里复位后它保持置位，[sony-spc700-python](https://github.com/gufranco/sony-spc700-python) 把它记录为未解决的问题。Shay Green 那些检查背后的定时器和寄存器修正记录在 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) 中。没有卡带时它以 2 退出，并说明什么也没有运行；[`conformance/testroms.json`](conformance/testroms.json) 列出这个单元的每盘测试卡带，包括等待完整主机的那些。
 
 `.spc` 文件属于 Shay Green，不在这里携带。[`conformance/checks.manifest.json`](conformance/checks.manifest.json) 用大小和四个摘要识别它们。请把你拥有的副本放在 `spc/` 中，或在 `SSMP_SPC_DIR` 中指定一个目录；没有它们时，`python3 -m conformance.against_checks` 以 2 退出，并说明未检查任何内容。
 
@@ -328,7 +328,7 @@ done
 
 - _SNES Development Manual, Book I_，Nintendo of America Inc.，无日期。第 3 部分第 1、4、5 章。240 页，21,022,582 字节，SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`。不可再分发，不在本仓库中。
 - S-SMP 引导程序，64 字节，SHA-256 `c95f88b299030d5afa55b1031e2b5ef2dff650c4b4e6bb6f8b1359436521278f`。属于 Sony，不可再分发，不在本仓库中。
-- Shay Green，`initial_regs.spc`、`initial_in_ports.spc`、`full_ram.spc` 和 `spc_smp` 卡带，提供在主机上取得的值。不在这里携带。
+- Shay Green，`initial_regs.spc`、`initial_in_ports.spc`、`full_ram.spc`，以及 `spc_smp`、`spc_dsp6`、`spc_mem_access_times` 和 `spc_timer` 卡带，提供在主机上取得的值；gilyon 的 `spctest` 和 Peter Lemon 的 SPC700 测试。都不在这里携带。
 - [SNESdev wiki，S-SMP](https://snes.nesdev.org/wiki/S-SMP)，一份后来的文档，而非 Sony 文档，在用到之处引用。
 - [sony-spc700-python](https://github.com/gufranco/sony-spc700-python) 提供处理器，[sony-s-dsp-python](https://github.com/gufranco/sony-s-dsp-python) 提供声音发生器，各自带有参考资料。声音发生器以 Nintendo 自己的表格为准。
 

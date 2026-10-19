@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** 個連接埠就是與主機之間的全部介面，**3** 項附有在主機上實測數值的檢查，**0** 項不符，一個檢查卡帶的 **18** 項判定全部相符，**817** 項測試，**100%** 語句與分支覆蓋率，無任何依賴
+**4** 個連接埠就是與主機之間的全部介面，**3** 項附有在主機上實測數值的檢查，**0** 項不符，一個檢查卡帶的 **18** 項判定全部相符，**873** 項測試，**100%** 語句與分支覆蓋率，無任何依賴
 
 ```python
 import ssmp
@@ -249,7 +249,7 @@ print(rates.SLOW_TIMER_CYCLES, rates.FAST_TIMER_CYCLES)
 
 - **本單元時脈與主機時脈之間的任何比率。** 兩者由各自的晶體驅動，彼此不能整除，因此比率是個別主機板的屬性。沒有公佈任何數字，也不以主機週期提供任何經過時間。上文的比率是同一晶體上兩半之間的比率。
 - **處理器和聲音產生器。** 兩者各自是獨立的成員，在此以子模組形式使用。
-- **主機。** [`conformance/console.py`](conformance/console.py) 在檢查中扮演主機一方的協定，除此之外不模擬任何東西。
+- **主機。** [`conformance/console.py`](conformance/console.py) 在檢查中扮演主機一方的協定。[`conformance/host.py`](conformance/host.py) 是測試卡帶執行所需的最少主機部分：工作 RAM、按 LoROM 解碼的卡帶、四個連接埠、垂直消隱旗標、乘法器與除法器、DMA，以及足以讀出畫面的視訊記憶體。它的處理器是 [mos65xx-python](https://github.com/gufranco/mos65xx-python) 的 65816，這個子模組只有 [`conformance/cartridges.py`](conformance/cartridges.py) 會匯入。兩者都不模擬此外的主機部分。
 
 ## 開機程式不在此處
 
@@ -291,7 +291,7 @@ ssmp
 
 三項全部相符。[`conformance/hardware.json`](conformance/hardware.json) 記錄了每次執行。
 
-**一個檢查卡帶，由精簡的主機驅動。** Shay Green 的 `spc_smp` 卡帶得出 18 項判定，全部 18 項相符，逐項記錄於 [`conformance/cartridge.json`](conformance/cartridge.json)，其中包括 `CPU/verify IPL ROM`、`CPU/smp reg read-write behavior`、三項隨機計時器檢查和 `CPU Timing/mem access times`。他的 `spc_dsp6` 卡帶以同樣方式驅動，就聲音產生器得出 104 項判定，全部 104 項相符。背後的計時器與暫存器修正記錄於 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)。
+**檢查卡帶，由精簡的主機驅動。** `python3 -m conformance.cartridges` 在該主機上執行它在 `SSMP_CARTRIDGE_DIR` 或 `cartridges/` 找到的每個測試卡帶，並把結果與逐一記錄它們的 [`conformance/cartridge.json`](conformance/cartridge.json) 比對。Shay Green 的 `spc_smp` 得出 18 項判定，全部 18 項相符，其中包括 `CPU/verify IPL ROM`、`CPU/smp reg read-write behavior`、三項隨機計時器檢查和 `CPU Timing/mem access times`。他的 `spc_dsp6` 就聲音產生器得出 104 項判定，全部 104 項相符；`spc_mem_access_times` 2 項中 2 項相符，`spc_timer` 1 項中 1 項相符。gilyon 的 `spctest` 測試除 `SLEEP` 和 `STOP` 以外的每個 SPC700 操作碼，報告 `Success`。Peter Lemon 的七個 SPC700 卡帶都在第一項檢查報告 `FAIL`，與預期只差一個位元：中斷旗標。這裏重設後它保持為設定狀態，[sony-spc700-python](https://github.com/gufranco/sony-spc700-python) 把它記錄為未解決的問題。Shay Green 那些檢查背後的計時器與暫存器修正記錄於 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)。沒有卡帶時它以 2 結束，並說明沒有執行任何東西；[`conformance/testroms.json`](conformance/testroms.json) 列出這個單元的每個測試卡帶，包括等待完整主機的那些。
 
 `.spc` 檔案屬於 Shay Green，不收錄於此。[`conformance/checks.manifest.json`](conformance/checks.manifest.json) 以大小和四個摘要識別它們。請把你擁有的副本放在 `spc/`，或在 `SSMP_SPC_DIR` 中指定目錄；沒有它們時，`python3 -m conformance.against_checks` 以 2 結束，並說明沒有檢查任何東西。
 
@@ -328,7 +328,7 @@ done
 
 - _SNES Development Manual, Book I_，Nintendo of America Inc.，無日期。第 3 部分第 1、4、5 章。240 頁，21,022,582 個位元組，SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`。不可再分發，也不在本儲存庫內。
 - S-SMP 開機程式，64 個位元組，SHA-256 `c95f88b299030d5afa55b1031e2b5ef2dff650c4b4e6bb6f8b1359436521278f`。屬於 Sony，不可再分發，也不在本儲存庫內。
-- Shay Green，`initial_regs.spc`、`initial_in_ports.spc`、`full_ram.spc` 和 `spc_smp` 卡帶，提供在主機上實測的數值。不收錄於此。
+- Shay Green，`initial_regs.spc`、`initial_in_ports.spc`、`full_ram.spc`，以及 `spc_smp`、`spc_dsp6`、`spc_mem_access_times` 和 `spc_timer` 卡帶，提供在主機上實測的數值；gilyon 的 `spctest` 和 Peter Lemon 的 SPC700 測試。全部不收錄於此。
 - [SNESdev wiki, S-SMP](https://snes.nesdev.org/wiki/S-SMP)，是後來的文件而非 Sony 文件，在使用之處引用。
 - [sony-spc700-python](https://github.com/gufranco/sony-spc700-python) 提供處理器，[sony-s-dsp-python](https://github.com/gufranco/sony-s-dsp-python) 提供聲音產生器，兩者各有其參考資料。聲音產生器以 Nintendo 自己的表格為標準。
 

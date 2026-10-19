@@ -17,7 +17,10 @@ sound generator is
 as submodules. What this repository adds is everything between them: the sixty
 four kilobytes they share, the four ports, three timers, a control register that
 changes what the address space is, and sixty four bytes of boot program in the
-top page.
+top page. A third submodule,
+[mos65xx-python](https://github.com/gufranco/mos65xx-python), is the 65816 of
+the cut-down console that runs test cartridges, and only
+`conformance/cartridges.py` imports it.
 
 ## The interface a caller drives
 
@@ -57,9 +60,10 @@ transfer, the acknowledgement, a second block after the first, and the jump.
 
 Settled by a measurement somebody took on a console: all sixteen addresses that
 are not memory, read in order and checksummed together, that memory comes
-back whole across nineteen point eight million cycles, and every verdict two
-cartridges of checks reach: 18 of 18 in `spc_smp.sfc` and 104 of 104 in
-`spc_dsp6.sfc`.
+back whole across nineteen point eight million cycles, and every verdict Shay
+Green's four cartridges reach: 18 of 18 in `spc_smp.sfc`, 104 of 104 in
+`spc_dsp6.sfc`, 2 of 2 in `spc_mem_access_times.sfc` and 1 of 1 in
+`spc_timer.sfc`.
 
 Settled by Nintendo's Book I: the control register's timer and port bits, the
 timer rates, the shared prescaler, the divider match, and that a reset stops the
@@ -100,6 +104,55 @@ and carries no bytes. Copies you own go in `spc/`, or anywhere named by
 `SSMP_SPC_DIR`. Without them `conformance/against_checks.py` exits two and says
 nothing was checked, which is not the same as agreement.
 
+## Test cartridges
+
+[`conformance/testroms.json`](conformance/testroms.json) lists every test
+cartridge that exercises this unit, each pinned by SHA-256 and none carried.
+
+**Twelve run on a cut-down console.** [`conformance/host.py`](conformance/host.py)
+is the least of a console a cartridge needs: work RAM, the cartridge decoded as
+LoROM, `$2140-$2143` wired to the unit's four ports, the vblank flags, the
+multiplier and divider, DMA, and enough video memory to read the screen as
+ASCII. [`conformance/cartridges.py`](conformance/cartridges.py) runs a 65816
+from the mos65xx-python submodule on it, eight master clocks a cycle against the
+unit's twenty one. It records each of Shay Green's checks as it compares, then
+empties that check's four branches so one disagreement cannot hide the rest, and
+stops when the screen reports an end or at 400,000,000 cycles. The run is
+recorded in [`conformance/cartridge.json`](conformance/cartridge.json) and
+replayed by `conformance/cartridges.test.py` with no image present.
+
+| Cartridge                             | What the run showed                                                 |
+| :------------------------------------ | :------------------------------------------------------------------ |
+| Shay Green's `spc_smp.sfc`            | 18 of 18 verdicts agree, then `PASSED TESTS`                        |
+| Shay Green's `spc_dsp6.sfc`           | 104 of 104 agree; still listing checks at the limit                 |
+| Shay Green's `spc_mem_access_times`   | 2 of 2 agree, then `PASSED TESTS`                                   |
+| Shay Green's `spc_timer.sfc`          | 1 of 1 agrees, then `PASSED TESTS`                                  |
+| gilyon's `spctest.sfc`                | `Success` after test `0527`                                         |
+| Peter Lemon's seven SPC700 cartridges | `FAIL` at the first check, on the interrupt flag a reset leaves set |
+
+Peter Lemon's failures are not settled here: his programs expect the interrupt
+flag clear after the boot program, and what a reset leaves in it is an open
+question in sony-spc700-python. Nothing here changes it to make them pass.
+
+```bash
+SSMP_CARTRIDGE_DIR=/path/to/cartridges python3 -m conformance.cartridges
+```
+
+It also looks in `cartridges/` beside and inside this checkout. Without a boot
+program, the submodule or any cartridge it runs nothing, says so and exits 2,
+and CI turns that into a notice. `--write` rewrites the record from the run.
+
+**Three run with no console.** Shay Green's `initial_regs.spc`,
+`initial_in_ports.spc` and `full_ram.spc`, through
+`conformance/against_checks.py`, as above.
+
+**The rest wait on `snes-machine`**, a whole-machine member no plan names yet:
+the burn-in test, the SNES Test Program, the NTF 2.5 test and both 240p Test
+Suite builds, whose sound tests are judged by ear; lidnariq's clock speed
+measurement, which needs the two real crystals; and fourteen of byuu's 2010
+probes of the test register and the timers, which print measurements rather
+than a verdict and show nothing on the cut-down console.
+
 ## Every gate, in the order to run them
 
 ```bash
@@ -128,6 +181,7 @@ of them is twenty seconds of the unit's own time:
 
 ```bash
 python3 -m conformance.against_checks
+python3 -m conformance.cartridges
 ```
 
 And the runs that report what they could not check rather than passing quietly:
@@ -175,8 +229,10 @@ their reasons live here, beside those of the other exclusions:
   report with it.
 - Every optional `mypy` error class is on because the errors that matter in a
   model of hardware are a width, a mask or a `None` crossing a boundary.
-- The `spc700.*` and `sdsp.*` override in `mypy`: the submodules are checked in
-  their own repositories, against their own gate.
+- The `spc700.*`, `sdsp.*` and `mos65xx.*` override in `mypy`: the submodules
+  are checked in their own repositories, against their own gate.
+- `mos65xx-python/*` in the coverage omissions, beside the other two
+  submodules: its tests run in its own repository.
 - The `__main__` guard is excluded from coverage: it hands argv to a tested
   function, and importing the module to cover it would run the tool.
 - The doctor's `sys.path` guard is excluded: a suite that imports the doctor has
@@ -214,9 +270,9 @@ comments either, so their reasons live here:
   run, never committed.
 - `docs/`, `specs/`, `.work/` and `.claude/`: local working material, never
   committed.
-- `sony-spc700-python/` and `sony-s-dsp-python/`: submodules. Each is a member
-  that formats and checks itself, and the commit pinned here is not this
-  repository's to change.
+- `sony-spc700-python/`, `sony-s-dsp-python/` and `mos65xx-python/`:
+  submodules. Each is a member that formats and checks itself, and the commit
+  pinned here is not this repository's to change.
 
 ## Layout
 
@@ -234,6 +290,8 @@ conformance/boot.test.py  that half, played at the real unit
 conformance/monitor.py    a program that reads and writes the unit for a check, through the four ports
 conformance/loader.py     an audio unit written down, and the order to restore it in
 conformance/against_checks.py  Shay Green's checks, run against the model
+conformance/host.py       the least of a console a test cartridge needs
+conformance/cartridges.py test cartridges, run on that console with a 65816 from mos65xx-python
 conformance/quotes.py     every quoted sentence, found in the document it cites
 ```
 
@@ -307,8 +365,8 @@ conformance/quotes.py     every quoted sentence, found in the document it cites
 ## Before calling anything finished
 
 Every gate above, then `conformance/boot.test.py` with a real boot program
-present and `python3 -m conformance.against_checks` with Shay Green's files
-present. A change that keeps the unit tests green and stops the handshake
+present, `python3 -m conformance.against_checks` with Shay Green's files
+present, and `python3 -m conformance.cartridges` with the cartridges present. A change that keeps the unit tests green and stops the handshake
 appearing, or makes one of those checks disagree, has broken the part.
 
 ## What a change is expected to leave behind

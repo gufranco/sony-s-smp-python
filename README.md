@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **18** of **18** verdicts from a cartridge of checks agree, **817** tests, **100%** statement and branch coverage, no dependencies
+**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **18** of **18** verdicts from a cartridge of checks agree, **873** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 import ssmp
@@ -249,7 +249,7 @@ A unit is built with the generator scrambled, as the processor is, and `reset()`
 
 - **Any ratio between this unit's clock and the console's.** They run from separate crystals and neither divides the other, so a ratio is a property of one board. No figure is published, and no elapsed time is offered in console cycles. The ratio above is between two halves on one crystal.
 - **The processor and the sound generator.** Each is its own member, consumed here as a submodule.
-- **The console.** [`conformance/console.py`](conformance/console.py) plays a console's half of the protocol in a check and models nothing else.
+- **The console.** [`conformance/console.py`](conformance/console.py) plays a console's half of the protocol in a check. [`conformance/host.py`](conformance/host.py) is the least of a console a test cartridge needs to run: work RAM, the cartridge decoded as LoROM, the four ports, the vblank flags, the multiplier and divider, DMA and enough video memory to read the screen. Its processor is a 65816 from [mos65xx-python](https://github.com/gufranco/mos65xx-python), a submodule only [`conformance/cartridges.py`](conformance/cartridges.py) imports. Neither models a console beyond that.
 
 ## The boot program is not here
 
@@ -291,7 +291,7 @@ No Sony document for the S-SMP is known to exist. Nintendo's development manual,
 
 All three agree. [`conformance/hardware.json`](conformance/hardware.json) records each run.
 
-**A cartridge of checks, driven by a cut-down console.** Shay Green's `spc_smp` cartridge reaches 18 verdicts and all 18 agree, recorded one by one in [`conformance/cartridge.json`](conformance/cartridge.json), among them `CPU/verify IPL ROM`, `CPU/smp reg read-write behavior`, the three random timer checks and `CPU Timing/mem access times`. His `spc_dsp6` cartridge, driven the same way, reaches 104 verdicts about the sound generator and all 104 agree. [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) records what the timer and register fixes behind those were.
+**Cartridges of checks, driven by a cut-down console.** `python3 -m conformance.cartridges` runs every test cartridge it finds in `SSMP_CARTRIDGE_DIR` or `cartridges/` on that console and compares the run with [`conformance/cartridge.json`](conformance/cartridge.json), which records each one. Shay Green's `spc_smp` reaches 18 verdicts and all 18 agree, among them `CPU/verify IPL ROM`, `CPU/smp reg read-write behavior`, the three random timer checks and `CPU Timing/mem access times`. His `spc_dsp6` reaches 104 verdicts about the sound generator and all 104 agree, his `spc_mem_access_times` 2 of 2 and his `spc_timer` 1 of 1. gilyon's `spctest`, which tests every SPC700 opcode but `SLEEP` and `STOP`, reports `Success`. Peter Lemon's seven SPC700 cartridges each report `FAIL` at their first check, one bit from what they expect: the interrupt flag, which a reset leaves set here and which [sony-spc700-python](https://github.com/gufranco/sony-spc700-python) records as an open question. [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) records what the timer and register fixes behind Shay Green's were. Without the cartridges it exits 2 and says nothing was run; [`conformance/testroms.json`](conformance/testroms.json) lists every test cartridge for this unit, including those that wait on a whole machine.
 
 The `.spc` files are Shay Green's and are not carried here. [`conformance/checks.manifest.json`](conformance/checks.manifest.json) identifies them by size and four digests. Put copies you own in `spc/` or name a directory in `SSMP_SPC_DIR`; without them, `python3 -m conformance.against_checks` exits 2 and says nothing was checked.
 
@@ -328,7 +328,7 @@ Each module has a test file beside it, named after it, and each runs on its own.
 
 - _SNES Development Manual, Book I_, Nintendo of America Inc., undated. Section 3, chapters 1, 4 and 5. 240 pages, 21,022,582 bytes, SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`. Not redistributable and not in this repository.
 - The S-SMP boot program, 64 bytes, SHA-256 `c95f88b299030d5afa55b1031e2b5ef2dff650c4b4e6bb6f8b1359436521278f`. Sony's, not redistributable, and not in this repository.
-- Shay Green, `initial_regs.spc`, `initial_in_ports.spc`, `full_ram.spc` and the `spc_smp` cartridge, for values taken on a console. Not carried here.
+- Shay Green, `initial_regs.spc`, `initial_in_ports.spc`, `full_ram.spc` and the `spc_smp`, `spc_dsp6`, `spc_mem_access_times` and `spc_timer` cartridges, for values taken on a console; gilyon's `spctest` and Peter Lemon's SPC700 tests. None is carried here.
 - [SNESdev wiki, S-SMP](https://snes.nesdev.org/wiki/S-SMP), a later document rather than a Sony one, cited where it is used.
 - [sony-spc700-python](https://github.com/gufranco/sony-spc700-python) for the processor and [sony-s-dsp-python](https://github.com/gufranco/sony-s-dsp-python) for the sound generator, each with its own references. The sound generator is held to Nintendo's own tables.
 

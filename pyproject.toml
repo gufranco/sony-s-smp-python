@@ -84,6 +84,7 @@ source = ["."]
 omit = [
   "sony-spc700-python/*",
   "sony-s-dsp-python/*",
+  "mos65xx-python/*",
   "conformance/boot.test.py",
   "conformance/loader.test.py",
 ]
@@ -111,6 +112,6 @@ exclude_also = [
 ]
 
 [[tool.mypy.overrides]]
-module = ["spc700.*", "sdsp.*"]
+module = ["spc700.*", "sdsp.*", "mos65xx.*"]
 follow_imports = "skip"
 ignore_missing_imports = true

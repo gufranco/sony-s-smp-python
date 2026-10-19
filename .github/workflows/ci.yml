@@ -221,6 +221,32 @@ jobs:
           exit "${status}"
         shell: bash
 
+  cartridges:
+    name: Shay Green's cartridges, on a cut-down console
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Run every cartridge that is on this machine, where exit two means none ran
+        run: |
+          set +e
+          python3 -m conformance.cartridges > said.txt
+          status=$?
+          set -e
+          cat said.txt
+          if [ "${status}" -eq 2 ]; then
+            echo "::notice title=No cartridge ran::$(tail -1 said.txt)"
+            exit 0
+          fi
+          exit "${status}"
+        shell: bash
+
   quotes:
     name: Every quoted sentence, against the document it came from
     runs-on: ubuntu-26.04

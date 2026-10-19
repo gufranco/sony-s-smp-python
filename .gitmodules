@@ -4,3 +4,6 @@
 [submodule "sony-s-dsp-python"]
 	path = sony-s-dsp-python
 	url = https://github.com/gufranco/sony-s-dsp-python.git
+[submodule "mos65xx-python"]
+	path = mos65xx-python
+	url = https://github.com/gufranco/mos65xx-python.git

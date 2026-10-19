@@ -251,6 +251,52 @@ class RunTest(unittest.TestCase):
         self.assertEqual((code, "1 of 2 run" in said[-1]), (0, True))
 
 
+HARDWARE = Path(__file__).resolve().parent / "hardware.json"
+
+TEST_ROMS = Path(__file__).resolve().parent / "testroms.json"
+
+
+def ran_and_listed(name: str, listed_as: str) -> tuple[dict[str, Any], str, str]:
+    runs = json.loads(HARDWARE.read_text())["checksFromHardware"]["ran"]
+    run = next(one for one in runs if one["name"] == name)
+    entries = json.loads(TEST_ROMS.read_text())["cartridges"]
+    listed = next(one for one in entries if one["id"] == listed_as)["sha256"]
+    declared = next(one for one in against_checks.declared()["checks"] if one["name"] == name)
+    return run, listed, declared["digests"]["sha256"]
+
+
+class TheRecordedRunsTest(unittest.TestCase):
+    def test_initial_regs_agreed_on_all_four_sub_checks(self) -> None:
+        # Arrange
+        name = "initial_regs.spc"
+
+        # Act
+        run, listed, declared = ran_and_listed(name, "blargg-initial-regs")
+
+        # Assert
+        self.assertEqual((run["agreed"], run["subChecks"], listed), (True, 4, declared))
+
+    def test_initial_in_ports_agreed_on_its_one_sub_check(self) -> None:
+        # Arrange
+        name = "initial_in_ports.spc"
+
+        # Act
+        run, listed, declared = ran_and_listed(name, "blargg-initial-in-ports")
+
+        # Assert
+        self.assertEqual((run["agreed"], run["subChecks"], listed), (True, 1, declared))
+
+    def test_full_ram_agreed_on_all_six_sub_checks(self) -> None:
+        # Arrange
+        name = "full_ram.spc"
+
+        # Act
+        run, listed, declared = ran_and_listed(name, "blargg-full-ram")
+
+        # Assert
+        self.assertEqual((run["agreed"], run["subChecks"], listed), (True, 6, declared))
+
+
 class StandingIn:
     def __init__(self, outcome: Any) -> None:
         self.outcome = outcome
