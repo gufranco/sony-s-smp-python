@@ -21,6 +21,7 @@ jobs:
   lint:
     name: Format and lint
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -75,6 +76,7 @@ jobs:
   types:
     name: Types
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -95,6 +97,7 @@ jobs:
   test:
     name: Tests on Python ${{ matrix.python }}
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -131,6 +134,7 @@ jobs:
   speed:
     name: Throughput
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -158,6 +162,7 @@ jobs:
   boot:
     name: The console protocol, played at the unit
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -195,6 +200,7 @@ jobs:
   checks:
     name: Checks taken on real hardware
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -224,6 +230,7 @@ jobs:
   cartridges:
     name: Shay Green's cartridges, on a cut-down console
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -250,6 +257,7 @@ jobs:
   selftest:
     name: The self-test factory cartridges upload, run on the unit
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -276,6 +284,7 @@ jobs:
   handshake:
     name: The 240p Test Suite's upload, replayed at the unit
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -302,6 +311,7 @@ jobs:
   quotes:
     name: Every quoted sentence, against the document it came from
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
 
@@ -315,6 +325,7 @@ jobs:
   package:
     name: package
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
 
