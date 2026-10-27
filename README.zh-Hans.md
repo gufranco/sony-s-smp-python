@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定全部一致，**943** 个测试，**100%** 语句和分支覆盖率，无依赖
+**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定全部一致，**993** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 import ssmp
@@ -45,7 +45,7 @@ python3 ssmp/doctor.py
 
 本包只导入标准库中的内容。处理器是 [sony-spc700-python](https://github.com/gufranco/sony-spc700-python)，声音发生器是 [sony-s-dsp-python](https://github.com/gufranco/sony-s-dsp-python)，两者都以子模块形式检出。没有它们则无法构建，`git submodule update --init --recursive` 可以获取它们。
 
-引导程序属于 Sony，不在本仓库中。请把一份副本放在 `boot/` 中、放在本检出所在目录的 `boot/` 中，或放在 `SSMP_BOOT_DIR` 指定的任意目录中。在没有副本的机器上，每个用它构建单元的示例都会拒绝运行，并用一句话说明缺少什么。
+引导程序属于 Sony，不在本仓库中。请把一份副本放在 `external/boot/` 中、放在本检出所在目录的 `external/boot/` 中，或放在 `SSMP_BOOT_DIR` 指定的任意目录中。在没有副本的机器上，每个用它构建单元的示例都会拒绝运行，并用一句话说明缺少什么。
 
 诊断脚本检查机器和检出内容，构建单元，最后输出一行结果。关于本包的每项检查结果都通过时退出码为 0，否则为 1。提交缺陷报告时请粘贴它的全部输出。两个子模块和引导程序都存在时，它以如下内容结束：
 
@@ -255,7 +255,7 @@ print(rates.SLOW_TIMER_CYCLES, rates.FAST_TIMER_CYCLES)
 
 这 64 个字节属于 Sony。本仓库不携带它们，不下载它们，其中也没有任何东西能重建它们。[`ssmp/artifacts.manifest.json`](ssmp/artifacts.manifest.json) 记录了它们的四个摘要，不含任何字节。SHA-256 起决定作用；CRC32、MD5 和 SHA-1 用于交叉核对，SHA-256 匹配但其中任一摘要不一致的文件会被作为 `Corrupt` 拒绝。
 
-搜索顺序是 `SSMP_BOOT_DIR`（可以指定多个目录），然后是本检出旁边的 `boot/`，再然后是其中的 `boot/`。某个型号最先找到的副本生效。
+搜索顺序是 `SSMP_BOOT_DIR`（可以指定多个目录），然后是本检出旁边的 `external/boot/`，再然后是其中的 `external/boot/`。某个型号最先找到的副本生效。
 
 ## 型号
 
@@ -291,11 +291,11 @@ ssmp
 
 三个全部一致。[`conformance/hardware.json`](conformance/hardware.json) 记录了每次运行。
 
-**检查卡带，由精简的主机驱动。** `python3 -m conformance.cartridges` 在该主机上运行它在 `SSMP_CARTRIDGE_DIR` 或 `cartridges/` 中找到的每盘测试卡带，并把结果与逐一记录它们的 [`conformance/cartridge.json`](conformance/cartridge.json) 比较。Shay Green 的 `spc_smp` 得出 18 个判定，全部 18 个一致，其中包括 `CPU/verify IPL ROM`、`CPU/smp reg read-write behavior`、三个随机定时器检查和 `CPU Timing/mem access times`。他的 `spc_dsp6` 关于声音发生器得出 104 个判定，全部 104 个一致；`spc_mem_access_times` 2 个中 2 个一致，`spc_timer` 1 个中 1 个一致。gilyon 的 `spctest` 测试除 `SLEEP` 和 `STOP` 以外的每个 SPC700 操作码，报告 `Success`。Peter Lemon 的七盘 SPC700 卡带显示其源代码显示的每一个 PASS，只豁免一个字段：它们都期望中断标志已清除，这里复位后它保持置位，而他的期望值没有注明取自实机，因此运行器放行只在该标志上不同的状态字，其余一切照常比较；复位问题由 [sony-spc700-python](https://github.com/gufranco/sony-spc700-python) 保留为未解决。Shay Green 那些检查背后的定时器和寄存器修正记录在 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) 中。没有卡带时它以 2 退出，并说明什么也没有运行；[`conformance/testroms.json`](conformance/testroms.json) 列出这个单元的每盘测试卡带，包括等待完整主机的那些。
+**检查卡带，由精简的主机驱动。** `python3 -m conformance.cartridges` 在该主机上运行它在 `SSMP_CARTRIDGE_DIR` 或 `external/cartridges/` 中找到的每盘测试卡带，并把结果与逐一记录它们的 [`conformance/cartridge.json`](conformance/cartridge.json) 比较。Shay Green 的 `spc_smp` 得出 18 个判定，全部 18 个一致，其中包括 `CPU/verify IPL ROM`、`CPU/smp reg read-write behavior`、三个随机定时器检查和 `CPU Timing/mem access times`。他的 `spc_dsp6` 关于声音发生器得出 104 个判定，全部 104 个一致；`spc_mem_access_times` 2 个中 2 个一致，`spc_timer` 1 个中 1 个一致。gilyon 的 `spctest` 测试除 `SLEEP` 和 `STOP` 以外的每个 SPC700 操作码，报告 `Success`。Peter Lemon 的七盘 SPC700 卡带显示其源代码显示的每一个 PASS，只豁免一个字段：它们都期望中断标志已清除，这里复位后它保持置位，而他的期望值没有注明取自实机，因此运行器放行只在该标志上不同的状态字，其余一切照常比较；复位问题由 [sony-spc700-python](https://github.com/gufranco/sony-spc700-python) 保留为未解决。Shay Green 那些检查背后的定时器和寄存器修正记录在 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) 中。没有卡带时它以 2 退出，并说明什么也没有运行；[`conformance/testroms.json`](conformance/testroms.json) 列出这个单元的每盘测试卡带，包括等待完整主机的那些。
 
 **用自身程序测试单元的工厂卡带。** Burn-in Rev D、SNSP Aging 1.02、Control Deck Tester 和 Aging Program 1.00 各自上传一个 SPC700 自检程序，并读回一个结果字节，其各位是六个子测试：音频 RAM 图样、回声区域、与表格比较的包络、回声写入的时序，以及两个定时器对第三个定时器。`python3 -m conformance.selftest` 从你持有的映像读出该程序、上传并运行；四盘全部通过每个子测试，记录在 [`conformance/selftest.json`](conformance/selftest.json) 中。卡带忽略包络位，MAME 会置位而这个单元会清除，因此保留为这个模型自己的测量。`python3 -m conformance.handshake` 用相同长度的负载重放 240p Test Suite 开机时的上传，两个版本都看到每次回应和负载的运行，记录在 [`conformance/handshake.json`](conformance/handshake.json) 中。
 
-`.spc` 文件属于 Shay Green，不在这里携带。[`conformance/checks.manifest.json`](conformance/checks.manifest.json) 用大小和四个摘要识别它们。请把你拥有的副本放在 `spc/` 中，或在 `SSMP_SPC_DIR` 中指定一个目录；没有它们时，`python3 -m conformance.against_checks` 以 2 退出，并说明未检查任何内容。
+`.spc` 文件属于 Shay Green，不在这里携带。[`conformance/checks.manifest.json`](conformance/checks.manifest.json) 用大小和四个摘要识别它们。请把你拥有的副本放在 `external/spc/` 中，或在 `SSMP_SPC_DIR` 中指定一个目录；没有它们时，`python3 -m conformance.against_checks` 以 2 退出，并说明未检查任何内容。
 
 当资料与模型矛盾，或资料彼此矛盾时，相应条目记录在 [`conformance/divergences.json`](conformance/divergences.json) 中。
 

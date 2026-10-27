@@ -1,0 +1,599 @@
+{
+  "externalNote": "Every file this repository's tools read and may not ship. Each lives under external/, which git and Dropbox both ignore. python3 -m conformance.external reports which are here, which are missing and which are not the file named; SHA-256 alone decides.",
+  "external": {
+    "boot-ipl-bin": {
+      "required": false,
+      "purpose": "Sony's sixty four byte boot program, which the package starts every unit from; ssmp/artifacts.manifest.json declares the same copy.",
+      "usedBy": ["ssmp/firmware.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The sixty four bytes as the part holds them."
+      },
+      "accepted": [
+        {
+          "label": "ipl",
+          "path": "boot/ipl.bin",
+          "common_filename": "ipl.bin",
+          "size": 64,
+          "crc32": "44bb3a40",
+          "md5": "ac35bfc854818e2f55c2a05917493db3",
+          "sha1": "97e352553e94242ae823547cd853eecda55c20f0",
+          "sha256": "c95f88b299030d5afa55b1031e2b5ef2dff650c4b4e6bb6f8b1359436521278f",
+          "preferred": true,
+          "provenance": {
+            "db": "a dump the author holds",
+            "dat_version": "copied 2026-10-27"
+          }
+        }
+      ]
+    },
+    "cartridges-240p-test-suite-world-v1-061-ntsc-program-aftermarket-unl-sfc": {
+      "required": false,
+      "purpose": "A factory or service cartridge whose audio self test or upload handshake this member runs.",
+      "usedBy": ["conformance/selftest.py", "conformance/handshake.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The cartridge image as the library holds it, with no copier header; conformance/testroms.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "240p Test Suite (World) (v1.061) (NTSC) (Program) (Aftermarket) (Unl)",
+          "path": "cartridges/240p Test Suite (World) (v1.061) (NTSC) (Program) (Aftermarket) (Unl).sfc",
+          "common_filename": "240p Test Suite (World) (v1.061) (NTSC) (Program) (Aftermarket) (Unl).sfc",
+          "size": 524288,
+          "crc32": "d34e753c",
+          "md5": "9cd31ade2e830f5f7c96f837cd392270",
+          "sha1": "df4376aa9583fe7be097560c192a1f9bf15b314d",
+          "sha256": "fe88b5db3f5612e36f1c8f662839d5d3d32c8959ee7f766ca2d5bb3318d42900",
+          "preferred": true,
+          "provenance": {
+            "db": "the cartridge library's 5 Tools & Service Test Carts folder",
+            "dat_version": "copied 2026-10-27"
+          }
+        }
+      ]
+    },
+    "cartridges-240p-test-suite-world-v1-061-pal-program-aftermarket-unl-sfc": {
+      "required": false,
+      "purpose": "A factory or service cartridge whose audio self test or upload handshake this member runs.",
+      "usedBy": ["conformance/selftest.py", "conformance/handshake.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The cartridge image as the library holds it, with no copier header; conformance/testroms.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "240p Test Suite (World) (v1.061) (PAL) (Program) (Aftermarket) (Unl)",
+          "path": "cartridges/240p Test Suite (World) (v1.061) (PAL) (Program) (Aftermarket) (Unl).sfc",
+          "common_filename": "240p Test Suite (World) (v1.061) (PAL) (Program) (Aftermarket) (Unl).sfc",
+          "size": 524288,
+          "crc32": "45dfef5f",
+          "md5": "3c5447d40bbde9f1a7ea6fb37d1a8f77",
+          "sha1": "a0060b866551eb03281b0ea06d429ce0d3e14b3e",
+          "sha256": "16068420d905a4cc7710770428dcd7cb526c30bb47e201dcb0a6bd85a099b6aa",
+          "preferred": true,
+          "provenance": {
+            "db": "the cartridge library's 5 Tools & Service Test Carts folder",
+            "dat_version": "copied 2026-10-27"
+          }
+        }
+      ]
+    },
+    "cartridges-burn-in-test-cartridge-usa-rev-d-sfc": {
+      "required": false,
+      "purpose": "A factory or service cartridge whose audio self test or upload handshake this member runs.",
+      "usedBy": ["conformance/selftest.py", "conformance/handshake.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The cartridge image as the library holds it, with no copier header; conformance/testroms.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "Burn-in - Test Cartridge (USA) (Rev D)",
+          "path": "cartridges/Burn-in - Test Cartridge (USA) (Rev D).sfc",
+          "common_filename": "Burn-in - Test Cartridge (USA) (Rev D).sfc",
+          "size": 524288,
+          "crc32": "7bc95444",
+          "md5": "0e5f788550ca1fad8d4e5034d9964307",
+          "sha1": "c0bd7ec6a96740320d655c386e47af9631646766",
+          "sha256": "092e80eab0d3a5300a30f7d41cf4e454cdb79cc0fac66f052567d37322cb891f",
+          "preferred": true,
+          "provenance": {
+            "db": "the cartridge library's 5 Tools & Service Test Carts folder",
+            "dat_version": "copied 2026-10-27"
+          }
+        }
+      ]
+    },
+    "cartridges-snsp-aging-ver-1-02-japan-en-sfc": {
+      "required": false,
+      "purpose": "A factory or service cartridge whose audio self test or upload handshake this member runs.",
+      "usedBy": ["conformance/selftest.py", "conformance/handshake.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The cartridge image as the library holds it, with no copier header; conformance/testroms.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "SNSP Aging Ver 1.02 (Japan) (En)",
+          "path": "cartridges/SNSP Aging Ver 1.02 (Japan) (En).sfc",
+          "common_filename": "SNSP Aging Ver 1.02 (Japan) (En).sfc",
+          "size": 131072,
+          "crc32": "55938e4e",
+          "md5": "55b2a79c117f03079a75f51a89990ca0",
+          "sha1": "bf14ffdea30d4df4d158a14e3b8f107df38d167b",
+          "sha256": "6c84f60b7a48b279ca4c1801947f843d79841cd92227c82d8c250edc25be2a9b",
+          "preferred": true,
+          "provenance": {
+            "db": "the cartridge library's 5 Tools & Service Test Carts folder",
+            "dat_version": "copied 2026-10-27"
+          }
+        }
+      ]
+    },
+    "cartridges-super-famicom-aging-program-ver-1-00-japan-en-sfc": {
+      "required": false,
+      "purpose": "A factory or service cartridge whose audio self test or upload handshake this member runs.",
+      "usedBy": ["conformance/selftest.py", "conformance/handshake.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The cartridge image as the library holds it, with no copier header; conformance/testroms.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "Super Famicom Aging Program Ver. 1.00 (Japan) (En)",
+          "path": "cartridges/Super Famicom Aging Program Ver. 1.00 (Japan) (En).sfc",
+          "common_filename": "Super Famicom Aging Program Ver. 1.00 (Japan) (En).sfc",
+          "size": 131072,
+          "crc32": "bcbabd55",
+          "md5": "eaf9f580b4798470f26786d9340922ab",
+          "sha1": "1b80d66a19e281bd4e1a7cbad55e6285304f7f81",
+          "sha256": "f58837be3cf307edf550ec971993672d8d00e4fba99a2c5dee58383202d08c54",
+          "preferred": true,
+          "provenance": {
+            "db": "the cartridge library's 5 Tools & Service Test Carts folder",
+            "dat_version": "copied 2026-10-27"
+          }
+        }
+      ]
+    },
+    "cartridges-super-nes-control-deck-tester-japan-en-rev-1-sfc": {
+      "required": false,
+      "purpose": "A factory or service cartridge whose audio self test or upload handshake this member runs.",
+      "usedBy": ["conformance/selftest.py", "conformance/handshake.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The cartridge image as the library holds it, with no copier header; conformance/testroms.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "Super NES Control Deck Tester (Japan) (En) (Rev 1)",
+          "path": "cartridges/Super NES Control Deck Tester (Japan) (En) (Rev 1).sfc",
+          "common_filename": "Super NES Control Deck Tester (Japan) (En) (Rev 1).sfc",
+          "size": 524288,
+          "crc32": "b6891571",
+          "md5": "eeeb07f7b388f208179c4f457c92393f",
+          "sha1": "aab5ccc38d3b33a4b21d93c5db7fb91f2fe112c5",
+          "sha256": "77c03d014c6e94a378d2acb7c2e92cdb14347d675eac1127e11164b1104fcd83",
+          "preferred": true,
+          "provenance": {
+            "db": "the cartridge library's 5 Tools & Service Test Carts folder",
+            "dat_version": "copied 2026-10-27"
+          }
+        }
+      ]
+    },
+    "cartridges-spc700adc-sfc": {
+      "required": false,
+      "purpose": "A community test cartridge the cut-down console runs, read by the name conformance/cartridge.json gives it.",
+      "usedBy": ["conformance/cartridges.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The file as the higan mirror holds it; conformance/cartridge.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "SPC700ADC",
+          "path": "cartridges/SPC700ADC.sfc",
+          "common_filename": "SPC700ADC.sfc",
+          "size": 32768,
+          "crc32": "e29e5a39",
+          "md5": "df5f7aeb40ad8b8db7961d77d87fefd6",
+          "sha1": "e6702f28b1790e40bba538897c5c0702c1f349fd",
+          "sha256": "4fa785418a109c0ef052cb9b71f55d37ee56834fca170fe1a0da784ee3df0e2e",
+          "preferred": true,
+          "provenance": {
+            "db": "https://gitlab.com/higan/snes-test-roms",
+            "dat_version": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b"
+          }
+        }
+      ]
+    },
+    "cartridges-spc700and-sfc": {
+      "required": false,
+      "purpose": "A community test cartridge the cut-down console runs, read by the name conformance/cartridge.json gives it.",
+      "usedBy": ["conformance/cartridges.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The file as the higan mirror holds it; conformance/cartridge.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "SPC700AND",
+          "path": "cartridges/SPC700AND.sfc",
+          "common_filename": "SPC700AND.sfc",
+          "size": 32768,
+          "crc32": "e6388fa0",
+          "md5": "9044f500d98fe22cdc19b951980abced",
+          "sha1": "e22ace94f6e47f20871678abdd9f2679bda54024",
+          "sha256": "a4e7a9d6a926f5b575b2c3006b301bf837ed36072c9617776aab527706c3242d",
+          "preferred": true,
+          "provenance": {
+            "db": "https://gitlab.com/higan/snes-test-roms",
+            "dat_version": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b"
+          }
+        }
+      ]
+    },
+    "cartridges-spc700dec-sfc": {
+      "required": false,
+      "purpose": "A community test cartridge the cut-down console runs, read by the name conformance/cartridge.json gives it.",
+      "usedBy": ["conformance/cartridges.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The file as the higan mirror holds it; conformance/cartridge.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "SPC700DEC",
+          "path": "cartridges/SPC700DEC.sfc",
+          "common_filename": "SPC700DEC.sfc",
+          "size": 32768,
+          "crc32": "382fbc51",
+          "md5": "97de5714397657f9590a820700e4c2ab",
+          "sha1": "95bbfdc6f41642abb91fd97d29bf6394e15514af",
+          "sha256": "fe9254720e62b2aa953a42f50827facc12f7549ad8ca3775c89a5b65f4b55fdf",
+          "preferred": true,
+          "provenance": {
+            "db": "https://gitlab.com/higan/snes-test-roms",
+            "dat_version": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b"
+          }
+        }
+      ]
+    },
+    "cartridges-spc700eor-sfc": {
+      "required": false,
+      "purpose": "A community test cartridge the cut-down console runs, read by the name conformance/cartridge.json gives it.",
+      "usedBy": ["conformance/cartridges.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The file as the higan mirror holds it; conformance/cartridge.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "SPC700EOR",
+          "path": "cartridges/SPC700EOR.sfc",
+          "common_filename": "SPC700EOR.sfc",
+          "size": 32768,
+          "crc32": "6cd32a5e",
+          "md5": "e98814361cbd8bbdbcc13b11acbea9f3",
+          "sha1": "a0f1756a040e33c27c506aee76051a45f640e536",
+          "sha256": "061572e2ba5599f78c3573be3b538ba2ab67703529f7518eee8e8ce3e41372f1",
+          "preferred": true,
+          "provenance": {
+            "db": "https://gitlab.com/higan/snes-test-roms",
+            "dat_version": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b"
+          }
+        }
+      ]
+    },
+    "cartridges-spc700inc-sfc": {
+      "required": false,
+      "purpose": "A community test cartridge the cut-down console runs, read by the name conformance/cartridge.json gives it.",
+      "usedBy": ["conformance/cartridges.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The file as the higan mirror holds it; conformance/cartridge.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "SPC700INC",
+          "path": "cartridges/SPC700INC.sfc",
+          "common_filename": "SPC700INC.sfc",
+          "size": 32768,
+          "crc32": "78d3f374",
+          "md5": "c670c8a8331c6c5f7c6674917b63a9ee",
+          "sha1": "820d4d8e1ac6cb0b83ecb7418db043cdc2245b5e",
+          "sha256": "467376b5ab3cf83197553ec598f91645beef628dadbd43932b6e96d2fa17776b",
+          "preferred": true,
+          "provenance": {
+            "db": "https://gitlab.com/higan/snes-test-roms",
+            "dat_version": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b"
+          }
+        }
+      ]
+    },
+    "cartridges-spc700ora-sfc": {
+      "required": false,
+      "purpose": "A community test cartridge the cut-down console runs, read by the name conformance/cartridge.json gives it.",
+      "usedBy": ["conformance/cartridges.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The file as the higan mirror holds it; conformance/cartridge.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "SPC700ORA",
+          "path": "cartridges/SPC700ORA.sfc",
+          "common_filename": "SPC700ORA.sfc",
+          "size": 32768,
+          "crc32": "11752a84",
+          "md5": "eb08cb308bcb02e14be081954f77caf7",
+          "sha1": "b663fd0345580b1cdf36cd3723687bb7f047ef9b",
+          "sha256": "aefb416d0f681eed0975cfbee70fd3048f59154cd5502f550e48e80f789a0ab2",
+          "preferred": true,
+          "provenance": {
+            "db": "https://gitlab.com/higan/snes-test-roms",
+            "dat_version": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b"
+          }
+        }
+      ]
+    },
+    "cartridges-spc700sbc-sfc": {
+      "required": false,
+      "purpose": "A community test cartridge the cut-down console runs, read by the name conformance/cartridge.json gives it.",
+      "usedBy": ["conformance/cartridges.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The file as the higan mirror holds it; conformance/cartridge.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "SPC700SBC",
+          "path": "cartridges/SPC700SBC.sfc",
+          "common_filename": "SPC700SBC.sfc",
+          "size": 32768,
+          "crc32": "c3bd1a0c",
+          "md5": "84c7a7355afb99429edd2f72c18eda58",
+          "sha1": "342d9104ab01b4bcb3826727d3432cfbaecc001b",
+          "sha256": "fcc6017db0560ce12ae029fa97947eedbd8eaf35dd32200c445281ca94cbae9b",
+          "preferred": true,
+          "provenance": {
+            "db": "https://gitlab.com/higan/snes-test-roms",
+            "dat_version": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b"
+          }
+        }
+      ]
+    },
+    "cartridges-spc-dsp6-sfc": {
+      "required": false,
+      "purpose": "A community test cartridge the cut-down console runs, read by the name conformance/cartridge.json gives it.",
+      "usedBy": ["conformance/cartridges.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The file as the higan mirror holds it; conformance/cartridge.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "spc_dsp6",
+          "path": "cartridges/spc_dsp6.sfc",
+          "common_filename": "spc_dsp6.sfc",
+          "size": 489472,
+          "crc32": "99f51a24",
+          "md5": "718bebcc4652ea430a3b3a55fac4b466",
+          "sha1": "b211284cda45adcad25634f3205fb54044b1a1d4",
+          "sha256": "b12038f865536a33003c9887e6f86fcbcb526b7f1766526ab30cb74b7380aa9a",
+          "preferred": true,
+          "provenance": {
+            "db": "https://gitlab.com/higan/snes-test-roms",
+            "dat_version": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b"
+          }
+        }
+      ]
+    },
+    "cartridges-spc-mem-access-times-sfc": {
+      "required": false,
+      "purpose": "A community test cartridge the cut-down console runs, read by the name conformance/cartridge.json gives it.",
+      "usedBy": ["conformance/cartridges.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The file as the higan mirror holds it; conformance/cartridge.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "spc_mem_access_times",
+          "path": "cartridges/spc_mem_access_times.sfc",
+          "common_filename": "spc_mem_access_times.sfc",
+          "size": 69632,
+          "crc32": "72630c84",
+          "md5": "7379b48d4341d7ad4ef967bdbe40b79d",
+          "sha1": "0bd66a6b99c6490b1623bebc9eb473dd093f8af3",
+          "sha256": "53dc8005959d54ccfc95b8d4222e1d51d21e3d9f3491058320f105edc1a4454a",
+          "preferred": true,
+          "provenance": {
+            "db": "https://gitlab.com/higan/snes-test-roms",
+            "dat_version": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b"
+          }
+        }
+      ]
+    },
+    "cartridges-spc-smp-sfc": {
+      "required": false,
+      "purpose": "A community test cartridge the cut-down console runs, read by the name conformance/cartridge.json gives it.",
+      "usedBy": ["conformance/cartridges.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The file as the higan mirror holds it; conformance/cartridge.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "spc_smp",
+          "path": "cartridges/spc_smp.sfc",
+          "common_filename": "spc_smp.sfc",
+          "size": 137216,
+          "crc32": "8ea01701",
+          "md5": "6b3d13efd94af13a45eb4b2e422f7386",
+          "sha1": "5b38be656ef615e7d2adeef3262aeaf9bbf8c83f",
+          "sha256": "2ed302c5b989675d4ab6b40001fd5166ac4c6e0188a6b1b6df878e4608999c03",
+          "preferred": true,
+          "provenance": {
+            "db": "https://gitlab.com/higan/snes-test-roms",
+            "dat_version": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b"
+          }
+        }
+      ]
+    },
+    "cartridges-spc-timer-sfc": {
+      "required": false,
+      "purpose": "A community test cartridge the cut-down console runs, read by the name conformance/cartridge.json gives it.",
+      "usedBy": ["conformance/cartridges.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The file as the higan mirror holds it; conformance/cartridge.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "spc_timer",
+          "path": "cartridges/spc_timer.sfc",
+          "common_filename": "spc_timer.sfc",
+          "size": 67584,
+          "crc32": "5f7b0052",
+          "md5": "356330ff027bec9be9b3edb5c7c176bf",
+          "sha1": "ac84ce6d1c96c2b2c5a27014eafe335eb47477f4",
+          "sha256": "f4799b994a91d78689073f4e31c3668ae46c100abd78177b9f4813506d6c9629",
+          "preferred": true,
+          "provenance": {
+            "db": "https://gitlab.com/higan/snes-test-roms",
+            "dat_version": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b"
+          }
+        }
+      ]
+    },
+    "cartridges-spctest-sfc": {
+      "required": false,
+      "purpose": "A community test cartridge the cut-down console runs, read by the name conformance/cartridge.json gives it.",
+      "usedBy": ["conformance/cartridges.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "none",
+        "notes": "The file as the higan mirror holds it; conformance/cartridge.json pins the same SHA-256."
+      },
+      "accepted": [
+        {
+          "label": "spctest",
+          "path": "cartridges/spctest.sfc",
+          "common_filename": "spctest.sfc",
+          "size": 131072,
+          "crc32": "1a1efbd6",
+          "md5": "aa611c7e30f6b233dd6b7b3f97db74ec",
+          "sha1": "26202a15e022b83d827db4083bd096eaecb4a9ad",
+          "sha256": "ed6aa8fa247007cdf683f243454d1dff31a25e1977c25fc9d7e1a96e3d031e92",
+          "preferred": true,
+          "provenance": {
+            "db": "https://gitlab.com/higan/snes-test-roms",
+            "dat_version": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b"
+          }
+        }
+      ]
+    },
+    "spc-full-ram-spc": {
+      "required": false,
+      "purpose": "One of Shay Green's .spc checks the loader plays, read by name.",
+      "usedBy": ["conformance/loader.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "as released",
+        "notes": "The .spc file as the higan mirror holds it; conformance/checks.manifest.json pins the same digests."
+      },
+      "accepted": [
+        {
+          "label": "full_ram",
+          "path": "spc/full_ram.spc",
+          "common_filename": "full_ram.spc",
+          "size": 65920,
+          "crc32": "7d0bf73d",
+          "md5": "27420bd177798f16c14a72413af4085f",
+          "sha1": "6e88dad3f4fc8193bc66edaac33421d6e8c7566a",
+          "sha256": "c961afce2ef88f6df73363e360fe0b963ce337c0570bafaead726e781e663630",
+          "preferred": true,
+          "provenance": {
+            "db": "https://gitlab.com/higan/snes-test-roms",
+            "dat_version": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b"
+          }
+        }
+      ]
+    },
+    "spc-initial-in-ports-spc": {
+      "required": false,
+      "purpose": "One of Shay Green's .spc checks the loader plays, read by name.",
+      "usedBy": ["conformance/loader.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "as released",
+        "notes": "The .spc file as the higan mirror holds it; conformance/checks.manifest.json pins the same digests."
+      },
+      "accepted": [
+        {
+          "label": "initial_in_ports",
+          "path": "spc/initial_in_ports.spc",
+          "common_filename": "initial_in_ports.spc",
+          "size": 65920,
+          "crc32": "6f3904fe",
+          "md5": "963dc7142496cf30393d6dfdcb6efee7",
+          "sha1": "04a0818fa97d4351ccacf0f7a513172b773c9f97",
+          "sha256": "271c7b640c00818f6b156f2efc05a48cb3621bdff0f4d657733871b6f72f4be5",
+          "preferred": true,
+          "provenance": {
+            "db": "https://gitlab.com/higan/snes-test-roms",
+            "dat_version": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b"
+          }
+        }
+      ]
+    },
+    "spc-initial-regs-spc": {
+      "required": false,
+      "purpose": "One of Shay Green's .spc checks the loader plays, read by name.",
+      "usedBy": ["conformance/loader.py"],
+      "canonical_form": {
+        "container": "raw",
+        "header": "as released",
+        "notes": "The .spc file as the higan mirror holds it; conformance/checks.manifest.json pins the same digests."
+      },
+      "accepted": [
+        {
+          "label": "initial_regs",
+          "path": "spc/initial_regs.spc",
+          "common_filename": "initial_regs.spc",
+          "size": 65920,
+          "crc32": "ef2b2f7f",
+          "md5": "a50ebe31ac696cfc8a10fa708741e2f0",
+          "sha1": "530caca0104e439e7acd06825e8ee0708b38a903",
+          "sha256": "0b90673004318892194ea7172996dbfbf3c7e3d44bb23067f7645d705e8d1762",
+          "preferred": true,
+          "provenance": {
+            "db": "https://gitlab.com/higan/snes-test-roms",
+            "dat_version": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b"
+          }
+        }
+      ]
+    }
+  }
+}

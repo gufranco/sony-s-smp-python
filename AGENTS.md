@@ -71,8 +71,8 @@ timers.
 
 ## It needs a boot program and carries none
 
-Those sixty four bytes are Sony's. A copy you already own goes in `boot/`, or in
-the `boot/` of the project this one sits inside, or anywhere named by
+Those sixty four bytes are Sony's. A copy you already own goes in `external/boot/`, or in
+the `external/boot/` of the project this one sits inside, or anywhere named by
 `SSMP_BOOT_DIR`. Nothing is downloaded. Without one the unit refuses to be built
 and says why, and every check that needs one skips out loud.
 
@@ -100,7 +100,7 @@ read, where the part answers zero.
 ## The checks are not here either
 
 They are Shay Green's. `conformance/checks.manifest.json` identifies three of them
-and carries no bytes. Copies you own go in `spc/`, or anywhere named by
+and carries no bytes. Copies you own go in `external/spc/`, or anywhere named by
 `SSMP_SPC_DIR`. Without them `conformance/against_checks.py` exits two and says
 nothing was checked, which is not the same as agreement.
 
@@ -139,10 +139,11 @@ interrupt flag alone, it is let through and listed under `excused`; any other
 difference fails the check.
 
 ```bash
-SSMP_CARTRIDGE_DIR=/path/to/cartridges python3 -m conformance.cartridges
+python3 -m conformance.cartridges
 ```
 
-It also looks in `cartridges/` beside and inside this checkout. Without a boot
+It reads `SSMP_CARTRIDGE_DIR` first, then `external/cartridges/` beside and inside
+this checkout. Without a boot
 program, the submodule or any cartridge it runs nothing, says so and exits 2,
 and CI turns that into a notice. `--write` rewrites the record from the run.
 
@@ -174,8 +175,8 @@ the payload running at `$0400`. Both builds pass, as
 [`conformance/handshake.json`](conformance/handshake.json) records.
 
 ```bash
-SSMP_CARTRIDGE_DIR=/path/to/cartridges python3 -m conformance.selftest
-SSMP_CARTRIDGE_DIR=/path/to/cartridges python3 -m conformance.handshake
+python3 -m conformance.selftest
+python3 -m conformance.handshake
 ```
 
 Both find an image by its SHA-256 under any name, in the same folders as the
@@ -187,6 +188,30 @@ this unit against the 5A22, so it waits on `snes-cpu-io`. Fourteen of byuu's
 S-PPU rather than report a verdict, so they wait on `snes-ppu`. The NTF 2.5 test,
 the Test Program that overdumps it and the controller test cassette upload a
 sound driver and check nothing on the unit, so they are not listed.
+
+## Files kept in `external/`
+
+Everything this member reads and may not ship sits in `external/`, which git
+ignores and Dropbox is told to leave alone, per FAMILY.md's "Where the files a
+member reads are kept". [`artifacts.manifest.json`](artifacts.manifest.json)
+names all 22 by size, CRC32, MD5, SHA-1 and SHA-256:
+
+- `external/boot/ipl.bin`, Sony's boot program, which the package finds there
+  after `SSMP_BOOT_DIR`.
+- `external/cartridges/`, the six factory and service cartridges the self test
+  and handshake runners read, copied from the cartridge library, and the
+  twelve community cartridges the cut-down console runs, copied from the higan
+  mirror at the commit the records pin.
+- `external/spc/`, Shay Green's three `.spc` checks, from the same mirror.
+
+```bash
+python3 -m conformance.external
+python3 -m conformance.external --describe external/<file>
+```
+
+The first says which are here, verified, missing or wrong. The second prints
+the manifest entry for a file being added, which gets its entry in the same
+change.
 
 ## Every gate, in the order to run them
 
@@ -332,6 +357,9 @@ conformance/cartridges.py test cartridges, run on that console with a 65816 from
 conformance/selftest.py   the self-test four factory cartridges upload, run on the unit
 conformance/handshake.py  the 240p Test Suite's boot-time upload, replayed at the unit
 conformance/quotes.py     every quoted sentence, found in the document it cites
+conformance/external.py   which files in external/ are here, verified, missing or wrong
+external/           the boot program, the cartridges and the .spc checks, never committed
+artifacts.manifest.json  every file in external/, by size and every digest
 ```
 
 ## Things that will bite you

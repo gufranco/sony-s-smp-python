@@ -379,9 +379,10 @@ class BlarggTest(unittest.TestCase):
         found = {name: loader.find(name) for name in QUICK}
         held = {name: where for name, where in found.items() if where is not None}
         for name in sorted(set(QUICK) - set(held)):
+            kept = loader.DEFAULT_DIRECTORY.relative_to(loader.ROOT)
             self.skipTest(
                 f"{name} is not on this machine. It is blargg's and is not carried"
-                f" here; put a copy in {loader.DEFAULT_DIRECTORY.name}/ or name a"
+                f" here; put a copy in {kept}/ or name a"
                 f" directory in {loader.DIRECTORY_VARIABLE}"
             )
 

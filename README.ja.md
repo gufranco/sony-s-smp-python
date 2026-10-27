@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-本体とのインターフェースは**4**つのポートがすべてです。実機で採取した値を持つチェックが**3**つ、不一致は**0**件、チェックを集めたカートリッジによる判定**18**件のすべてが一致、テストは**943**件、ステートメントとブランチのカバレッジは**100%**、依存関係はありません。
+本体とのインターフェースは**4**つのポートがすべてです。実機で採取した値を持つチェックが**3**つ、不一致は**0**件、チェックを集めたカートリッジによる判定**18**件のすべてが一致、テストは**993**件、ステートメントとブランチのカバレッジは**100%**、依存関係はありません。
 
 ```python
 import ssmp
@@ -45,7 +45,7 @@ python3 ssmp/doctor.py
 
 パッケージは標準ライブラリ以外を何もインポートしません。プロセッサは[sony-spc700-python](https://github.com/gufranco/sony-spc700-python)、音源は[sony-s-dsp-python](https://github.com/gufranco/sony-s-dsp-python)で、どちらもサブモジュールとしてチェックアウトされます。これらがないと何もビルドできません。`git submodule update --init --recursive`で取得できます。
 
-ブートプログラムはSonyのものであり、このリポジトリには含まれていません。コピーを`boot/`、このチェックアウトが置かれたディレクトリの`boot/`、または`SSMP_BOOT_DIR`で指定した任意のディレクトリに置いてください。ブートプログラムからユニットを構築する例は、それがないマシンでは実行を拒否し、何が足りないかを一文で示します。
+ブートプログラムはSonyのものであり、このリポジトリには含まれていません。コピーを`external/boot/`、このチェックアウトが置かれたディレクトリの`external/boot/`、または`SSMP_BOOT_DIR`で指定した任意のディレクトリに置いてください。ブートプログラムからユニットを構築する例は、それがないマシンでは実行を拒否し、何が足りないかを一文で示します。
 
 ドクターはマシンとチェックアウトを確認し、ユニットを構築して、1行で終わります。パッケージに関するすべての結果が合格すれば0で、そうでなければ1で終了します。バグ報告には出力全体を貼り付けてください。両方のサブモジュールとブートプログラムがそろっていれば、次の行で終わります。
 
@@ -255,7 +255,7 @@ print(rates.SLOW_TIMER_CYCLES, rates.FAST_TIMER_CYCLES)
 
 その64バイトはSonyのものです。このリポジトリはそれを含まず、ダウンロードもせず、リポジトリ内のどれもそれを再構成できません。[`ssmp/artifacts.manifest.json`](ssmp/artifacts.manifest.json)はそのダイジェストを4つ持ち、バイトは持ちません。判定はSHA-256で行います。CRC32、MD5、SHA-1は相互確認に使い、SHA-256で一致してそのいずれかで一致しないファイルは`Corrupt`として拒否されます。
 
-検索順序は、複数のディレクトリを指定できる`SSMP_BOOT_DIR`、次にこのチェックアウトの隣の`boot/`、次にその中の`boot/`です。モデルごとに最初に見つかったコピーが使われます。
+検索順序は、複数のディレクトリを指定できる`SSMP_BOOT_DIR`、次にこのチェックアウトの隣の`external/boot/`、次にその中の`external/boot/`です。モデルごとに最初に見つかったコピーが使われます。
 
 ## モデル
 
@@ -291,11 +291,11 @@ S-SMPに関するSonyの文書は、存在が知られていません。Nintendo
 
 3つとも一致します。[`conformance/hardware.json`](conformance/hardware.json)に各実行が記録されています。
 
-**簡略化した本体で動かす、チェックを集めたカートリッジ。** `python3 -m conformance.cartridges`は`SSMP_CARTRIDGE_DIR`または`cartridges/`にあるテストカートリッジをすべてその本体で動かし、それぞれを記録した[`conformance/cartridge.json`](conformance/cartridge.json)と実行結果を比較します。Shay Greenの`spc_smp`は18件の判定に到達して18件すべてが一致し、`CPU/verify IPL ROM`、`CPU/smp reg read-write behavior`、3つのランダムタイマーのチェック、`CPU Timing/mem access times`が含まれます。`spc_dsp6`は音源について104件の判定に到達して104件すべてが一致し、`spc_mem_access_times`は2件中2件、`spc_timer`は1件中1件が一致します。`SLEEP`と`STOP`を除くすべてのSPC700オペコードを試すgilyonの`spctest`は`Success`を報告します。Peter LemonのSPC700カートリッジ7本は、ソースが表示するすべてのPASSを表示します。除外するのは1つのフィールドだけです。いずれも割り込みフラグがクリアされていることを期待しますが、ここではリセット後にセットされたままで、彼の期待値には実機で取ったという記載がありません。そのためランナーはそのフラグだけが異なるステータスワードを通し、それ以外はすべて比較します。リセットについては[sony-spc700-python](https://github.com/gufranco/sony-spc700-python)が未解決の問題として扱っています。Shay Greenのチェックの背後にあるタイマーとレジスタの修正は[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)に記録しています。カートリッジがなければ2で終了し、何も実行しなかったと伝えます。[`conformance/testroms.json`](conformance/testroms.json)は、本体全体を待つものも含め、このユニット向けのすべてのテストカートリッジを列挙しています。
+**簡略化した本体で動かす、チェックを集めたカートリッジ。** `python3 -m conformance.cartridges`は`SSMP_CARTRIDGE_DIR`または`external/cartridges/`にあるテストカートリッジをすべてその本体で動かし、それぞれを記録した[`conformance/cartridge.json`](conformance/cartridge.json)と実行結果を比較します。Shay Greenの`spc_smp`は18件の判定に到達して18件すべてが一致し、`CPU/verify IPL ROM`、`CPU/smp reg read-write behavior`、3つのランダムタイマーのチェック、`CPU Timing/mem access times`が含まれます。`spc_dsp6`は音源について104件の判定に到達して104件すべてが一致し、`spc_mem_access_times`は2件中2件、`spc_timer`は1件中1件が一致します。`SLEEP`と`STOP`を除くすべてのSPC700オペコードを試すgilyonの`spctest`は`Success`を報告します。Peter LemonのSPC700カートリッジ7本は、ソースが表示するすべてのPASSを表示します。除外するのは1つのフィールドだけです。いずれも割り込みフラグがクリアされていることを期待しますが、ここではリセット後にセットされたままで、彼の期待値には実機で取ったという記載がありません。そのためランナーはそのフラグだけが異なるステータスワードを通し、それ以外はすべて比較します。リセットについては[sony-spc700-python](https://github.com/gufranco/sony-spc700-python)が未解決の問題として扱っています。Shay Greenのチェックの背後にあるタイマーとレジスタの修正は[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)に記録しています。カートリッジがなければ2で終了し、何も実行しなかったと伝えます。[`conformance/testroms.json`](conformance/testroms.json)は、本体全体を待つものも含め、このユニット向けのすべてのテストカートリッジを列挙しています。
 
 **独自のプログラムでユニットを試す工場用カートリッジ。** Burn-in Rev D、SNSP Aging 1.02、Control Deck Tester、Aging Program 1.00は、それぞれSPC700のセルフテストをアップロードし、6つのサブテストをビットに持つ結果バイトを読み戻します。オーディオRAMのパターン、エコー領域、表と比べるエンベロープ、エコー書き込みのタイミング、そして3つ目に対する2つのタイマーです。`python3 -m conformance.selftest`は、お手元のイメージからそのプログラムを読み出し、アップロードして実行します。4本ともすべてのサブテストに合格し、[`conformance/selftest.json`](conformance/selftest.json)に記録しています。カートリッジはエンベロープのビットを無視します。MAMEはこれをセットし、このユニットはクリアするため、このモデル自身の測定値として残しています。`python3 -m conformance.handshake`は240p Test Suiteの起動時アップロードを同じ長さのペイロードで再生し、どちらのビルドでもすべてのエコーとペイロードの実行を確認できます。[`conformance/handshake.json`](conformance/handshake.json)に記録しています。
 
-`.spc`ファイルはShay Greenのものであり、ここには含まれていません。[`conformance/checks.manifest.json`](conformance/checks.manifest.json)がサイズと4つのダイジェストでそれらを識別します。お持ちのコピーを`spc/`に置くか、`SSMP_SPC_DIR`でディレクトリを指定してください。ない場合、`python3 -m conformance.against_checks`は終了コード2で終了し、何もチェックされなかったことを示します。
+`.spc`ファイルはShay Greenのものであり、ここには含まれていません。[`conformance/checks.manifest.json`](conformance/checks.manifest.json)がサイズと4つのダイジェストでそれらを識別します。お持ちのコピーを`external/spc/`に置くか、`SSMP_SPC_DIR`でディレクトリを指定してください。ない場合、`python3 -m conformance.against_checks`は終了コード2で終了し、何もチェックされなかったことを示します。
 
 情報源がモデルと、または情報源同士が矛盾する箇所は、[`conformance/divergences.json`](conformance/divergences.json)に記載しています。
 

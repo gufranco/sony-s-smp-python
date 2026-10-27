@@ -270,6 +270,7 @@ class MainTest(unittest.TestCase):
             "why_not": lambda: None,
             "environment": {cartridges.DIRECTORY_VARIABLE: str(self.folder)},
             "held": held,
+            "kept": (),
             "slice_": 20_000,
             "limit": 200_000,
         }

@@ -26,9 +26,9 @@ RECORD = Path(__file__).resolve().parent / "cartridge.json"
 
 DIRECTORY_VARIABLE = "SSMP_CARTRIDGE_DIR"
 
-DEFAULT_DIRECTORY = ROOT / "cartridges"
+DEFAULT_DIRECTORY = ROOT / "external" / "cartridges"
 
-ALONGSIDE = ROOT.parent / "cartridges"
+ALONGSIDE = ROOT.parent / "external" / "cartridges"
 
 CHECKSUM = (0xDC, 0xDD, 0xDE, 0xDF)
 

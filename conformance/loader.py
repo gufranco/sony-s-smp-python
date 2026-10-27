@@ -15,9 +15,9 @@ ROOT = Path(__file__).resolve().parent.parent
 
 DIRECTORY_VARIABLE = "SSMP_SPC_DIR"
 
-DEFAULT_DIRECTORY = ROOT / "spc"
+DEFAULT_DIRECTORY = ROOT / "external" / "spc"
 
-ALONGSIDE = ROOT.parent / "spc"
+ALONGSIDE = ROOT.parent / "external" / "spc"
 
 SIGNATURE = b"SNES-SPC700 Sound File Data"
 

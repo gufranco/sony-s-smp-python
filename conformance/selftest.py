@@ -63,13 +63,14 @@ def declared(path: Path | None = None) -> dict[str, Any]:
     return held
 
 
-def directories(environment: Mapping[str, str] | None) -> tuple[Path, ...]:
+KEPT = (ALONGSIDE, DEFAULT_DIRECTORY)
+
+
+def directories(
+    environment: Mapping[str, str] | None, kept: tuple[Path, ...] = KEPT
+) -> tuple[Path, ...]:
     named = (os.environ if environment is None else environment).get(DIRECTORY_VARIABLE, "")
-    return (
-        *[Path(where) for where in named.split(os.pathsep) if where],
-        ALONGSIDE,
-        DEFAULT_DIRECTORY,
-    )
+    return (*[Path(where) for where in named.split(os.pathsep) if where], *kept)
 
 
 def located(digest: str, folders: Sequence[Path]) -> Path | None:
@@ -195,13 +196,14 @@ def main(
     record_path: Path | None = None,
     slice_: int = SLICE,
     limit: int = LIMIT,
+    kept: tuple[Path, ...] = KEPT,
 ) -> int:
     stopped = why_not()
     if stopped is not None:
         say(f"nothing was run: {stopped}")
         return NOTHING_RAN
     record = declared() if held is None else held
-    folders = directories(environment)
+    folders = directories(environment, kept)
     options = {"say": say, "build": build, "folders": folders, "slice_": slice_, "limit": limit}
     results = [one_image(entry, options) for entry in record["images"]]
     ran, wrong = sum(one[0] for one in results), sum(one[1] for one in results)

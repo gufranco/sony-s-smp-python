@@ -70,12 +70,12 @@ def check_halves(members: Callable[[], tuple[Any, Any] | None]) -> Finding:
 
 def check_boot(why_not: Callable[[], str | None]) -> Finding:
     said = why_not()
+    kept = firmware.DEFAULT_DIRECTORY.relative_to(firmware.ROOT).as_posix()
     return Finding(
         "boot program",
         said is None,
         "found" if said is None else said,
-        f"put a copy you own in {firmware.DEFAULT_DIRECTORY.name}/ or name a directory"
-        f" in {firmware.DIRECTORY_VARIABLE}",
+        f"put a copy you own in {kept}/ or name a directory in {firmware.DIRECTORY_VARIABLE}",
     )
 
 

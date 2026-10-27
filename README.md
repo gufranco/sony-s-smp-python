@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **18** of **18** verdicts from a cartridge of checks agree, **943** tests, **100%** statement and branch coverage, no dependencies
+**4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **18** of **18** verdicts from a cartridge of checks agree, **993** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 import ssmp
@@ -45,7 +45,7 @@ python3 ssmp/doctor.py
 
 The package imports nothing outside the standard library. The processor is [sony-spc700-python](https://github.com/gufranco/sony-spc700-python) and the sound generator is [sony-s-dsp-python](https://github.com/gufranco/sony-s-dsp-python), both checked out as submodules. Without them nothing builds, and `git submodule update --init --recursive` fetches them.
 
-The boot program is Sony's and is not in this repository. Put a copy in `boot/`, in the `boot/` of the directory this checkout sits in, or in any directory named by `SSMP_BOOT_DIR`. Every example that builds a unit from it refuses on a machine without one, with a sentence saying what is missing.
+The boot program is Sony's and is not in this repository. Put a copy in `external/boot/`, in the `external/boot/` of the directory this checkout sits in, or in any directory named by `SSMP_BOOT_DIR`. Every example that builds a unit from it refuses on a machine without one, with a sentence saying what is missing.
 
 The doctor checks the machine and the checkout, builds the unit, and ends with one line. It exits 0 when every finding about the package passes and 1 otherwise. Paste its whole output into any bug report. With both submodules and a boot program present it ends with:
 
@@ -255,7 +255,7 @@ A unit is built with the generator scrambled, as the processor is, and `reset()`
 
 Those 64 bytes are Sony's. This repository does not carry them, does not download them, and nothing in it can reconstruct them. [`ssmp/artifacts.manifest.json`](ssmp/artifacts.manifest.json) carries four digests of them and no bytes. SHA-256 decides; CRC32, MD5 and SHA-1 are cross-checked, and a file that matches on SHA-256 and disagrees on one of them is refused as `Corrupt`.
 
-The search order is `SSMP_BOOT_DIR`, which may name several directories, then `boot/` beside this checkout, then `boot/` inside it. The first copy found for a model wins.
+The search order is `SSMP_BOOT_DIR`, which may name several directories, then `external/boot/` beside this checkout, then `external/boot/` inside it. The first copy found for a model wins.
 
 ## Models
 
@@ -291,11 +291,11 @@ No Sony document for the S-SMP is known to exist. Nintendo's development manual,
 
 All three agree. [`conformance/hardware.json`](conformance/hardware.json) records each run.
 
-**Cartridges of checks, driven by a cut-down console.** `python3 -m conformance.cartridges` runs every test cartridge it finds in `SSMP_CARTRIDGE_DIR` or `cartridges/` on that console and compares the run with [`conformance/cartridge.json`](conformance/cartridge.json), which records each one. Shay Green's `spc_smp` reaches 18 verdicts and all 18 agree, among them `CPU/verify IPL ROM`, `CPU/smp reg read-write behavior`, the three random timer checks and `CPU Timing/mem access times`. His `spc_dsp6` reaches 104 verdicts about the sound generator and all 104 agree, his `spc_mem_access_times` 2 of 2 and his `spc_timer` 1 of 1. gilyon's `spctest`, which tests every SPC700 opcode but `SLEEP` and `STOP`, reports `Success`. Peter Lemon's seven SPC700 cartridges print every PASS their source prints, with one field excused: each expects the interrupt flag clear, a reset leaves it set here, and his expected values carry no stated hardware provenance, so the runner lets through a status word apart in that flag alone and compares everything else; [sony-spc700-python](https://github.com/gufranco/sony-spc700-python) keeps the reset an open question. [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) records what the timer and register fixes behind Shay Green's were. Without the cartridges it exits 2 and says nothing was run; [`conformance/testroms.json`](conformance/testroms.json) lists every test cartridge for this unit, including those that wait on a whole machine.
+**Cartridges of checks, driven by a cut-down console.** `python3 -m conformance.cartridges` runs every test cartridge it finds in `SSMP_CARTRIDGE_DIR` or `external/cartridges/` on that console and compares the run with [`conformance/cartridge.json`](conformance/cartridge.json), which records each one. Shay Green's `spc_smp` reaches 18 verdicts and all 18 agree, among them `CPU/verify IPL ROM`, `CPU/smp reg read-write behavior`, the three random timer checks and `CPU Timing/mem access times`. His `spc_dsp6` reaches 104 verdicts about the sound generator and all 104 agree, his `spc_mem_access_times` 2 of 2 and his `spc_timer` 1 of 1. gilyon's `spctest`, which tests every SPC700 opcode but `SLEEP` and `STOP`, reports `Success`. Peter Lemon's seven SPC700 cartridges print every PASS their source prints, with one field excused: each expects the interrupt flag clear, a reset leaves it set here, and his expected values carry no stated hardware provenance, so the runner lets through a status word apart in that flag alone and compares everything else; [sony-spc700-python](https://github.com/gufranco/sony-spc700-python) keeps the reset an open question. [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) records what the timer and register fixes behind Shay Green's were. Without the cartridges it exits 2 and says nothing was run; [`conformance/testroms.json`](conformance/testroms.json) lists every test cartridge for this unit, including those that wait on a whole machine.
 
 **Factory cartridges that test the unit with a program of their own.** Burn-in revision D, SNSP Aging 1.02, the Control Deck Tester and Aging Program 1.00 each upload an SPC700 self-test and read back a result byte whose bits are six sub-tests: audio RAM patterns, the echo region, the envelope against a table, the echo writer's timing and two timers against a third. `python3 -m conformance.selftest` reads that program out of the image you hold, uploads it and runs it; all four pass every sub-test, recorded in [`conformance/selftest.json`](conformance/selftest.json). The cartridges ignore the envelope bit, which MAME sets and this unit clears, so it is kept as this model's own measurement. `python3 -m conformance.handshake` replays the 240p Test Suite's boot-time upload with a payload of the same length, and both builds see every echo and the payload run, recorded in [`conformance/handshake.json`](conformance/handshake.json).
 
-The `.spc` files are Shay Green's and are not carried here. [`conformance/checks.manifest.json`](conformance/checks.manifest.json) identifies them by size and four digests. Put copies you own in `spc/` or name a directory in `SSMP_SPC_DIR`; without them, `python3 -m conformance.against_checks` exits 2 and says nothing was checked.
+The `.spc` files are Shay Green's and are not carried here. [`conformance/checks.manifest.json`](conformance/checks.manifest.json) identifies them by size and four digests. Put copies you own in `external/spc/` or name a directory in `SSMP_SPC_DIR`; without them, `python3 -m conformance.against_checks` exits 2 and says nothing was checked.
 
 Where the sources contradict the model, or each other, the entry is in [`conformance/divergences.json`](conformance/divergences.json).
 

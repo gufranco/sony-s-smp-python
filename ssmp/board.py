@@ -31,7 +31,7 @@ WHY_NOT_PROCESSOR = (
 WHY_NOT_BOOT = (
     "no boot program was found: this unit starts from sixty four bytes Sony wrote,"
     " and those belong to whoever wrote them, so a copy you already own goes in"
-    " the boot directory of this project or in any directory named by"
+    " the external/boot directory of this project or in any directory named by"
     " SSMP_BOOT_DIR. Nothing is downloaded and nothing is shipped"
 )
 

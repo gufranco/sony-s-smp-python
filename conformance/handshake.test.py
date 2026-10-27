@@ -178,6 +178,7 @@ class MainTest(unittest.TestCase):
             "why_not": lambda: None,
             "environment": {cartridges.DIRECTORY_VARIABLE: str(self.folder)},
             "held": held,
+            "kept": (),
         }
         return handshake.main((), **{**settings, **options})
 

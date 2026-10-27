@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, NamedTuple
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from conformance.cartridges import DIRECTORY_VARIABLE
-from conformance.selftest import directories, located
+from conformance.selftest import KEPT, directories, located
 from ssmp import Chip, board
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -142,13 +142,14 @@ def main(
     environment: Mapping[str, str] | None = None,
     held: dict[str, Any] | None = None,
     record_path: Path | None = None,
+    kept: tuple[Path, ...] = KEPT,
 ) -> int:
     stopped = why_not()
     if stopped is not None:
         say(f"nothing was run: {stopped}")
         return NOTHING_RAN
     record = declared() if held is None else held
-    options = {"say": say, "build": build, "folders": directories(environment)}
+    options = {"say": say, "build": build, "folders": directories(environment, kept)}
     results = [one_image(entry, options) for entry in record["images"]]
     ran, wrong = sum(one[0] for one in results), sum(one[1] for one in results)
     target = RECORD if "--write" in argv else record_path
