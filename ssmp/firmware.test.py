@@ -354,7 +354,7 @@ class SearchTest(unittest.TestCase):
     def test_the_boot_directory_inside_this_checkout_is_looked_at(self) -> None:
         # Arrange
         inside = ROOT / "external" / "boot"
-        inside.mkdir(exist_ok=True)
+        inside.mkdir(parents=True, exist_ok=True)
         held = self.enterContext(tempfile.NamedTemporaryFile(dir=inside, suffix=".bin"))
         Path(held.name).write_bytes(A_PROGRAM)
 
