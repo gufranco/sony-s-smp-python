@@ -4,9 +4,11 @@ The Sony S-SMP audio unit of the Super Nintendo in Python: an SPC700 processor a
 
 English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁體中文（香港）](README.zh-HK.md)
 
-[![CI](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![ci](https://img.shields.io/github/actions/workflow/status/gufranco/sony-s-smp-python/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python?style=flat-square&label=release)](https://github.com/gufranco/sony-s-smp-python/releases/latest)
+[![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square)](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml)
+[![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/gufranco/sony-s-smp-python?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/gufranco/sony-s-smp-python)
+[![license](https://img.shields.io/github/license/gufranco/sony-s-smp-python?style=flat-square&label=license)](LICENSE)
 
 **4** ports are the whole console interface, **3** checks carrying values taken on a console, **0** disagreements, **18** of **18** verdicts from a cartridge of checks agree, **995** tests, **100%** statement and branch coverage, no dependencies
 

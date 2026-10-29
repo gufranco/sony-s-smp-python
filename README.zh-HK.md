@@ -4,9 +4,11 @@
 
 [English](README.md) | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | 繁體中文（香港）
 
-[![CI](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python)](https://github.com/gufranco/sony-s-smp-python/releases)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![ci](https://img.shields.io/github/actions/workflow/status/gufranco/sony-s-smp-python/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/gufranco/sony-s-smp-python?style=flat-square&label=release)](https://github.com/gufranco/sony-s-smp-python/releases/latest)
+[![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square)](https://github.com/gufranco/sony-s-smp-python/actions/workflows/ci.yml)
+[![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/gufranco/sony-s-smp-python?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/gufranco/sony-s-smp-python)
+[![license](https://img.shields.io/github/license/gufranco/sony-s-smp-python?style=flat-square&label=license)](LICENSE)
 
 **4** 個連接埠就是與主機之間的全部介面，**3** 項附有在主機上實測數值的檢查，**0** 項不符，一個檢查卡帶的 **18** 項判定全部相符，**995** 項測試，**100%** 語句與分支覆蓋率，無任何依賴
 
