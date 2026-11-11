@@ -10,7 +10,7 @@
 [![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/gufranco/sony-s-smp-python?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/gufranco/sony-s-smp-python)
 [![license](https://img.shields.io/github/license/gufranco/sony-s-smp-python?style=flat-square&label=license)](LICENSE)
 
-**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定全部一致，**995** 个测试，**100%** 语句和分支覆盖率，无依赖
+**4** 个端口构成全部主机接口，**3** 个检查程序带有在主机上取得的值，**0** 处不一致，一盘检查卡带的 **18** 个判定全部一致，**996** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 import ssmp
